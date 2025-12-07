@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ระบบขออนุญาตใช้ยานพาหนะ - โรงเรียนสอาดเผดิมวิทยา</title>
+    <link rel="icon" href="https://www.saard.ac.th/wp-content/uploads/2024/11/saardlogov2-1-1024x1024.png" type="image/png">
     
     <!-- Fonts: Sarabun -->
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -504,7 +505,7 @@
                             <!-- Timeline Cards Injected Here -->
                         </div>
                          <div class="flex gap-4 justify-center mt-4 text-xs text-gray-500">
-                            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-gray-500 rounded-full"></div> ว่าง</div>
+                            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-gray-300 rounded-full"></div> ว่าง</div>
                             <div class="flex items-center gap-1"><div class="w-3 h-3 bg-yellow-400 rounded-full"></div> รออนุมัติ</div>
                             <div class="flex items-center gap-1"><div class="w-3 h-3 bg-red-500 rounded-full"></div> จองแล้ว</div>
                         </div>
@@ -650,7 +651,7 @@
                         <div class="relative z-10 flex justify-between items-start">
                             <div>
                                 <p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p>
-                                <h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">คนขับรถ</h3>
+                                <h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">พนักงานขับรถ</h3>
                                 <div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-drivers">0</div>
                             </div>
                             <div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-user-tie text-xl sm:text-2xl"></i></div>
@@ -1795,13 +1796,20 @@
             return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543}`;
         }
 
+        function formatDateFull(iso) {
+            if (!iso) return "-";
+            const d = new Date(iso);
+            const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            return `${d.getDate()} ${months[d.getMonth()]} พ.ศ. ${d.getFullYear() + 543}`;
+        }
+
         // --- PDF Generation ---
         function printSinglePDF(id) {
             const b = dataBookings.find(x => x.id === id);
             const v = dataVehicles.find(x => x.id === b.vehicleId) || {};
             const d = dataDrivers.find(x => x.id === b.driverId) || {};
             
-            document.getElementById('pdf-date').innerText = formatDate(new Date());
+            document.getElementById('pdf-date').innerText = formatDateFull(new Date());
             document.getElementById('pdf-name').innerText = b.requesterName;
             document.getElementById('pdf-location').innerText = b.location;
             document.getElementById('pdf-purpose').innerText = b.purpose;
@@ -1811,8 +1819,8 @@
             const e = new Date(b.endDateTime);
             const timeStr = (date) => date.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}) + " น.";
             
-            document.getElementById('pdf-start').innerText = `${formatDate(b.startDateTime)} เวลา ${timeStr(s)}`;
-            document.getElementById('pdf-end').innerText = `${formatDate(b.endDateTime)} เวลา ${timeStr(e)}`;
+            document.getElementById('pdf-start').innerText = `${formatDateFull(b.startDateTime)} เวลา ${timeStr(s)}`;
+            document.getElementById('pdf-end').innerText = `${formatDateFull(b.endDateTime)} เวลา ${timeStr(e)}`;
             document.getElementById('pdf-sign-name').innerText = b.requesterName;
             document.getElementById('pdf-phone').innerText = b.requesterPhone;
             document.getElementById('pdf-plate').innerText = v.plate || '-';
