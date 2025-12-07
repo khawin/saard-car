@@ -112,7 +112,7 @@
                 display: none;
             }
             .nav-toggle-btn {
-                padding: 0.5rem !important;
+                padding: 0.5rem 0.5rem !important; /* Adjusted padding */
             }
         }
 
@@ -179,6 +179,50 @@
             font-weight: 600;
             text-align: right;
             max-width: 65%;
+            word-break: break-word;
+        }
+
+        /* Timeline View */
+        .timeline-bar {
+            height: 1.5rem;
+            background-color: #E5E7EB;
+            border-radius: 9999px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .timeline-segment {
+            position: absolute;
+            height: 100%;
+            top: 0;
+            transition: all 0.3s ease;
+        }
+        .segment-approved { background-color: #EF4444; opacity: 0.9; } /* Red for busy */
+        .segment-pending { background-color: #FBBF24; opacity: 0.9; } /* Yellow for pending */
+        
+        .time-scale {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.6rem;
+            color: #9CA3AF;
+            margin-top: 2px;
+            padding: 0 2px;
+        }
+
+        /* Active Card State in Manage */
+        .manage-card-active {
+            border-color: #EC4899 !important; /* Pink 500 */
+            background-color: #FDF2F8 !important; /* Pink 50 */
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .manage-card-inactive {
+            border-color: transparent !important;
+            opacity: 0.7;
+        }
+        .manage-card-inactive:hover {
+            opacity: 1;
+            border-color: #FBCFE8 !important; /* Pink 200 */
         }
 
         /* PDF Templates */
@@ -210,7 +254,7 @@
             border-collapse: collapse; 
             font-size: 14px; 
             margin: 0 auto;
-            table-layout: fixed; /* Fix layout to control column widths */
+            table-layout: fixed; 
         }
         .summary-table th, .summary-table td { 
             border: 1px solid black; 
@@ -219,16 +263,14 @@
             vertical-align: middle;
             word-wrap: break-word;
             line-height: 1.3;
-            /* แก้ไขปัญหาตัวอักษรเพี้ยน/ซ้อนกัน */
             letter-spacing: 0.5px; 
         }
-        /* แก้ไข Font เพี้ยนใน PDF Header */
         .summary-table th { 
             background-color: #f0f0f0; 
-            font-weight: 600; /* ลดความหนาลงเล็กน้อยเพื่อลดการเบลอ */
+            font-weight: 600; 
             height: 45px;
             font-size: 14px;
-            letter-spacing: 0.5px; /* เพิ่มระยะห่างตัวอักษร */
+            letter-spacing: 0.5px; 
         }
         .text-left-align { text-align: left !important; padding-left: 8px !important; }
 
@@ -267,13 +309,13 @@
                         <label class="block text-sm font-bold text-gray-700 ml-1">รหัสผ่าน</label>
                         <div class="relative">
                             <input type="password" id="password" class="custom-input pr-10" placeholder="รหัสผ่าน" required>
-                            <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition">
+                            <button type="button" onclick="togglePassword('password', 'eye-icon')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition">
                                 <i class="fas fa-eye" id="eye-icon"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="bg-blue-50/80 border border-blue-100 rounded-xl p-3 text-center">
-                        <p class="text-xs text-blue-600 font-medium"><i class="fas fa-key mr-1"></i> รหัสผ่านครั้งแรก: personuser</p>
+                    <div id="first-login-hint" class="bg-blue-50/80 border border-blue-100 rounded-xl p-3 text-center">
+                        <p class="text-xs text-blue-600 font-medium"><i class="fas fa-key mr-1"></i> รหัสผ่านครั้งแรก: sateacher</p>
                     </div>
                     <button type="submit" class="w-full btn-primary py-3.5 text-lg shadow-lg shadow-blue-500/30">เข้าสู่ระบบ</button>
                 </form>
@@ -290,42 +332,41 @@
 
         <!-- Responsive Navbar -->
         <nav class="glass-effect sticky top-0 z-50 shadow-sm border-b border-white/60">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-20">
                     <!-- Logo & Title -->
-                    <div class="flex items-center gap-3 flex-shrink-0">
+                    <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                         <img src="https://www.saard.ac.th/wp-content/uploads/2024/11/saardlogov2-1-1024x1024.png" alt="Logo" class="h-10 w-10 sm:h-12 sm:w-12 drop-shadow-sm flex-shrink-0">
                         <div class="flex flex-col">
-                            <h1 class="text-base sm:text-xl font-bold leading-tight flex flex-col sm:block">
+                            <h1 class="text-sm sm:text-xl font-bold leading-tight flex flex-col sm:block">
                                 <span class="text-gray-800">ระบบ</span><span class="text-pink-500">ขออนุญาตใช้ยานพาหนะ</span>
                             </h1>
                             <p class="text-[10px] sm:text-xs text-blue-600 font-medium bg-blue-50 inline-block px-2 py-0.5 rounded-full self-start" id="user-role-display">บุคลากรครู</p>
                         </div>
                     </div>
                     
-                    <!-- Menu (Sliding Toggle Style) -->
-                    <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- Menu -->
+                    <div class="flex items-center gap-1 sm:gap-3">
                         
-                        <!-- Teacher Menu Toggle -->
+                        <!-- Teacher Menu -->
                         <div id="nav-menu-teacher" class="bg-gray-100 p-1 rounded-xl relative flex items-center h-10 sm:h-12">
-                            <!-- Indicator -->
-                            <div id="nav-t-indicator" class="absolute h-[calc(100%-0.5rem)] w-[calc(50%-0.25rem)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out top-1 left-1 pointer-events-none"></div>
+                            <div id="nav-t-indicator" class="absolute h-[calc(100%-0.5rem)] w-[calc(33.33%-0.25rem)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out top-1 left-1 pointer-events-none"></div>
                             
-                            <!-- Buttons -->
                             <button id="nav-t-home" onclick="showPage('home')" class="nav-toggle-btn relative z-10 flex-1 px-3 sm:px-5 py-1 sm:py-2 rounded-lg text-sm font-bold transition-colors text-blue-600 flex items-center justify-center gap-2">
                                 <i class="fas fa-home"></i><span class="nav-toggle-text">หน้าหลัก</span>
                             </button>
                             <button id="nav-t-request" onclick="showPage('request')" class="nav-toggle-btn relative z-10 flex-1 px-3 sm:px-5 py-1 sm:py-2 rounded-lg text-sm font-bold transition-colors text-gray-500 flex items-center justify-center gap-2">
                                 <i class="fas fa-edit"></i><span class="nav-toggle-text">ขออนุญาต</span>
                             </button>
+                            <button id="nav-t-profile" onclick="showPage('profile')" class="nav-toggle-btn relative z-10 flex-1 px-3 sm:px-5 py-1 sm:py-2 rounded-lg text-sm font-bold transition-colors text-gray-500 flex items-center justify-center gap-2">
+                                <i class="fas fa-user-circle"></i><span class="nav-toggle-text">ส่วนตัว</span>
+                            </button>
                         </div>
 
-                        <!-- Admin Menu Toggle -->
+                        <!-- Admin Menu -->
                         <div id="nav-menu-admin" class="hidden-section bg-gray-100 p-1 rounded-xl relative flex items-center h-10 sm:h-12">
-                            <!-- Indicator -->
                             <div id="nav-a-indicator" class="absolute h-[calc(100%-0.5rem)] w-[calc(50%-0.25rem)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out top-1 left-1 pointer-events-none"></div>
                             
-                            <!-- Buttons -->
                             <button id="nav-a-home" onclick="showPage('home')" class="nav-toggle-btn relative z-10 flex-1 px-3 sm:px-5 py-1 sm:py-2 rounded-lg text-sm font-bold transition-colors text-blue-600 flex items-center justify-center gap-2">
                                 <i class="fas fa-home"></i><span class="nav-toggle-text">หน้าหลัก</span>
                             </button>
@@ -381,43 +422,79 @@
                     </div>
                 </div>
 
-                <!-- List/Table Section -->
-                <div class="glass-effect rounded-3xl shadow-card overflow-hidden border border-white/50">
-                    <div class="p-5 sm:p-6 border-b border-gray-100 flex flex-wrap justify-between items-center bg-white/30 gap-4">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center gap-3">
-                            <span class="w-2 h-6 sm:h-8 bg-gradient-to-b from-blue-500 to-pink-500 rounded-full"></span> 
-                            <span id="table-title">รายการทั้งหมด</span>
-                        </h3>
+                <!-- List/Timeline Toggle Section -->
+                <div class="glass-effect rounded-3xl shadow-card p-6 sm:p-8 border border-white/50">
+                    <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+                        <div class="flex items-center gap-4">
+                             <h3 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center gap-3">
+                                <span class="w-2 h-6 sm:h-8 bg-gradient-to-b from-blue-500 to-pink-500 rounded-full"></span> 
+                                <span id="table-title">รายการทั้งหมด</span>
+                            </h3>
+                            <!-- Toggle Button -->
+                            <div class="flex bg-gray-200 rounded-lg p-1" id="view-toggle-container">
+                                <button onclick="toggleView('list')" id="btn-view-list" class="px-3 py-1 rounded-md text-sm font-bold bg-white text-blue-600 shadow-sm transition">ตาราง</button>
+                                <button onclick="toggleView('timeline')" id="btn-view-timeline" class="px-3 py-1 rounded-md text-sm font-bold text-gray-500 hover:text-blue-600 transition">Timeline</button>
+                            </div>
+                        </div>
+                       
                         <div class="flex gap-2">
                             <button id="btn-print-summary" onclick="printSummaryPDF()" class="hidden-section px-4 sm:px-5 py-2 sm:py-2.5 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100 text-xs sm:text-sm font-bold transition shadow-sm border border-purple-100 hover:-translate-y-0.5"><i class="fas fa-print mr-2"></i>พิมพ์สรุป</button>
                         </div>
                     </div>
                     
-                    <!-- Desktop Table View (Hidden on mobile) -->
-                    <div class="hidden md:block overflow-x-auto">
-                        <table class="w-full glass-table">
-                            <thead>
-                                <tr>
-                                    <th class="text-left w-32 rounded-tl-xl">วันที่ขอ</th>
-                                    <th class="text-left">ผู้ขออนุญาต</th>
-                                    <th class="text-left">รายการ</th>
-                                    <th class="text-left w-40">วันที่เดินทาง</th>
-                                    <th class="text-center w-28">สถานะ</th>
-                                    <th class="text-center w-24 rounded-tr-xl">จัดการ</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-body"></tbody>
-                        </table>
+                    <!-- 1. Table View -->
+                    <div id="view-mode-list" class="block">
+                        <div class="hidden md:block overflow-x-auto rounded-xl border border-gray-100">
+                            <table class="w-full glass-table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-left w-32 rounded-tl-xl">วันที่ขอ</th>
+                                        <th class="text-left">ผู้ขออนุญาต</th>
+                                        <th class="text-left">รายการ</th>
+                                        <th class="text-left w-40">วันที่เดินทาง</th>
+                                        <th class="text-center w-28">สถานะ</th>
+                                        <th class="text-center w-24 rounded-tr-xl">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body"></tbody>
+                            </table>
+                        </div>
+                        <div id="mobile-card-container" class="md:hidden space-y-4"></div>
+                        <div class="p-4 border-t border-gray-100 text-center text-gray-500 text-xs sm:text-sm">
+                            แสดงข้อมูลล่าสุด 20 รายการ
+                        </div>
                     </div>
 
-                    <!-- Mobile Card View (Visible only on mobile) -->
-                    <div id="mobile-card-container" class="md:hidden p-4 space-y-4 bg-gray-50/50">
-                        <!-- Cards will be injected here -->
+                    <!-- 2. Timeline View -->
+                    <div id="view-mode-timeline" class="hidden-section p-4 sm:p-6 bg-gray-50/50">
+                        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                            <div class="flex flex-col sm:flex-row gap-4 w-full">
+                                <div class="flex flex-col gap-1 w-full sm:w-auto">
+                                    <label class="font-bold text-gray-700 text-sm">เลือกวันที่:</label>
+                                    <input type="date" id="timeline-date" onchange="renderTimeline()" class="custom-input">
+                                </div>
+                                <div class="flex flex-col gap-1 w-full sm:w-auto">
+                                    <label class="font-bold text-gray-700 text-sm">ประเภทรถ:</label>
+                                    <select id="timeline-filter-type" onchange="renderTimeline()" class="custom-input">
+                                        <option value="all">ทั้งหมด</option>
+                                        <option value="รถตู้">รถตู้</option>
+                                        <option value="รถกระบะ">รถกระบะ</option>
+                                        <option value="รถบรรทุก">รถบรรทุก</option>
+                                        <option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="timeline-container" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                            <!-- Timeline Cards Injected Here -->
+                        </div>
+                         <div class="flex gap-4 justify-center mt-4 text-xs text-gray-500">
+                            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-gray-500 rounded-full"></div> ว่าง</div>
+                            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-yellow-400 rounded-full"></div> รออนุมัติ</div>
+                            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-red-500 rounded-full"></div> จองแล้ว</div>
+                        </div>
                     </div>
 
-                    <div class="p-4 border-t border-gray-100 text-center text-gray-500 text-xs sm:text-sm bg-gray-50/50">
-                        แสดงข้อมูลล่าสุด 20 รายการ
-                    </div>
                 </div>
             </div>
 
@@ -432,18 +509,14 @@
                     <form onsubmit="submitRequest(event)" class="space-y-6 sm:space-y-8">
                         <div class="bg-white/40 p-5 sm:p-8 rounded-3xl border border-white/60 shadow-sm">
                             <h3 class="font-bold text-blue-600 mb-4 sm:mb-6 flex items-center gap-3 text-base sm:text-lg border-b border-blue-100 pb-2">
-                                <span class="bg-blue-100 p-2 rounded-lg"><i class="fas fa-user"></i></span> ข้อมูลผู้ขอ
+                                <span class="bg-blue-100 p-2 rounded-lg"><i class="fas fa-user"></i></span> ข้อมูลผู้ขอ (อัตโนมัติ)
                             </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">คำนำหน้า</label>
-                                    <select id="req-prefix" class="custom-input"><option>นาย</option><option>นาง</option><option>นางสาว</option></select>
-                                </div>
-                                <div class="md:col-span-5">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                                <div>
                                     <label class="block text-sm font-bold text-gray-700 mb-2">ชื่อ-นามสกุล</label>
-                                    <input type="text" id="req-name" class="custom-input" placeholder="ไม่ต้องใส่คำนำหน้า" required>
+                                    <input type="text" id="req-name-display" class="custom-input bg-gray-100 text-gray-500 cursor-not-allowed" readonly>
                                 </div>
-                                <div class="md:col-span-5">
+                                <div>
                                     <label class="block text-sm font-bold text-gray-700 mb-2">เบอร์โทรศัพท์</label>
                                     <input type="tel" id="req-phone" class="custom-input" placeholder="0xxxxxxxxx" required>
                                 </div>
@@ -454,6 +527,16 @@
                                 <span class="bg-pink-100 p-2 rounded-lg"><i class="fas fa-route"></i></span> รายละเอียดการเดินทาง
                             </h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">ประเภทรถที่ต้องการ</label>
+                                    <select id="req-type" class="custom-input" required>
+                                        <option value="" disabled selected>-- เลือกประเภทรถ --</option>
+                                        <option value="รถตู้">รถตู้</option>
+                                        <option value="รถกระบะ">รถกระบะ</option>
+                                        <option value="รถบรรทุก">รถบรรทุก</option>
+                                        <option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option>
+                                    </select>
+                                </div>
                                 <div>
                                     <label class="block text-sm font-bold text-gray-700 mb-2">วัน-เวลา เริ่มต้น</label>
                                     <input type="datetime-local" id="req-start" class="custom-input" required>
@@ -488,40 +571,114 @@
                 </div>
             </div>
 
-            <!-- View: Manage Data (Admin) -->
-            <div id="view-manage" class="hidden-section animate-slide-up space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div onclick="renderManageTable('vehicle')" class="glass-effect p-6 sm:p-8 rounded-3xl shadow-card cursor-pointer hover:shadow-xl transition-all border-b-4 border-indigo-500 group">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="text-gray-500 text-sm font-bold mb-1">จัดการข้อมูล</p>
-                                <h3 class="text-xl sm:text-2xl font-bold text-indigo-900 group-hover:text-indigo-600 transition">จำนวนยานพาหนะ</h3>
-                                <div class="text-4xl sm:text-5xl font-bold text-indigo-900 mt-2" id="count-vehicles">0</div>
-                            </div>
-                            <div class="p-4 sm:p-5 bg-indigo-100 text-indigo-600 rounded-2xl group-hover:scale-110 transition"><i class="fas fa-bus text-3xl sm:text-4xl"></i></div>
-                        </div>
+            <!-- View: Teacher Profile -->
+             <div id="view-profile" class="hidden-section animate-slide-up">
+                <div class="glass-effect max-w-lg mx-auto rounded-[2rem] shadow-card p-6 sm:p-10 text-center">
+                    <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 text-4xl">
+                        <i class="fas fa-user"></i>
                     </div>
-                    <div onclick="renderManageTable('driver')" class="glass-effect p-6 sm:p-8 rounded-3xl shadow-card cursor-pointer hover:shadow-xl transition-all border-b-4 border-orange-500 group">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="text-gray-500 text-sm font-bold mb-1">จัดการข้อมูล</p>
-                                <h3 class="text-xl sm:text-2xl font-bold text-orange-900 group-hover:text-orange-600 transition">จำนวนพนักงานขับรถ</h3>
-                                <div class="text-4xl sm:text-5xl font-bold text-orange-900 mt-2" id="count-drivers">0</div>
+                    <h2 class="text-2xl font-bold text-gray-800" id="profile-name">-</h2>
+                    <p class="text-gray-500 mb-6" id="profile-id">-</p>
+                    
+                    <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 text-left space-y-4">
+                        <h3 class="font-bold text-gray-700 mb-2">จัดการรหัสผ่าน</h3>
+                        
+                        <!-- Current Password Display -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">รหัสผ่านปัจจุบัน</label>
+                            <div class="relative">
+                                <input type="password" id="current-password-display" class="custom-input bg-gray-100 text-gray-600" readonly>
+                                <button type="button" onclick="togglePassword('current-password-display', 'eye-curr')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition">
+                                    <i class="fas fa-eye" id="eye-curr"></i>
+                                </button>
                             </div>
-                            <div class="p-4 sm:p-5 bg-orange-100 text-orange-600 rounded-2xl group-hover:scale-110 transition"><i class="fas fa-user-tie text-3xl sm:text-4xl"></i></div>
                         </div>
+
+                        <!-- Change Password Form -->
+                        <form onsubmit="changePassword(event)" class="space-y-4 pt-4 border-t border-gray-200">
+                             <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">กำหนดรหัสผ่านใหม่</label>
+                                <div class="relative">
+                                    <input type="password" id="new-password" class="custom-input" placeholder="รหัสผ่านใหม่" required minlength="4">
+                                    <button type="button" onclick="togglePassword('new-password', 'eye-new')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition">
+                                        <i class="fas fa-eye" id="eye-new"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full btn-primary">บันทึกรหัสผ่านใหม่</button>
+                        </form>
                     </div>
                 </div>
+             </div>
+
+
+            <!-- View: Manage Data (Admin) -->
+            <div id="view-manage" class="hidden-section animate-slide-up space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Vehicle Card -->
+                    <div onclick="renderManageTable('vehicle')" id="card-manage-vehicle" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-active">
+                        <div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p>
+                                <h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">ยานพาหนะ</h3>
+                                <div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-vehicles">0</div>
+                            </div>
+                            <div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-bus text-xl sm:text-2xl"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Driver Card -->
+                    <div onclick="renderManageTable('driver')" id="card-manage-driver" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-inactive">
+                        <div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p>
+                                <h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">คนขับรถ</h3>
+                                <div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-drivers">0</div>
+                            </div>
+                            <div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-user-tie text-xl sm:text-2xl"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Teacher Card -->
+                    <div onclick="renderManageTable('teacher')" id="card-manage-teacher" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-inactive">
+                        <div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p>
+                                <h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">บุคลากรครู</h3>
+                                <div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-teachers">0</div>
+                            </div>
+                            <div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-chalkboard-teacher text-xl sm:text-2xl"></i></div>
+                        </div>
+                    </div>
+
+                </div>
+
                 <div class="glass-effect rounded-3xl shadow-card p-6 sm:p-8 border border-white/50">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl sm:text-2xl font-bold text-gray-800" id="manage-title">ข้อมูลยานพาหนะ</h3>
+                        <h3 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-3">
+                            <span class="w-2 h-6 sm:h-8 bg-gradient-to-b from-blue-500 to-pink-500 rounded-full"></span> 
+                            <span id="manage-title">ข้อมูลยานพาหนะ</span>
+                        </h3>
                         <button onclick="addNewData()" class="btn-primary px-4 sm:px-5 py-2 sm:py-2.5 text-sm shadow-md"><i class="fas fa-plus mr-2"></i>เพิ่มข้อมูล</button>
                     </div>
-                    <div class="overflow-x-auto rounded-xl border border-gray-100">
+                    
+                    <!-- Desktop Table -->
+                    <div class="hidden md:block overflow-x-auto rounded-xl border border-gray-100">
                         <table class="w-full glass-table">
+                            <thead id="manage-table-head"></thead>
                             <tbody id="manage-table-body"></tbody>
                         </table>
                     </div>
+
+                    <!-- Mobile Card View -->
+                    <div id="manage-mobile-container" class="md:hidden space-y-4">
+                        <!-- Cards injected here -->
+                    </div>
+
                 </div>
             </div>
 
@@ -616,7 +773,6 @@
             <p style="text-align: center; font-size: 16px; margin-bottom: 20px;">โรงเรียนสอาดเผดิมวิทยา</p>
             <div class="summary-table-container">
                 <table class="summary-table">
-                    <!-- Adjusted Widths to Prevent Cramping -->
                     <colgroup>
                         <col style="width: 5%;">
                         <col style="width: 10%;">
@@ -636,7 +792,7 @@
                             <th>สถานที่</th>
                             <th>วันเดือนปี เวลา</th>
                             <th>พนักงานขับรถ</th>
-                            <th style="white-space: nowrap;">หมายเหตุ</th> <!-- Fix for "หมายเหตุ" break -->
+                            <th style="white-space: nowrap;">หมายเหตุ</th> 
                         </tr>
                     </thead>
                     <tbody id="pdf-summary-body">
@@ -686,6 +842,7 @@
         let dataBookings = [];
         let dataVehicles = [];
         let dataDrivers = [];
+        let dataUsers = []; // Stores teacher accounts
         let currentFilter = 'all';
 
         // --- Initialization ---
@@ -710,6 +867,14 @@
                 dataDrivers = val ? Object.keys(val).map(k => ({id: k, ...val[k]})) : [];
                 refreshDashboard();
             });
+            db.ref('users').on('value', snap => {
+                const val = snap.val();
+                dataUsers = val ? Object.keys(val).map(k => ({id: k, ...val[k]})) : [];
+                refreshDashboard();
+            });
+
+            // Set default date for timeline
+            document.getElementById('timeline-date').valueAsDate = new Date();
         }
         init();
 
@@ -719,23 +884,26 @@
             const indicator = document.getElementById('role-indicator');
             const btnTeacher = document.getElementById('btn-login-teacher');
             const btnAdmin = document.getElementById('btn-login-admin');
+            const hint = document.getElementById('first-login-hint');
 
             if (role === 'teacher') {
                 indicator.style.transform = 'translateX(0)';
                 btnTeacher.classList.replace('text-gray-400', 'text-blue-600');
                 btnAdmin.classList.replace('text-blue-600', 'text-gray-400');
                 document.getElementById('username').placeholder = "เลขบัตรประชาชน 13 หลัก";
+                hint.classList.remove('hidden-section');
             } else {
                 indicator.style.transform = 'translateX(100%)';
                 btnTeacher.classList.replace('text-blue-600', 'text-gray-400');
                 btnAdmin.classList.replace('text-gray-400', 'text-blue-600');
-                document.getElementById('username').placeholder = "ชื่อผู้ใช้ (Admin)";
+                document.getElementById('username').placeholder = "ชื่อผู้ใช้";
+                hint.classList.add('hidden-section');
             }
         }
 
-        function togglePassword() {
-            const input = document.getElementById('password');
-            const icon = document.getElementById('eye-icon');
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
             if (input.type === 'password') {
                 input.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
@@ -745,39 +913,62 @@
 
         function handleLogin(e) {
             e.preventDefault();
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
 
             let success = false;
-            let name = "";
+            let userObj = null;
 
-            if (currentRole === 'admin' && u === 'adperson' && p === 'personadmin') {
-                success = true; name = "หัวหน้างานยานพาหนะ";
-            } else if (currentRole === 'teacher' && u.length === 13 && p === 'personuser') {
-                success = true; name = "บุคลากรครู";
+            if (currentRole === 'admin' && u === 'admin' && p === 'saadmin') {
+                success = true; 
+                userObj = { role: 'admin', name: "หัวหน้างานยานพาหนะ", id: 'admin' };
+            } else if (currentRole === 'teacher') {
+                // Check against database
+                const foundUser = dataUsers.find(user => user.cardId === u && user.password === p);
+                if (foundUser) {
+                    success = true;
+                    userObj = { 
+                        role: 'teacher', 
+                        name: `${foundUser.prefix}${foundUser.name} ${foundUser.surname}`, 
+                        id: foundUser.cardId, 
+                        uid: foundUser.id,
+                        prefix: foundUser.prefix,
+                        realName: foundUser.name,
+                        surname: foundUser.surname,
+                        password: foundUser.password // Store password for display
+                    };
+                }
             }
 
             if (success) {
-                currentUser = { role: currentRole, name: name, id: u };
+                currentUser = userObj;
                 document.getElementById('login-section').classList.add('hidden-section');
                 document.getElementById('dashboard-section').classList.remove('hidden-section');
-                document.getElementById('user-role-display').innerText = name;
+                document.getElementById('user-role-display').innerText = currentUser.name;
                 
                 document.getElementById('nav-menu-teacher').classList.toggle('hidden-section', currentRole === 'admin');
                 document.getElementById('nav-menu-admin').classList.toggle('hidden-section', currentRole !== 'admin');
                 
+                // Update profile display
+                if(currentRole === 'teacher') {
+                    document.getElementById('profile-name').innerText = currentUser.name;
+                    document.getElementById('profile-id').innerText = `ID: ${currentUser.id}`;
+                    document.getElementById('current-password-display').value = currentUser.password;
+                    document.getElementById('req-name-display').value = currentUser.name; // Auto-fill
+                }
+
                 showPage('home');
                 refreshDashboard();
 
                 Swal.fire({
                     icon: 'success',
                     title: 'ยินดีต้อนรับ',
-                    text: `เข้าสู่ระบบในฐานะ ${name}`,
+                    text: `เข้าสู่ระบบในฐานะ ${currentUser.name}`,
                     showConfirmButton: false,
                     timer: 1500
                 });
             } else {
-                Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบไม่สำเร็จ', confirmButtonText: 'ลองใหม่', confirmButtonColor: '#3B82F6' });
+                Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบไม่สำเร็จ', text: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือบัญชียังไม่ถูกสร้าง', confirmButtonText: 'ลองใหม่', confirmButtonColor: '#3B82F6' });
             }
         }
 
@@ -797,47 +988,76 @@
             });
         }
 
+        function changePassword(e) {
+            e.preventDefault();
+            const newPass = document.getElementById('new-password').value;
+            if (currentUser && currentUser.uid) {
+                db.ref(`users/${currentUser.uid}`).update({ password: newPass });
+                Swal.fire('สำเร็จ', 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว', 'success');
+                document.getElementById('new-password').value = '';
+                document.getElementById('current-password-display').value = newPass; // Update display
+            }
+        }
+
         // --- Navigation ---
         function showPage(page) {
-            ['view-home', 'view-request', 'view-manage'].forEach(id => document.getElementById(id).classList.add('hidden-section'));
+            ['view-home', 'view-request', 'view-manage', 'view-profile'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.add('hidden-section');
+            });
             document.getElementById('view-' + page).classList.remove('hidden-section');
+            
             if (page === 'home') filterBookings('all');
             if (page === 'manage') renderManageTable('vehicle');
+            
             updateNavState(page);
         }
 
         function updateNavState(activePage) {
             const activeColor = 'text-blue-600';
             const inactiveColor = 'text-gray-500';
+            
+            // Helper to reset all btns in a container
+            const resetBtns = (prefix, items) => {
+                items.forEach((item, index) => {
+                     const btn = document.getElementById(`${prefix}-${item}`);
+                     if(item === activePage) btn.classList.replace(inactiveColor, activeColor);
+                     else btn.classList.replace(activeColor, inactiveColor);
+                });
+            };
 
             if (currentRole === 'teacher') {
                 const indicator = document.getElementById('nav-t-indicator');
-                const btnHome = document.getElementById('nav-t-home');
-                const btnReq = document.getElementById('nav-t-request');
-
-                if (activePage === 'home') {
-                    indicator.style.transform = 'translateX(0)';
-                    btnHome.classList.replace(inactiveColor, activeColor);
-                    btnReq.classList.replace(activeColor, inactiveColor);
-                } else {
-                    indicator.style.transform = 'translateX(100%)';
-                    btnHome.classList.replace(activeColor, inactiveColor);
-                    btnReq.classList.replace(inactiveColor, activeColor);
-                }
+                const items = ['home', 'request', 'profile'];
+                const idx = items.indexOf(activePage);
+                if(idx !== -1) indicator.style.transform = `translateX(${idx * 100}%)`;
+                resetBtns('nav-t', items);
             } else { // Admin
                 const indicator = document.getElementById('nav-a-indicator');
-                const btnHome = document.getElementById('nav-a-home');
-                const btnManage = document.getElementById('nav-a-manage');
+                const items = ['home', 'manage'];
+                const idx = items.indexOf(activePage);
+                if(idx !== -1) indicator.style.transform = `translateX(${idx * 100}%)`;
+                resetBtns('nav-a', items);
+            }
+        }
 
-                if (activePage === 'home') {
-                    indicator.style.transform = 'translateX(0)';
-                    btnHome.classList.replace(inactiveColor, activeColor);
-                    btnManage.classList.replace(activeColor, inactiveColor);
-                } else {
-                    indicator.style.transform = 'translateX(100%)';
-                    btnHome.classList.replace(activeColor, inactiveColor);
-                    btnManage.classList.replace(inactiveColor, activeColor);
-                }
+        function toggleView(mode) {
+            const btnList = document.getElementById('btn-view-list');
+            const btnTimeline = document.getElementById('btn-view-timeline');
+            const viewList = document.getElementById('view-mode-list');
+            const viewTimeline = document.getElementById('view-mode-timeline');
+
+            if (mode === 'list') {
+                btnList.className = "px-3 py-1 rounded-md text-sm font-bold bg-white text-blue-600 shadow-sm transition";
+                btnTimeline.className = "px-3 py-1 rounded-md text-sm font-bold text-gray-500 hover:text-blue-600 transition";
+                viewList.classList.remove('hidden-section');
+                viewTimeline.classList.add('hidden-section');
+            } else {
+                btnTimeline.className = "px-3 py-1 rounded-md text-sm font-bold bg-white text-blue-600 shadow-sm transition";
+                btnList.className = "px-3 py-1 rounded-md text-sm font-bold text-gray-500 hover:text-blue-600 transition";
+                viewList.classList.add('hidden-section');
+                viewTimeline.classList.remove('hidden-section');
+                renderTimeline();
             }
         }
 
@@ -846,9 +1066,7 @@
             
             let total = 0, pending = 0, processed = 0;
             dataBookings.forEach(b => {
-                // Corrected Total Count: Exclude rejected
                 if (b.status !== 'rejected') total++;
-
                 const isOwnerOrAdmin = currentUser.role === 'admin' || b.requesterId === currentUser.id;
                 if (isOwnerOrAdmin) {
                     if (b.status === 'pending') pending++;
@@ -859,11 +1077,19 @@
             document.getElementById('count-all').innerText = total;
             document.getElementById('count-pending').innerText = pending;
             document.getElementById('count-processed').innerText = processed;
+            
             document.getElementById('count-vehicles').innerText = dataVehicles.length;
             document.getElementById('count-drivers').innerText = dataDrivers.length;
+            document.getElementById('count-teachers').innerText = dataUsers.length;
             
             if (!document.getElementById('view-home').classList.contains('hidden-section')) {
                 filterBookings(currentFilter);
+                if(!document.getElementById('view-mode-timeline').classList.contains('hidden-section')) {
+                    renderTimeline();
+                }
+            }
+            if (!document.getElementById('view-manage').classList.contains('hidden-section')) {
+                renderManageTable(manageMode);
             }
         }
 
@@ -871,11 +1097,25 @@
             currentFilter = status;
             const tbody = document.getElementById('table-body');
             const mobileContainer = document.getElementById('mobile-card-container');
+            const toggleContainer = document.getElementById('view-toggle-container');
+            
             tbody.innerHTML = '';
             mobileContainer.innerHTML = '';
             
             const titles = { all: 'รายการทั้งหมด', pending: 'รออนุมัติ', processed: 'ตอบรับแล้ว' };
             document.getElementById('table-title').innerText = titles[status];
+
+            // Manage Toggle Visibility
+            if (status === 'all') {
+                toggleContainer.classList.remove('invisible');
+                toggleContainer.classList.remove('hidden-section');
+            } else {
+                toggleContainer.classList.add('hidden-section');
+                // Force switch back to list view if hidden
+                if (!document.getElementById('view-mode-timeline').classList.contains('hidden-section')) {
+                    toggleView('list');
+                }
+            }
 
             const btnPrint = document.getElementById('btn-print-summary');
             if (currentUser.role === 'admin' && status === 'processed') btnPrint.classList.remove('hidden-section');
@@ -968,15 +1208,16 @@
         function checkVehicleAvailability() {
             const start = document.getElementById('req-start').value;
             const end = document.getElementById('req-end').value;
-            
-            if (!start || !end) return Swal.fire({ icon: 'warning', title: 'กรุณาระบุเวลา', text: 'ต้องระบุวันเวลาเริ่มต้นและสิ้นสุด', confirmButtonText: 'ตกลง', confirmButtonColor: '#3B82F6' });
+            const type = document.getElementById('req-type').value;
+
+            if (!start || !end) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาระบุวันเวลาเริ่มต้นและสิ้นสุด', 'warning');
             
             const now = new Date();
             const sDate = new Date(start);
             const eDate = new Date(end);
 
-            if (sDate < now.setHours(0,0,0,0)) return Swal.fire({ icon: 'warning', title: 'วันที่ไม่ถูกต้อง', text: 'ไม่สามารถจองย้อนหลังได้', confirmButtonText: 'ตกลง', confirmButtonColor: '#3B82F6' });
-            if (eDate < sDate) return Swal.fire({ icon: 'warning', title: 'เวลาไม่ถูกต้อง', text: 'เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่มต้น', confirmButtonText: 'ตกลง', confirmButtonColor: '#3B82F6' });
+            if (sDate < now.setHours(0,0,0,0)) return Swal.fire('วันที่ไม่ถูกต้อง', 'ไม่สามารถจองย้อนหลังได้', 'warning');
+            if (eDate < sDate) return Swal.fire('เวลาไม่ถูกต้อง', 'เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่มต้น', 'warning');
 
             const sTime = sDate.getTime();
             const eTime = eDate.getTime();
@@ -992,11 +1233,13 @@
                 }
             });
 
-            const freeCars = dataVehicles.filter(v => !busyCars.has(v.id));
+            // Filter free cars AND match requested type (if selected)
+            let freeCars = dataVehicles.filter(v => !busyCars.has(v.id));
+            if (type) freeCars = freeCars.filter(v => v.type === type);
             
             let html = `<div class="text-left bg-gray-50 p-4 rounded-xl border border-gray-200 max-h-60 overflow-y-auto">`;
             if (freeCars.length === 0) {
-                html += `<p class="text-red-500 font-bold text-center">ไม่มีรถว่างในช่วงเวลานี้</p>`;
+                html += `<p class="text-red-500 font-bold text-center">ไม่มีรถ${type ? 'ประเภท '+type : ''}ว่างในช่วงเวลานี้</p>`;
             } else {
                 freeCars.forEach(c => html += `<div class="flex items-center gap-2 mb-2 text-green-700 border-b border-gray-100 pb-1 last:border-0"><i class="fas fa-check-circle"></i> <span class="font-bold">${c.name}</span> <span class="text-xs bg-white px-2 py-0.5 rounded border ml-auto">${c.type}</span></div>`);
             }
@@ -1014,12 +1257,16 @@
             e.preventDefault();
             const start = document.getElementById('req-start').value;
             const end = document.getElementById('req-end').value;
+            const type = document.getElementById('req-type').value;
+
+            if(!type) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาเลือกประเภทรถ', 'warning');
+
             const sDate = new Date(start);
             const eDate = new Date(end);
             const now = new Date();
 
             if (sDate < now.setHours(0,0,0,0)) return Swal.fire('ผิดพลาด', 'ไม่สามารถจองย้อนหลังได้', 'error');
-            if (eDate < sDate) return Swal.fire('ผิดพลาด', 'วันสิ้นสุดต้องอยู่หลังวันเริ่มต้น', 'error');
+            if (eDate < sDate) return Swal.fire('ผิดพลาด', 'วันสิ้นสุดต้องอยู่หลังเวลาเริ่มต้น', 'error');
 
             Swal.fire({
                 title: 'ยืนยันการส่งคำขอ',
@@ -1034,19 +1281,21 @@
                 if (result.isConfirmed) {
                     const data = {
                         requesterId: currentUser.id,
-                        requesterName: document.getElementById('req-prefix').value + document.getElementById('req-name').value,
+                        requesterName: currentUser.name,
                         requesterPhone: document.getElementById('req-phone').value,
                         startDateTime: start,
                         endDateTime: end,
                         location: document.getElementById('req-location').value,
                         purpose: document.getElementById('req-purpose').value,
                         passengers: document.getElementById('req-passengers').value,
+                        requestedType: type,
                         status: 'pending',
                         created_at: new Date().toISOString()
                     };
                     db.ref('bookings').push(data);
                     Swal.fire({ icon: 'success', title: 'ส่งคำขอเรียบร้อย', showConfirmButton: false, timer: 1500 });
                     e.target.reset();
+                    document.getElementById('req-name-display').value = currentUser.name; // Restore name
                     showPage('home');
                 }
             });
@@ -1070,23 +1319,34 @@
                 }
             });
 
-            const freeCars = dataVehicles.filter(v => !busyCars.has(v.id));
+            // Filter vehicles by type requested
+            const freeCars = dataVehicles.filter(v => !busyCars.has(v.id) && v.type === booking.requestedType);
             const freeDrivers = dataDrivers.filter(d => !busyDrivers.has(d.id));
 
-            const carOptions = freeCars.length ? freeCars.map(c => `<option value="${c.id}">${c.name}</option>`).join('') : '<option value="">ไม่มีรถว่าง</option>';
+            const carOptions = freeCars.length ? freeCars.map(c => `<option value="${c.id}">${c.name} (${c.type})</option>`).join('') : '<option value="">ไม่มีรถประเภทนี้ว่าง</option>';
             const driverOptions = freeDrivers.length ? freeDrivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('') : '<option value="">ไม่มีคนขับว่าง</option>';
 
             Swal.fire({
                 title: 'พิจารณาคำขอ',
+                width: '600px',
                 html: `
-                    <div class="text-left text-sm mb-4 bg-blue-50 p-4 rounded-xl border border-blue-100">
-                        <p class="mb-1"><strong>ผู้ขอ:</strong> ${booking.requesterName}</p>
-                        <p class="mb-1"><strong>ไปที่:</strong> ${booking.location}</p>
-                        <p><strong>วันที่:</strong> ${formatDate(booking.startDateTime)}</p>
+                    <div class="text-left text-sm mb-4 bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <p><strong>ผู้ขอ:</strong> ${booking.requesterName}</p>
+                            <p><strong>เบอร์โทร:</strong> ${booking.requesterPhone}</p>
+                            <p><strong>วันที่เริ่ม:</strong> ${formatDate(booking.startDateTime)}</p>
+                            <p><strong>สิ้นสุด:</strong> ${formatDate(booking.endDateTime)}</p>
+                            <p><strong>จำนวนคน:</strong> ${booking.passengers} คน</p>
+                            <p><strong>ประเภทรถ:</strong> ${booking.requestedType}</p>
+                        </div>
+                        <div class="border-t border-blue-200 pt-2">
+                            <p><strong>ไปที่:</strong> ${booking.location}</p>
+                            <p><strong>เพื่อ:</strong> ${booking.purpose}</p>
+                        </div>
                     </div>
                     <div class="space-y-4 text-left">
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">เลือกยานพาหนะ</label>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">เลือกยานพาหนะ (${booking.requestedType})</label>
                             <select id="swal-car" class="w-full border-2 rounded-lg p-2 border-gray-200 focus:border-blue-500 outline-none">${carOptions}</select>
                         </div>
                         <div>
@@ -1146,39 +1406,117 @@
             });
         }
 
+        // --- Management Logic ---
         function renderManageTable(type) {
             manageMode = type;
-            document.getElementById('manage-title').innerText = type === 'vehicle' ? 'ข้อมูลยานพาหนะ' : 'ข้อมูลพนักงานขับรถ';
+            const titles = { vehicle: 'ข้อมูลยานพาหนะ', driver: 'ข้อมูลพนักงานขับรถ', teacher: 'ข้อมูลบุคลากรครู' };
+            document.getElementById('manage-title').innerText = titles[type];
+            const thead = document.getElementById('manage-table-head');
             const tbody = document.getElementById('manage-table-body');
-            tbody.innerHTML = '';
+            const mobileContainer = document.getElementById('manage-mobile-container');
             
-            const list = type === 'vehicle' ? dataVehicles : dataDrivers;
+            // Update Card Active State
+            ['vehicle', 'driver', 'teacher'].forEach(t => {
+                const card = document.getElementById(`card-manage-${t}`);
+                if (t === type) {
+                    card.classList.add('manage-card-active');
+                    card.classList.remove('manage-card-inactive');
+                } else {
+                    card.classList.remove('manage-card-active');
+                    card.classList.add('manage-card-inactive');
+                }
+            });
+
+            tbody.innerHTML = '';
+            mobileContainer.innerHTML = '';
+            
+            const list = type === 'vehicle' ? dataVehicles : (type === 'driver' ? dataDrivers : dataUsers);
             
             if (type === 'vehicle') {
+                thead.innerHTML = `<tr><th class="text-left rounded-tl-xl">ชื่อรถ</th><th class="text-center">ทะเบียน</th><th class="text-center">ประเภท</th><th class="text-center rounded-tr-xl">จัดการ</th></tr>`;
                 list.forEach(item => {
+                    // Desktop Row
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td class="text-left-align font-bold text-gray-800">${item.name}</td>
                         <td class="text-center"><span class="bg-gray-100 px-2 py-1 rounded text-sm">${item.plate}</span></td>
                         <td class="text-center">${item.type}</td>
-                        <td class="text-center">
-                            <button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-full transition"><i class="fas fa-trash"></i></button>
-                        </td>
+                        <td class="text-center"><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-full"><i class="fas fa-trash"></i></button></td>
                     `;
                     tbody.appendChild(tr);
+
+                    // Mobile Card
+                    const card = document.createElement('div');
+                    card.className = 'mobile-card';
+                    card.innerHTML = `
+                         <div class="flex justify-between items-start mb-2">
+                             <h4 class="font-bold text-gray-800">${item.name}</h4>
+                             <span class="bg-gray-100 px-2 py-0.5 rounded text-xs">${item.plate}</span>
+                         </div>
+                         <div class="text-sm text-gray-500 mb-2">${item.type}</div>
+                         <div class="flex justify-end pt-2 border-t border-gray-100">
+                             <button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button>
+                         </div>
+                    `;
+                    mobileContainer.appendChild(card);
                 });
-            } else {
-                 list.forEach(item => {
+            } else if (type === 'driver') {
+                thead.innerHTML = `<tr><th class="text-left rounded-tl-xl">ชื่อ-สกุล</th><th class="text-center">เบอร์โทร</th><th class="text-center rounded-tr-xl">จัดการ</th></tr>`;
+                list.forEach(item => {
+                    // Desktop Row
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td class="text-left-align font-bold text-gray-800">${item.name}</td>
                         <td class="text-center text-blue-600 font-medium">${item.phone}</td>
-                        <td class="text-center text-gray-400">-</td>
-                        <td class="text-center">
-                            <button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-full transition"><i class="fas fa-trash"></i></button>
+                        <td class="text-center"><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-full"><i class="fas fa-trash"></i></button></td>
+                    `;
+                    tbody.appendChild(tr);
+
+                    // Mobile Card
+                    const card = document.createElement('div');
+                    card.className = 'mobile-card';
+                    card.innerHTML = `
+                         <div class="flex justify-between items-start mb-2">
+                             <h4 class="font-bold text-gray-800">${item.name}</h4>
+                         </div>
+                         <div class="text-sm text-blue-600 mb-2"><i class="fas fa-phone mr-1"></i> ${item.phone}</div>
+                         <div class="flex justify-end pt-2 border-t border-gray-100">
+                             <button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button>
+                         </div>
+                    `;
+                    mobileContainer.appendChild(card);
+                });
+            } else { // Teacher
+                thead.innerHTML = `<tr><th class="text-left rounded-tl-xl">ชื่อ-สกุล</th><th class="text-center">เลขบัตรฯ</th><th class="text-center">รหัสผ่าน</th><th class="text-center rounded-tr-xl">จัดการ</th></tr>`;
+                list.forEach(item => {
+                    // Desktop Row
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="text-left-align font-bold text-gray-800">${item.prefix}${item.name} ${item.surname}</td>
+                        <td class="text-center text-sm text-gray-500">${item.cardId}</td>
+                        <td class="text-center text-sm font-mono text-blue-500">${item.password}</td>
+                        <td class="text-center flex justify-center gap-2">
+                            <button onclick="resetPassword('${item.id}')" class="text-yellow-500 hover:bg-yellow-50 w-8 h-8 rounded-full" title="รีเซ็ตรหัสผ่าน"><i class="fas fa-key"></i></button>
+                            <button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-full"><i class="fas fa-trash"></i></button>
                         </td>
                     `;
                     tbody.appendChild(tr);
+
+                    // Mobile Card
+                    const card = document.createElement('div');
+                    card.className = 'mobile-card';
+                    card.innerHTML = `
+                         <div class="flex justify-between items-start mb-2">
+                             <h4 class="font-bold text-gray-800">${item.prefix}${item.name} ${item.surname}</h4>
+                         </div>
+                         <div class="mobile-card-row"><span class="mobile-card-label">เลขบัตรฯ:</span> <span class="mobile-card-value">${item.cardId}</span></div>
+                         <div class="mobile-card-row"><span class="mobile-card-label">รหัสผ่าน:</span> <span class="mobile-card-value font-mono text-blue-600">${item.password}</span></div>
+                         <div class="flex justify-end gap-3 pt-2 border-t border-gray-100">
+                             <button onclick="resetPassword('${item.id}')" class="text-yellow-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-key"></i> รีเซ็ต</button>
+                             <button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button>
+                         </div>
+                    `;
+                    mobileContainer.appendChild(card);
                 });
             }
         }
@@ -1189,18 +1527,15 @@
                     title: 'เพิ่มยานพาหนะ',
                     html: `
                         <div class="space-y-3 text-left">
-                            <div><label class="block text-sm font-bold text-gray-700">ชื่อรถ</label><input id="new-v-name" class="swal2-input w-full mx-0" placeholder="เช่น รถตู้ 1"></div>
-                            <div><label class="block text-sm font-bold text-gray-700">ป้ายทะเบียน</label><input id="new-v-plate" class="swal2-input w-full mx-0" placeholder="กข 1234"></div>
-                            <div><label class="block text-sm font-bold text-gray-700">ประเภท</label>
-                                <select id="new-v-type" class="swal2-input w-full mx-0">
-                                    <option>รถตู้</option><option>รถกระบะ</option><option>รถบรรทุก</option><option>รถยนต์ส่วนบุคคล</option>
-                                </select>
-                            </div>
+                            <input id="new-v-name" class="swal2-input w-full mx-0" placeholder="ชื่อรถ">
+                            <input id="new-v-plate" class="swal2-input w-full mx-0" placeholder="ทะเบียน">
+                            <select id="new-v-type" class="swal2-input w-full mx-0">
+                                <option>รถตู้</option><option>รถกระบะ</option><option>รถบรรทุก</option><option>รถยนต์ส่วนบุคคล</option>
+                            </select>
                         </div>
                     `,
                     showCancelButton: true,
-                    confirmButtonText: 'บันทึก',
-                    confirmButtonColor: '#3B82F6'
+                    confirmButtonText: 'บันทึก'
                 }).then((res) => {
                     if (res.isConfirmed) {
                         db.ref('vehicles').push({
@@ -1208,31 +1543,114 @@
                             plate: document.getElementById('new-v-plate').value,
                             type: document.getElementById('new-v-type').value
                         });
-                        Swal.fire({ icon: 'success', title: 'เพิ่มข้อมูลสำเร็จ', showConfirmButton: false, timer: 1000 });
+                        Swal.fire('สำเร็จ', '', 'success');
                     }
                 });
-            } else {
+            } else if (manageMode === 'driver') {
                 Swal.fire({
                     title: 'เพิ่มพนักงานขับรถ',
                     html: `
                         <div class="space-y-3 text-left">
-                            <div><label class="block text-sm font-bold text-gray-700">ชื่อ-นามสกุล (ชื่อเล่น)</label><input id="new-d-name" class="swal2-input w-full mx-0"></div>
-                            <div><label class="block text-sm font-bold text-gray-700">เบอร์โทรศัพท์</label><input id="new-d-phone" class="swal2-input w-full mx-0"></div>
+                            <input id="new-d-name" class="swal2-input w-full mx-0" placeholder="ชื่อ-สกุล">
+                            <input id="new-d-phone" class="swal2-input w-full mx-0" placeholder="เบอร์โทร">
                         </div>
                     `,
                     showCancelButton: true,
-                    confirmButtonText: 'บันทึก',
-                    confirmButtonColor: '#3B82F6'
+                    confirmButtonText: 'บันทึก'
                 }).then((res) => {
                     if (res.isConfirmed) {
                         db.ref('drivers').push({
                             name: document.getElementById('new-d-name').value,
                             phone: document.getElementById('new-d-phone').value
                         });
-                        Swal.fire({ icon: 'success', title: 'เพิ่มข้อมูลสำเร็จ', showConfirmButton: false, timer: 1000 });
+                        Swal.fire('สำเร็จ', '', 'success');
+                    }
+                });
+            } else { // Add Teacher
+                 Swal.fire({
+                    title: 'เพิ่มบุคลากรครู',
+                    width: '700px',
+                    html: `
+                        <div class="space-y-4 text-left">
+                            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                                <h4 class="font-bold text-blue-600 mb-2">วิธีที่ 1: เพิ่มทีละคน</h4>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <select id="new-t-prefix" class="border p-2 rounded"><option>นาย</option><option>นาง</option><option>นางสาว</option></select>
+                                    <input id="new-t-name" class="border p-2 rounded" placeholder="ชื่อ">
+                                    <input id="new-t-surname" class="border p-2 rounded" placeholder="นามสกุล">
+                                    <input id="new-t-card" class="border p-2 rounded" placeholder="เลขบัตรฯ 13 หลัก">
+                                </div>
+                                <button onclick="addTeacherSingle()" class="mt-2 bg-blue-500 text-white px-4 py-1 rounded text-sm w-full">บันทึก 1 คน</button>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <h4 class="font-bold text-gray-600 mb-2">วิธีที่ 2: เพิ่มหลายคน (Copy Paste)</h4>
+                                <p class="text-xs text-gray-400 mb-1">รูปแบบ: คำนำหน้า ชื่อ นามสกุล เลขบัตรฯ (เว้นวรรค / บรรทัดใหม่)</p>
+                                <textarea id="new-t-bulk" class="w-full border p-2 rounded h-24 text-sm font-mono" placeholder="นาย สมชาย ใจดี 1234567890123\nนางสาว มีนา รักเรียน 1234567890124"></textarea>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    showConfirmButton: true,
+                    confirmButtonText: 'บันทึก (หลายคน)',
+                    confirmButtonColor: '#3B82F6',
+                    preConfirm: () => {
+                        const bulk = document.getElementById('new-t-bulk').value;
+                        if(bulk) return bulk;
+                        return null;
+                    }
+                }).then((res) => {
+                    if (res.isConfirmed && res.value) {
+                         // Process Bulk
+                         const lines = res.value.split('\n');
+                         let count = 0;
+                         lines.forEach(line => {
+                             const parts = line.trim().split(/\s+/); // Split by spaces
+                             if(parts.length >= 4) {
+                                 db.ref('users').push({
+                                     prefix: parts[0],
+                                     name: parts[1],
+                                     surname: parts[2],
+                                     cardId: parts[3],
+                                     password: 'sateacher',
+                                     role: 'teacher'
+                                 });
+                                 count++;
+                             }
+                         });
+                         Swal.fire('สำเร็จ', `เพิ่มข้อมูล ${count} รายการ`, 'success');
                     }
                 });
             }
+        }
+
+        window.addTeacherSingle = function() {
+            const prefix = document.getElementById('new-t-prefix').value;
+            const name = document.getElementById('new-t-name').value;
+            const surname = document.getElementById('new-t-surname').value;
+            const card = document.getElementById('new-t-card').value;
+
+            if(!name || !surname || !card) return Swal.fire('ผิดพลาด', 'กรอกข้อมูลให้ครบ', 'error');
+            
+            db.ref('users').push({
+                prefix, name, surname, cardId: card, password: 'sateacher', role: 'teacher'
+            });
+            Swal.fire('สำเร็จ', 'เพิ่มข้อมูลเรียบร้อย', 'success');
+        }
+
+        function resetPassword(uid) {
+            Swal.fire({
+                title: 'รีเซ็ตรหัสผ่าน?',
+                text: "รหัสผ่านจะกลับเป็น 'sateacher'",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'รีเซ็ต',
+                confirmButtonColor: '#F59E0B'
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    db.ref(`users/${uid}`).update({ password: 'sateacher' });
+                    Swal.fire('สำเร็จ', 'รีเซ็ตรหัสผ่านแล้ว', 'success');
+                }
+            });
         }
 
         function deleteItem(type, id) {
@@ -1246,12 +1664,95 @@
                 confirmButtonColor: '#EF4444'
             }).then((res) => {
                 if (res.isConfirmed) {
-                    db.ref(`${type}s/${id}`).remove();
+                    const collection = type === 'vehicle' ? 'vehicles' : (type === 'driver' ? 'drivers' : 'users');
+                    db.ref(`${collection}/${id}`).remove();
                     Swal.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ', showConfirmButton: false, timer: 1000 });
                 }
             });
         }
 
+        // --- Timeline Logic ---
+        function renderTimeline() {
+            const dateInput = document.getElementById('timeline-date').valueAsDate;
+            const filterType = document.getElementById('timeline-filter-type').value;
+
+            if(!dateInput) return;
+
+            const container = document.getElementById('timeline-container');
+            container.innerHTML = '';
+
+            const selectedDateStart = new Date(dateInput);
+            selectedDateStart.setHours(0,0,0,0);
+            const selectedDateEnd = new Date(dateInput);
+            selectedDateEnd.setHours(23,59,59,999);
+
+            // Filter vehicles
+            let displayVehicles = dataVehicles;
+            if(filterType !== 'all') {
+                displayVehicles = displayVehicles.filter(v => v.type === filterType);
+            }
+
+            if(displayVehicles.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-400 py-8">ไม่มีรถประเภทนี้</div>`;
+                return;
+            }
+
+            displayVehicles.forEach(v => {
+                // Find bookings for this car on this day
+                const dayBookings = dataBookings.filter(b => {
+                    if (b.vehicleId !== v.id && b.status !== 'pending') return false; 
+                    if (b.status !== 'approved' && b.status !== 'pending') return false;
+                    
+                    const bStart = new Date(b.startDateTime);
+                    const bEnd = new Date(b.endDateTime);
+                    
+                    return (bStart < selectedDateEnd && bEnd > selectedDateStart);
+                });
+
+                let barsHtml = '';
+                dayBookings.forEach(b => {
+                    const bStart = new Date(b.startDateTime);
+                    const bEnd = new Date(b.endDateTime);
+
+                    let startPct = 0;
+                    let widthPct = 0;
+
+                    const dayStart = selectedDateStart.getTime();
+                    const dayEnd = selectedDateEnd.getTime();
+                    const totalDay = 24 * 60 * 60 * 1000;
+
+                    const actualStart = Math.max(bStart.getTime(), dayStart);
+                    const actualEnd = Math.min(bEnd.getTime(), dayEnd);
+                    
+                    startPct = ((actualStart - dayStart) / totalDay) * 100;
+                    widthPct = ((actualEnd - actualStart) / totalDay) * 100;
+
+                    const colorClass = b.status === 'approved' ? 'segment-approved' : 'segment-pending';
+                    
+                    if (b.vehicleId === v.id) {
+                         barsHtml += `<div class="timeline-segment ${colorClass}" style="left: ${startPct}%; width: ${widthPct}%;" title="${b.status}: ${b.requesterName}"></div>`;
+                    }
+                });
+
+                const card = document.createElement('div');
+                card.className = "bg-white p-3 rounded-xl border border-gray-200 shadow-sm";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-sm text-gray-700">${v.name}</span>
+                        <span class="text-xs bg-gray-100 px-2 rounded">${v.plate}</span>
+                    </div>
+                    <div class="timeline-bar">
+                        ${barsHtml}
+                    </div>
+                    <div class="time-scale">
+                        <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- Helpers ---
         function formatDate(iso) {
             if (!iso) return "-";
             const d = new Date(iso);
@@ -1259,6 +1760,7 @@
             return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543}`;
         }
 
+        // --- PDF Generation ---
         function printSinglePDF(id) {
             const b = dataBookings.find(x => x.id === id);
             const v = dataVehicles.find(x => x.id === b.vehicleId) || {};
@@ -1283,10 +1785,11 @@
             document.getElementById('pdf-driver-sign').innerText = d.name || '-';
 
             document.querySelectorAll('.checkbox-box').forEach(el => el.classList.remove('checkbox-checked'));
-            if (v.type === 'รถตู้') document.getElementById('chk-van').classList.add('checkbox-checked');
-            else if (v.type === 'รถกระบะ') document.getElementById('chk-pickup').classList.add('checkbox-checked');
-            else if (v.type === 'รถบรรทุก') document.getElementById('chk-truck').classList.add('checkbox-checked');
-            else if (v.type === 'รถยนต์ส่วนบุคคล') document.getElementById('chk-car').classList.add('checkbox-checked');
+            // Check requested type for top section
+            if (b.requestedType === 'รถตู้') document.getElementById('chk-van').classList.add('checkbox-checked');
+            else if (b.requestedType === 'รถกระบะ') document.getElementById('chk-pickup').classList.add('checkbox-checked');
+            else if (b.requestedType === 'รถบรรทุก') document.getElementById('chk-truck').classList.add('checkbox-checked');
+            else if (b.requestedType === 'รถยนต์ส่วนบุคคล') document.getElementById('chk-car').classList.add('checkbox-checked');
 
             document.getElementById('chk-approve').classList.remove('checkbox-checked');
             document.getElementById('chk-reject').classList.remove('checkbox-checked');
@@ -1339,7 +1842,7 @@
                 margin: [10, 0, 10, 0],
                 filename: `รายงานสรุปการใช้รถ.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 4, logging: false, useCORS: true }, /* Increased scale to 4 */
+                html2canvas: { scale: 4, logging: false, useCORS: true },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
             };
             html2pdf().set(opt).from(element).save();
