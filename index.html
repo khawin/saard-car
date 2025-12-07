@@ -209,7 +209,7 @@
             padding: 0 2px;
         }
 
-        /* Active Card State in Manage */
+        /* Active Card State in Manage (Admin) */
         .manage-card-active {
             border-color: #EC4899 !important; /* Pink 500 */
             background-color: #FDF2F8 !important; /* Pink 50 */
@@ -223,6 +223,21 @@
         .manage-card-inactive:hover {
             opacity: 1;
             border-color: #FBCFE8 !important; /* Pink 200 */
+        }
+
+        /* Active Card State in Dashboard (Home) */
+        .dash-active {
+            opacity: 1 !important;
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        }
+        .dash-inactive {
+            opacity: 0.6 !important;
+            transform: scale(0.98);
+        }
+        .dash-inactive:hover {
+            opacity: 0.9 !important;
+            transform: scale(1);
         }
 
         /* PDF Templates */
@@ -390,7 +405,7 @@
             <div id="view-home" class="space-y-6 sm:space-y-8 animate-slide-up">
                 <!-- Summary Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-                    <div onclick="filterBookings('all')" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card hover:shadow-xl transition-all cursor-pointer border-l-8 border-blue-500 group relative overflow-hidden">
+                    <div id="card-dash-all" onclick="filterBookings('all')" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card hover:shadow-xl transition-all cursor-pointer border-l-8 border-blue-500 group relative overflow-hidden dash-active">
                         <div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-blue-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
                         <div class="relative z-10 flex justify-between items-start">
                             <div>
@@ -400,7 +415,7 @@
                             <div class="p-3 sm:p-4 bg-blue-100 rounded-2xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition shadow-sm"><i class="fas fa-list-ul text-xl sm:text-2xl"></i></div>
                         </div>
                     </div>
-                    <div onclick="filterBookings('pending')" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card hover:shadow-xl transition-all cursor-pointer border-l-8 border-yellow-400 group relative overflow-hidden">
+                    <div id="card-dash-pending" onclick="filterBookings('pending')" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card hover:shadow-xl transition-all cursor-pointer border-l-8 border-yellow-400 group relative overflow-hidden dash-inactive">
                         <div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-yellow-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
                         <div class="relative z-10 flex justify-between items-start">
                             <div>
@@ -410,7 +425,7 @@
                             <div class="p-3 sm:p-4 bg-yellow-100 rounded-2xl text-yellow-600 group-hover:bg-yellow-500 group-hover:text-white transition shadow-sm"><i class="fas fa-clock text-xl sm:text-2xl"></i></div>
                         </div>
                     </div>
-                    <div onclick="filterBookings('processed')" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card hover:shadow-xl transition-all cursor-pointer border-l-8 border-green-500 group relative overflow-hidden">
+                    <div id="card-dash-processed" onclick="filterBookings('processed')" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card hover:shadow-xl transition-all cursor-pointer border-l-8 border-green-500 group relative overflow-hidden dash-inactive">
                         <div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-green-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
                         <div class="relative z-10 flex justify-between items-start">
                             <div>
@@ -489,7 +504,7 @@
                             <!-- Timeline Cards Injected Here -->
                         </div>
                          <div class="flex gap-4 justify-center mt-4 text-xs text-gray-500">
-                            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-gray-500 rounded-full"></div> ว่าง</div>
+                            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-green-500 rounded-full"></div> ว่าง</div>
                             <div class="flex items-center gap-1"><div class="w-3 h-3 bg-yellow-400 rounded-full"></div> รออนุมัติ</div>
                             <div class="flex items-center gap-1"><div class="w-3 h-3 bg-red-500 rounded-full"></div> จองแล้ว</div>
                         </div>
@@ -896,7 +911,7 @@
                 indicator.style.transform = 'translateX(100%)';
                 btnTeacher.classList.replace('text-blue-600', 'text-gray-400');
                 btnAdmin.classList.replace('text-gray-400', 'text-blue-600');
-                document.getElementById('username').placeholder = "ชื่อผู้ใช้";
+                document.getElementById('username').placeholder = "ชื่อผู้ใช้ (Admin)";
                 hint.classList.add('hidden-section');
             }
         }
@@ -1116,6 +1131,26 @@
                     toggleView('list');
                 }
             }
+
+            // Update Active State for Dashboard Cards
+            const statusMap = {
+                'all': 'card-dash-all',
+                'pending': 'card-dash-pending',
+                'processed': 'card-dash-processed'
+            };
+            
+            Object.keys(statusMap).forEach(key => {
+                const el = document.getElementById(statusMap[key]);
+                if(el) {
+                    if(key === status) {
+                        el.classList.add('dash-active');
+                        el.classList.remove('dash-inactive');
+                    } else {
+                        el.classList.remove('dash-active');
+                        el.classList.add('dash-inactive');
+                    }
+                }
+            });
 
             const btnPrint = document.getElementById('btn-print-summary');
             if (currentUser.role === 'admin' && status === 'processed') btnPrint.classList.remove('hidden-section');
