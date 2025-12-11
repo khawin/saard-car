@@ -241,16 +241,41 @@
             transform: scale(1);
         }
 
-        /* PDF Templates */
+        /* Usage Table Styles */
+        .usage-row:nth-child(even) { background-color: #f9fafb; }
+        .usage-history-item { margin-bottom: 4px; padding: 4px; border-radius: 4px; background: white; border: 1px solid #eee; font-size: 0.75rem; }
+
+        /* PDF & Image Processing */
         #pdf-container { position: absolute; top: -9999px; left: -9999px; }
         .pdf-page { background: white; color: black; font-family: 'Sarabun', sans-serif; padding: 20mm; box-sizing: border-box; }
         .pdf-header { text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 10px; }
         .pdf-content { font-size: 14px; line-height: 1.5; }
+        
+        /* Force no wrap and specific font settings for Thai precision */
+        .pdf-line { 
+            white-space: nowrap; 
+            overflow: visible; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: baseline; 
+            margin-bottom: 5px;
+            font-family: 'Sarabun', sans-serif !important; 
+            letter-spacing: 0.5px; /* Adjust for Thai spacing */
+        }
         .pdf-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
         .dotted-line { border-bottom: 1px dotted #000; display: inline-block; min-width: 20px; text-align: center; color: #000; padding: 0 5px; }
         .checkbox-box { display: inline-block; width: 14px; height: 14px; border: 1px solid #000; margin-right: 6px; vertical-align: middle; position: relative; margin-bottom: 3px; }
         .checkbox-checked::after { content: '✓'; position: absolute; top: -5px; left: 1px; font-size: 16px; font-weight: bold; color: black; }
         
+        /* Signature Filter: Aggressive contrast to simulate scanning/removing background */
+        .signature-img { 
+            max-height: 60px; 
+            max-width: 150px;
+            /* Filter: Grayscale -> High Contrast -> Brightness tweak to make paper white */
+            filter: grayscale(100%) contrast(500%) brightness(1.2); 
+            mix-blend-mode: multiply; /* Make white transparent-ish on print */
+        }
+
         /* แก้ไข PDF รายงานสรุป (Landscape) */
         #pdf-summary-template { 
             display: flex; 
@@ -271,6 +296,7 @@
             font-size: 14px; 
             margin: 0 auto;
             table-layout: fixed; 
+            font-family: 'Sarabun', sans-serif !important;
         }
         .summary-table th, .summary-table td { 
             border: 1px solid black; 
@@ -438,7 +464,7 @@
                     </div>
                 </div>
 
-                <!-- List/Timeline Toggle Section -->
+                <!-- List/Timeline/Usage Toggle Section -->
                 <div class="glass-effect rounded-3xl shadow-card p-6 sm:p-8 border border-white/50">
                     <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
                         <div class="flex items-center gap-4">
@@ -450,6 +476,7 @@
                             <div class="flex bg-gray-200 rounded-lg p-1" id="view-toggle-container">
                                 <button onclick="toggleView('list')" id="btn-view-list" class="px-3 py-1 rounded-md text-sm font-bold bg-white text-blue-600 shadow-sm transition">ตาราง</button>
                                 <button onclick="toggleView('timeline')" id="btn-view-timeline" class="px-3 py-1 rounded-md text-sm font-bold text-gray-500 hover:text-blue-600 transition">Timeline</button>
+                                <button onclick="toggleView('usage')" id="btn-view-usage" class="px-3 py-1 rounded-md text-sm font-bold text-gray-500 hover:text-blue-600 transition">สถิติการใช้รถ</button>
                             </div>
                         </div>
                        
@@ -465,10 +492,10 @@
                                 <thead>
                                     <tr>
                                         <th class="text-left w-32 rounded-tl-xl">วันที่ขอ</th>
-                                        <th class="text-left">ผู้ขออนุญาต</th>
+                                        <th class="text-left">ผู้ขอ</th>
                                         <th class="text-left">รายการ</th>
                                         <th class="text-left w-24">ประเภท</th>
-                                        <th class="text-left w-48">วันที่เดินทาง (ไป-กลับ)</th>
+                                        <th class="text-left w-48">เวลาเดินทาง</th>
                                         <th class="text-center w-28">สถานะ</th>
                                         <th class="text-center w-24 rounded-tr-xl">จัดการ</th>
                                     </tr>
@@ -512,6 +539,19 @@
                         </div>
                     </div>
 
+                    <!-- 3. Usage View -->
+                    <div id="view-mode-usage" class="hidden-section p-4 sm:p-6 bg-gray-50/50">
+                        <div class="flex justify-end mb-4">
+                            <select id="usage-period" onchange="renderUsageTable()" class="custom-input w-48">
+                                <option value="7">7 วันย้อนหลัง</option>
+                                <option value="30" selected>30 วันย้อนหลัง</option>
+                            </select>
+                        </div>
+                        <div id="usage-container" class="space-y-2">
+                            <!-- Usage stats injected here -->
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -526,7 +566,7 @@
                     <form onsubmit="submitRequest(event)" class="space-y-6 sm:space-y-8">
                         <div class="bg-white/40 p-5 sm:p-8 rounded-3xl border border-white/60 shadow-sm">
                             <h3 class="font-bold text-blue-600 mb-4 sm:mb-6 flex items-center gap-3 text-base sm:text-lg border-b border-blue-100 pb-2">
-                                <span class="bg-blue-100 p-2 rounded-lg"><i class="fas fa-user"></i></span> ข้อมูลผู้ขอ (อัตโนมัติ)
+                                <span class="bg-blue-100 p-2 rounded-lg"><i class="fas fa-user"></i></span> ข้อมูลผู้ขอ
                             </h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                 <div>
@@ -573,6 +613,21 @@
                                 <div>
                                     <label class="block text-sm font-bold text-gray-700 mb-2">จำนวนผู้โดยสาร (คน)</label>
                                     <input type="number" id="req-passengers" min="1" class="custom-input" placeholder="ไม่รวมคนขับ" required>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">แนบหนังสืออนุญาตไปราชการ (รูปภาพ)</label>
+                                    <input type="file" id="req-doc" class="custom-input" accept="image/*">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">ลายเซ็นผู้ขออนุญาต</label>
+                                    <div class="flex gap-4 mb-2">
+                                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="sig-option" value="saved" checked onchange="toggleSigInput()"> ใช้ลายเซ็นที่บันทึกไว้</label>
+                                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="sig-option" value="upload" onchange="toggleSigInput()"> อัปโหลดใหม่</label>
+                                    </div>
+                                    <div id="sig-preview-container" class="border p-2 rounded bg-gray-50 h-24 flex items-center justify-center">
+                                        <span class="text-gray-400 text-sm">ลายเซ็นจะปรากฏที่นี่</span>
+                                    </div>
+                                    <input type="file" id="req-sig-file" class="custom-input mt-2 hidden-section" accept="image/*" onchange="previewUploadSig()">
                                 </div>
                             </div>
                         </div>
@@ -624,6 +679,15 @@
                             </div>
                             <button type="submit" class="w-full btn-primary">บันทึกรหัสผ่านใหม่</button>
                         </form>
+                    </div>
+
+                    <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 text-left space-y-4 mt-6">
+                        <h3 class="font-bold text-gray-700 mb-2">ลายเซ็น (สำหรับแนบใบขออนุญาต)</h3>
+                        <div id="profile-sig-preview" class="border bg-white h-24 flex items-center justify-center mb-2 overflow-hidden">
+                            <span class="text-gray-400 text-sm">ยังไม่มีลายเซ็น</span>
+                        </div>
+                        <input type="file" id="profile-sig-upload" class="custom-input text-sm" accept="image/*" onchange="uploadProfileSig()">
+                        <p class="text-xs text-red-500 mt-1">*กรุณาถ่ายภาพลายเซ็นที่เขียนด้วยปากกาน้ำเงินบนกระดาษขาว</p>
                     </div>
                 </div>
              </div>
@@ -707,58 +771,79 @@
         <!-- Single Permission PDF -->
         <div id="pdf-template" class="pdf-page" style="width: 210mm; min-height: 297mm;">
             <div class="pdf-header" style="margin-top: 20px;">ใบขออนุญาตใช้รถส่วนกลาง</div>
-            <div class="pdf-row">
-                <span style="margin-left: auto;">ที่ <span class="dotted-line" style="width: 50px;"></span></span>
-            </div>
-            <div class="pdf-row" style="margin-bottom: 20px;">
-                <span style="margin-left: auto;">วันที่ <span class="dotted-line" id="pdf-date" style="width: 150px;"></span></span>
-            </div>
             
             <div class="pdf-content">
-                <div style="margin-bottom: 5px;">เรียน ผู้อำนวยการโรงเรียนสอาดเผดิมวิทยา</div>
-                <div style="margin-left: 60px; margin-bottom: 10px; text-indent: 0;">
-                    ข้าพเจ้า <span id="pdf-name" class="dotted-line" style="width: 250px;"></span> 
-                    ตำแหน่ง <span class="dotted-line" style="width: 150px;">บุคลากรครู</span>
+                <div class="pdf-row">
+                    <span style="margin-left: auto; white-space: nowrap;">ที่ <span class="dotted-line" style="width: 50px;"></span></span>
                 </div>
-                <div style="margin-left: 60px; margin-bottom: 10px;">
-                    ขออนุญาตใช้ 
+                <div class="pdf-row" style="margin-bottom: 20px;">
+                    <span style="margin-left: auto; white-space: nowrap;">วันที่ <span class="dotted-line" id="pdf-date" style="width: 200px;"></span></span>
+                </div>
+
+                <div style="margin-bottom: 5px;">เรียน ผู้อำนวยการโรงเรียนสอาดเผดิมวิทยา</div>
+                
+                <div class="pdf-line" style="margin-left: 60px; text-indent: 0;">
+                    <span style="white-space: nowrap;">ข้าพเจ้า <span id="pdf-name" class="dotted-line" style="width: 250px;"></span></span>
+                    <span style="white-space: nowrap;">ตำแหน่ง <span class="dotted-line" style="width: 150px;">บุคลากรครู</span></span>
+                </div>
+                
+                <div class="pdf-line" style="margin-left: 60px;">
+                    <span style="white-space: nowrap;">ขออนุญาตใช้ 
                     <span class="checkbox-box" id="chk-van"></span> รถตู้ 
                     <span class="checkbox-box" id="chk-pickup"></span> รถกระบะ 
                     <span class="checkbox-box" id="chk-truck"></span> รถบรรทุก 
-                    <span class="checkbox-box" id="chk-car"></span> รถยนต์ส่วนบุคคล
+                    <span class="checkbox-box" id="chk-car"></span> รถยนต์ส่วนบุคคล</span>
                 </div>
-                <div style="margin-left: 60px; margin-bottom: 10px;">
-                    สถานที่ที่ไป <span id="pdf-location" class="dotted-line" style="width: 380px;"></span>
+                
+                <div class="pdf-line" style="margin-left: 60px;">
+                    <span style="white-space: nowrap;">สถานที่ที่ไป <span id="pdf-location" class="dotted-line" style="width: 380px;"></span></span>
                 </div>
-                <div style="margin-left: 60px; margin-bottom: 10px;">
-                    เพื่อ <span id="pdf-purpose" class="dotted-line" style="width: 440px;"></span>
+                
+                <div class="pdf-line" style="margin-left: 60px;">
+                    <span style="white-space: nowrap;">เพื่อ <span id="pdf-purpose" class="dotted-line" style="width: 440px;"></span></span>
                 </div>
-                <div style="margin-left: 60px; margin-bottom: 10px;">
-                    มีผู้โดยสารจำนวน <span id="pdf-pax" class="dotted-line" style="width: 50px;"></span> คน 
-                    ในวันที่ <span id="pdf-start" class="dotted-line" style="width: 200px;"></span>
+                
+                <div class="pdf-line" style="margin-left: 60px;">
+                    <span style="white-space: nowrap;">มีผู้โดยสารจำนวน <span id="pdf-pax" class="dotted-line" style="width: 50px;"></span> คน </span>
+                    <span style="white-space: nowrap;">ในวันที่ <span id="pdf-start" class="dotted-line" style="width: 200px;"></span></span>
                 </div>
-                <div style="margin-left: 60px; margin-bottom: 10px;">
-                    ถึงวันที่ <span id="pdf-end" class="dotted-line" style="width: 200px;"></span>
-                    และได้แนบหนังสืออนุญาตไปราชการมาด้วยแล้ว
+                
+                <div class="pdf-line" style="margin-left: 60px;">
+                    <span style="white-space: nowrap;">ถึงวันที่ <span id="pdf-end" class="dotted-line" style="width: 200px;"></span></span>
+                    <span style="white-space: nowrap;">และได้แนบหนังสืออนุญาตไปราชการมาด้วยแล้ว</span>
                 </div>
+                
+                <!-- Signature Section -->
                 <div style="text-align: right; margin-top: 30px; margin-right: 40px; line-height: 1.6;">
-                    ลงชื่อ <span class="dotted-line" style="width: 180px;"></span> ผู้ขออนุญาต<br>
-                    (<span id="pdf-sign-name"></span>)<br>
-                    ตำแหน่ง บุคลากรครู<br>
-                    เบอร์โทรศัพท์ <span id="pdf-phone"></span>
+                    <div style="display: inline-block; text-align: center;">
+                        <div style="white-space: nowrap;">
+                            ลงชื่อ 
+                            <div style="position: relative; display: inline-block; width: 180px;">
+                                <span class="dotted-line" style="width: 100%; display: block;"></span>
+                                <img id="pdf-sig-img" src="" class="signature-img" style="position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); max-height: 60px; display: none;">
+                            </div>
+                            ผู้ขออนุญาต
+                        </div>
+                        <div>(<span id="pdf-sign-name"></span>)</div>
+                        <div>ตำแหน่ง บุคลากรครู</div>
+                        <div style="white-space: nowrap;">เบอร์โทรศัพท์ <span id="pdf-phone"></span></div>
+                    </div>
                 </div>
                 
-                <hr style="border: 1px solid black; margin: 20px 0;">
+                <!-- No HR here -->
                 
-                <div style="font-weight: bold; margin-bottom: 15px;">ผลการพิจารณา</div>
-                <div style="margin-left: 20px; margin-bottom: 10px;">
-                    <span class="checkbox-box" id="chk-approve"></span> เห็นควร อนุญาตและรับผิดชอบการใช้รถหมายเลขทะเบียน <span id="pdf-plate" class="dotted-line" style="width: 120px;"></span>
+                <div style="font-weight: bold; margin-bottom: 15px; margin-top: 20px;">ผลการพิจารณา</div>
+                
+                <div class="pdf-line" style="margin-left: 20px;">
+                    <span style="white-space: nowrap;"><span class="checkbox-box" id="chk-approve"></span> เห็นควร อนุญาตและรับผิดชอบการใช้รถหมายเลขทะเบียน <span id="pdf-plate" class="dotted-line" style="width: 120px;"></span></span>
                 </div>
-                <div style="margin-left: 45px; margin-bottom: 10px;">
-                    โดยมีนาย <span id="pdf-driver" class="dotted-line" style="width: 220px;"></span> เป็นพนักงานขับรถ
+                
+                <div class="pdf-line" style="margin-left: 45px; display: none;" id="pdf-driver-row">
+                    <span style="white-space: nowrap;">โดยมีนาย <span id="pdf-driver" class="dotted-line" style="width: 220px;"></span> เป็นพนักงานขับรถ</span>
                 </div>
-                <div style="margin-left: 20px; margin-bottom: 10px;">
-                    <span class="checkbox-box" id="chk-reject"></span> ไม่อนุญาตเพราะ <span id="pdf-reject-reason" class="dotted-line" style="width: 320px;"></span>
+                
+                <div class="pdf-line" style="margin-left: 20px;">
+                    <span style="white-space: nowrap;"><span class="checkbox-box" id="chk-reject"></span> ไม่อนุญาตเพราะ <span id="pdf-reject-reason" class="dotted-line" style="width: 320px;"></span></span>
                 </div>
 
                 <div style="display: flex; justify-content: space-between; margin-top: 40px;">
@@ -776,7 +861,7 @@
                         วันที่ <span class="dotted-line" style="width: 100px;"></span>
                     </div>
                 </div>
-                 <div style="margin-top: 40px; margin-left: 20px; line-height: 1.6;">
+                 <div style="margin-top: 40px; margin-left: 20px; line-height: 1.6; display: none;" id="pdf-driver-sign-row">
                     รับทราบ<br><br>
                     ลงชื่อ <span class="dotted-line" style="width: 150px;"></span> พนักงานขับรถ<br>
                     (<span id="pdf-driver-sign"></span>)
@@ -952,7 +1037,8 @@
                         prefix: foundUser.prefix,
                         realName: foundUser.name,
                         surname: foundUser.surname,
-                        password: foundUser.password // Store password for display
+                        password: foundUser.password,
+                        signature: foundUser.signature // Base64
                     };
                 }
             }
@@ -973,11 +1059,19 @@
                     document.getElementById('current-password-display').value = currentUser.password;
                     document.getElementById('req-name-display').value = currentUser.name; // Auto-fill
                     
-                    // Update Dashboard Labels for Teacher
+                    // Display current signature in profile
+                    if(currentUser.signature) {
+                        document.getElementById('profile-sig-preview').innerHTML = `<img src="${currentUser.signature}" class="h-20 object-contain">`;
+                    } else {
+                        document.getElementById('profile-sig-preview').innerHTML = `<span class="text-gray-400 text-sm">ยังไม่มีลายเซ็น</span>`;
+                    }
+
+                    // Pre-fill signature choice in request form
+                    toggleSigInput();
+
                     document.getElementById('label-pending').innerText = "รายการรออนุมัติของคุณ";
                     document.getElementById('label-processed').innerText = "รายการตอบรับแล้วของคุณ";
                 } else {
-                    // Update Dashboard Labels for Admin
                     document.getElementById('label-pending').innerText = "รออนุมัติ";
                     document.getElementById('label-processed').innerText = "ตอบรับแล้ว";
                 }
@@ -1021,6 +1115,50 @@
                 Swal.fire('สำเร็จ', 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว', 'success');
                 document.getElementById('new-password').value = '';
                 document.getElementById('current-password-display').value = newPass; // Update display
+            }
+        }
+
+        function uploadProfileSig() {
+            const file = document.getElementById('profile-sig-upload').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64 = e.target.result;
+                    // Ideally we should resize/compress here, but for simplicity we save direct.
+                    db.ref(`users/${currentUser.uid}`).update({ signature: base64 });
+                    currentUser.signature = base64; // Update local state
+                    document.getElementById('profile-sig-preview').innerHTML = `<img src="${base64}" class="h-20 object-contain">`;
+                    Swal.fire('สำเร็จ', 'บันทึกลายเซ็นเรียบร้อย', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function toggleSigInput() {
+            const option = document.querySelector('input[name="sig-option"]:checked').value;
+            const container = document.getElementById('sig-preview-container');
+            const fileInput = document.getElementById('req-sig-file');
+
+            if (option === 'saved') {
+                fileInput.classList.add('hidden-section');
+                if (currentUser && currentUser.signature) {
+                    container.innerHTML = `<img src="${currentUser.signature}" class="h-20 object-contain">`;
+                } else {
+                    container.innerHTML = `<span class="text-red-400 text-sm">ยังไม่มีลายเซ็นที่บันทึกไว้ในหน้าส่วนตัว</span>`;
+                }
+            } else {
+                fileInput.classList.remove('hidden-section');
+                container.innerHTML = `<span class="text-gray-400 text-sm">อัปโหลดภาพใหม่ด้านล่าง</span>`;
+            }
+        }
+
+        function previewUploadSig() {
+            const file = document.getElementById('req-sig-file').files[0];
+            const container = document.getElementById('sig-preview-container');
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => container.innerHTML = `<img src="${e.target.result}" class="h-20 object-contain">`;
+                reader.readAsDataURL(file);
             }
         }
 
@@ -1069,20 +1207,34 @@
         function toggleView(mode) {
             const btnList = document.getElementById('btn-view-list');
             const btnTimeline = document.getElementById('btn-view-timeline');
+            const btnUsage = document.getElementById('btn-view-usage');
             const viewList = document.getElementById('view-mode-list');
             const viewTimeline = document.getElementById('view-mode-timeline');
+            const viewUsage = document.getElementById('view-mode-usage');
+
+            // Reset classes
+            const inactiveClass = "px-3 py-1 rounded-md text-sm font-bold text-gray-500 hover:text-blue-600 transition";
+            const activeClass = "px-3 py-1 rounded-md text-sm font-bold bg-white text-blue-600 shadow-sm transition";
+            
+            btnList.className = inactiveClass;
+            btnTimeline.className = inactiveClass;
+            btnUsage.className = inactiveClass;
+            
+            viewList.classList.add('hidden-section');
+            viewTimeline.classList.add('hidden-section');
+            viewUsage.classList.add('hidden-section');
 
             if (mode === 'list') {
-                btnList.className = "px-3 py-1 rounded-md text-sm font-bold bg-white text-blue-600 shadow-sm transition";
-                btnTimeline.className = "px-3 py-1 rounded-md text-sm font-bold text-gray-500 hover:text-blue-600 transition";
+                btnList.className = activeClass;
                 viewList.classList.remove('hidden-section');
-                viewTimeline.classList.add('hidden-section');
-            } else {
-                btnTimeline.className = "px-3 py-1 rounded-md text-sm font-bold bg-white text-blue-600 shadow-sm transition";
-                btnList.className = "px-3 py-1 rounded-md text-sm font-bold text-gray-500 hover:text-blue-600 transition";
-                viewList.classList.add('hidden-section');
+            } else if (mode === 'timeline') {
+                btnTimeline.className = activeClass;
                 viewTimeline.classList.remove('hidden-section');
                 renderTimeline();
+            } else {
+                btnUsage.className = activeClass;
+                viewUsage.classList.remove('hidden-section');
+                renderUsageTable();
             }
         }
 
@@ -1109,9 +1261,8 @@
             
             if (!document.getElementById('view-home').classList.contains('hidden-section')) {
                 filterBookings(currentFilter);
-                if(!document.getElementById('view-mode-timeline').classList.contains('hidden-section')) {
-                    renderTimeline();
-                }
+                if(!document.getElementById('view-mode-timeline').classList.contains('hidden-section')) renderTimeline();
+                if(!document.getElementById('view-mode-usage').classList.contains('hidden-section')) renderUsageTable();
             }
             if (!document.getElementById('view-manage').classList.contains('hidden-section')) {
                 renderManageTable(manageMode);
@@ -1136,29 +1287,18 @@
                 toggleContainer.classList.remove('hidden-section');
             } else {
                 toggleContainer.classList.add('hidden-section');
-                // Force switch back to list view if hidden
-                if (!document.getElementById('view-mode-timeline').classList.contains('hidden-section')) {
+                if (!document.getElementById('view-mode-list').classList.contains('hidden-section') === false) {
                     toggleView('list');
                 }
             }
 
             // Update Active State for Dashboard Cards
-            const statusMap = {
-                'all': 'card-dash-all',
-                'pending': 'card-dash-pending',
-                'processed': 'card-dash-processed'
-            };
-            
+            const statusMap = { 'all': 'card-dash-all', 'pending': 'card-dash-pending', 'processed': 'card-dash-processed' };
             Object.keys(statusMap).forEach(key => {
                 const el = document.getElementById(statusMap[key]);
                 if(el) {
-                    if(key === status) {
-                        el.classList.add('dash-active');
-                        el.classList.remove('dash-inactive');
-                    } else {
-                        el.classList.remove('dash-active');
-                        el.classList.add('dash-inactive');
-                    }
+                    if(key === status) { el.classList.add('dash-active'); el.classList.remove('dash-inactive'); } 
+                    else { el.classList.remove('dash-active'); el.classList.add('dash-inactive'); }
                 }
             });
 
@@ -1174,9 +1314,7 @@
                 return true; 
             });
 
-            if (status === 'all') {
-                filtered = filtered.filter(b => b.status !== 'rejected');
-            }
+            if (status === 'all') filtered = filtered.filter(b => b.status !== 'rejected');
 
             const displayData = filtered.slice(0, 20);
 
@@ -1202,11 +1340,15 @@
                     }
                 } else if (b.status === 'approved') {
                     statusBadge = `<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold border border-green-200">อนุมัติ</span>`;
-                    actionBtn = `<button onclick="printSinglePDF('${b.id}')" class="text-red-500 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg border border-red-200 transition text-sm font-bold"><i class="fas fa-file-pdf mr-1"></i> PDF</button>`;
+                    actionBtn = `<div class="flex gap-1 justify-center"><button onclick="printSinglePDF('${b.id}')" class="text-red-500 bg-red-50 hover:bg-red-100 px-2 py-1 rounded border border-red-200 text-xs font-bold">PDF</button>`;
+                    if(currentUser.role === 'admin') actionBtn += `<button onclick="openApproval('${b.id}')" class="text-gray-500 hover:bg-gray-100 px-2 py-1 rounded border text-xs">แก้ไข</button>`;
+                    actionBtn += `</div>`;
                     mobileActionBtn = actionBtn;
                 } else {
                     statusBadge = `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold border border-red-200">ไม่อนุมัติ</span>`;
-                    actionBtn = `<div class="flex gap-2 justify-center"><button onclick="printSinglePDF('${b.id}')" class="text-red-500 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg border border-red-200 transition text-sm font-bold"><i class="fas fa-file-pdf"></i></button> <button onclick="Swal.fire({title:'เหตุผล', text:'${b.rejectReason}', confirmButtonText:'ปิด', confirmButtonColor:'#3B82F6'})" class="text-gray-500 hover:bg-gray-100 px-3 py-1.5 rounded-lg border transition text-sm">เหตุผล</button></div>`;
+                    actionBtn = `<div class="flex gap-1 justify-center"><button onclick="printSinglePDF('${b.id}')" class="text-red-500 bg-red-50 hover:bg-red-100 px-2 py-1 rounded border border-red-200 text-xs font-bold">PDF</button> <button onclick="Swal.fire({title:'เหตุผล', text:'${b.rejectReason}', confirmButtonText:'ปิด', confirmButtonColor:'#3B82F6'})" class="text-gray-500 hover:bg-gray-100 px-2 py-1 rounded border text-xs">เหตุผล</button>`;
+                    if(currentUser.role === 'admin') actionBtn += `<button onclick="openApproval('${b.id}')" class="text-gray-500 hover:bg-gray-100 px-2 py-1 rounded border text-xs">แก้ไข</button>`;
+                    actionBtn += `</div>`;
                     mobileActionBtn = actionBtn;
                 }
 
@@ -1244,11 +1386,11 @@
                         <span class="mobile-card-value">${b.location}</span>
                     </div>
                     <div class="mobile-card-row">
-                        <span class="mobile-card-label">ประเภทรถ:</span>
+                        <span class="mobile-card-label">ประเภท:</span>
                         <span class="mobile-card-value">${b.requestedType}</span>
                     </div>
                     <div class="mobile-card-row">
-                        <span class="mobile-card-label">เดินทาง:</span>
+                        <span class="mobile-card-label">เวลาเดินทาง:</span>
                         <span class="mobile-card-value text-xs text-right">${startStr}<br>ถึง ${endStr}</span>
                     </div>
                     <div class="mt-3 pt-3 border-t border-gray-100 flex justify-end">
@@ -1323,92 +1465,119 @@
             if (sDate < now.setHours(0,0,0,0)) return Swal.fire('ผิดพลาด', 'ไม่สามารถจองย้อนหลังได้', 'error');
             if (eDate < sDate) return Swal.fire('ผิดพลาด', 'วันสิ้นสุดต้องอยู่หลังเวลาเริ่มต้น', 'error');
 
-            // --- Pre-check Availability Logic ---
+            const sigOption = document.querySelector('input[name="sig-option"]:checked').value;
+            let sigData = null;
+
+            if (sigOption === 'saved') {
+                if(!currentUser.signature) return Swal.fire('ไม่พบลายเซ็น', 'กรุณาบันทึกลายเซ็นในหน้าส่วนตัว หรือเลือกอัปโหลดใหม่', 'warning');
+                sigData = currentUser.signature;
+            } else {
+                const file = document.getElementById('req-sig-file').files[0];
+                if(!file) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาอัปโหลดลายเซ็น', 'warning');
+                // Read file
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    sigData = e.target.result;
+                    processSubmission(start, end, type, sigData);
+                };
+                return; // Wait for reader
+            }
+            processSubmission(start, end, type, sigData);
+        }
+
+        function processSubmission(start, end, type, sigData) {
+            const sDate = new Date(start);
+            const eDate = new Date(end);
             const sTime = sDate.getTime();
             const eTime = eDate.getTime();
             
-            // 1. Get all vehicles of this type
+            // Check Availability
             const totalVehiclesOfType = dataVehicles.filter(v => v.type === type);
-            
-            if (totalVehiclesOfType.length === 0) {
-                 return Swal.fire('ไม่พบข้อมูล', `ไม่มีข้อมูลรถประเภท ${type} ในระบบ`, 'error');
-            }
+            if (totalVehiclesOfType.length === 0) return Swal.fire('ไม่พบข้อมูล', `ไม่มีข้อมูลรถประเภท ${type}`, 'error');
 
-            // 2. Count Approved Bookings overlapping this time for this type
             const busyVehicleIds = new Set();
             dataBookings.forEach(b => {
                 if (b.status === 'approved') {
                     const bs = new Date(b.startDateTime).getTime();
                     const be = new Date(b.endDateTime).getTime();
-                    // Check overlap: (StartA < EndB) and (EndA > StartB)
-                    if (sTime < be && eTime > bs) {
-                        busyVehicleIds.add(b.vehicleId);
-                    }
+                    if (sTime < be && eTime > bs) busyVehicleIds.add(b.vehicleId);
                 }
             });
 
-            // 3. Count how many of OUR type are busy
             let busyCountForType = 0;
-            totalVehiclesOfType.forEach(v => {
-                if (busyVehicleIds.has(v.id)) {
-                    busyCountForType++;
-                }
-            });
+            totalVehiclesOfType.forEach(v => { if (busyVehicleIds.has(v.id)) busyCountForType++; });
 
-            // 4. If all busy, block
             if (busyCountForType >= totalVehiclesOfType.length) {
                 return Swal.fire({
                     icon: 'error',
                     title: 'รถเต็ม',
-                    text: `รถประเภท ${type} ไม่ว่างในช่วงเวลาที่เลือก (${busyCountForType}/${totalVehiclesOfType.length} คัน)`,
+                    text: `รถประเภท ${type} ไม่ว่างในช่วงเวลาที่เลือก`,
                     confirmButtonText: 'ตกลง',
                     confirmButtonColor: '#EF4444'
                 });
             }
-            // ------------------------------------
 
-            Swal.fire({
-                title: 'ยืนยันการส่งคำขอ',
-                text: 'ตรวจสอบข้อมูลถูกต้องครบถ้วนแล้ว',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'ยืนยัน',
-                cancelButtonText: 'แก้ไข',
-                confirmButtonColor: '#3B82F6',
-                cancelButtonColor: '#9CA3AF'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const data = {
-                        requesterId: currentUser.id,
-                        requesterName: currentUser.name,
-                        requesterPhone: document.getElementById('req-phone').value,
-                        startDateTime: start,
-                        endDateTime: end,
-                        location: document.getElementById('req-location').value,
-                        purpose: document.getElementById('req-purpose').value,
-                        passengers: document.getElementById('req-passengers').value,
-                        requestedType: type,
-                        status: 'pending',
-                        created_at: new Date().toISOString()
-                    };
-                    db.ref('bookings').push(data);
-                    Swal.fire({ icon: 'success', title: 'ส่งคำขอเรียบร้อย', showConfirmButton: false, timer: 1500 });
-                    e.target.reset();
-                    document.getElementById('req-name-display').value = currentUser.name; // Restore name
-                    showPage('home');
-                }
-            });
+            // Handle Permission Doc Attachment
+            const docFile = document.getElementById('req-doc').files[0];
+            let docData = null;
+            
+            const saveData = (docBase64) => {
+                Swal.fire({
+                    title: 'ยืนยันการส่งคำขอ',
+                    text: 'ตรวจสอบข้อมูลถูกต้องครบถ้วนแล้ว',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'ยืนยัน',
+                    cancelButtonText: 'แก้ไข',
+                    confirmButtonColor: '#3B82F6'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const data = {
+                            requesterId: currentUser.id,
+                            requesterName: currentUser.name,
+                            requesterPhone: document.getElementById('req-phone').value,
+                            startDateTime: start,
+                            endDateTime: end,
+                            location: document.getElementById('req-location').value,
+                            purpose: document.getElementById('req-purpose').value,
+                            passengers: document.getElementById('req-passengers').value,
+                            requestedType: type,
+                            status: 'pending',
+                            created_at: new Date().toISOString(),
+                            signature: sigData,
+                            attachment: docBase64
+                        };
+                        db.ref('bookings').push(data);
+                        Swal.fire({ icon: 'success', title: 'ส่งคำขอเรียบร้อย', showConfirmButton: false, timer: 1500 });
+                        document.querySelector('form').reset();
+                        document.getElementById('req-name-display').value = currentUser.name; 
+                        showPage('home');
+                    }
+                });
+            };
+
+            if (docFile) {
+                const reader = new FileReader();
+                reader.onload = (e) => saveData(e.target.result);
+                reader.readAsDataURL(docFile);
+            } else {
+                saveData(null);
+            }
         }
 
         function openApproval(id) {
             const booking = dataBookings.find(b => b.id === id);
+            
+            // Build Approval UI logic
+            // ... (Same availability logic as before to list free cars)
             const sTime = new Date(booking.startDateTime).getTime();
             const eTime = new Date(booking.endDateTime).getTime();
             const busyCars = new Set();
             const busyDrivers = new Set();
             
             dataBookings.forEach(b => {
-                if (b.status === 'approved') {
+                if (b.status === 'approved' && b.id !== id) { // Exclude self if editing
                     const bs = new Date(b.startDateTime).getTime();
                     const be = new Date(b.endDateTime).getTime();
                     if (sTime < be && eTime > bs) {
@@ -1418,12 +1587,23 @@
                 }
             });
 
-            // Filter vehicles by type requested
             const freeCars = dataVehicles.filter(v => !busyCars.has(v.id) && v.type === booking.requestedType);
             const freeDrivers = dataDrivers.filter(d => !busyDrivers.has(d.id));
 
-            const carOptions = freeCars.length ? freeCars.map(c => `<option value="${c.id}">${c.name} (${c.type})</option>`).join('') : '<option value="">ไม่มีรถประเภทนี้ว่าง</option>';
-            const driverOptions = freeDrivers.length ? freeDrivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('') : '<option value="">ไม่มีคนขับว่าง</option>';
+            let carOptions = freeCars.length ? freeCars.map(c => `<option value="${c.id}" ${c.id === booking.vehicleId ? 'selected' : ''}>${c.name} (${c.type})</option>`).join('') : '<option value="">ไม่มีรถว่าง</option>';
+            let driverOptions = freeDrivers.length ? freeDrivers.map(d => `<option value="${d.id}" ${d.id === booking.driverId ? 'selected' : ''}>${d.name}</option>`).join('') : '<option value="">ไม่มีคนขับว่าง</option>';
+            
+            // If editing and current assigned is technically "busy" by other overlapping logic (edge case), force add it back to options
+            if (booking.vehicleId && !freeCars.find(c => c.id === booking.vehicleId)) {
+                const v = dataVehicles.find(c => c.id === booking.vehicleId);
+                if(v) carOptions = `<option value="${v.id}" selected>${v.name} (ปัจจุบัน)</option>` + carOptions;
+            }
+            if (booking.driverId && !freeDrivers.find(d => d.id === booking.driverId)) {
+                const d = dataDrivers.find(x => x.id === booking.driverId);
+                if(d) driverOptions = `<option value="${d.id}" selected>${d.name} (ปัจจุบัน)</option>` + driverOptions;
+            }
+
+            const docBtn = booking.attachment ? `<a href="#" onclick="showImage('${booking.attachment}')" class="text-blue-600 underline text-sm ml-2">ดูหนังสือขออนุญาต</a>` : '<span class="text-gray-400 text-sm ml-2">ไม่แนบไฟล์</span>';
 
             Swal.fire({
                 title: 'พิจารณาคำขอ',
@@ -1441,6 +1621,7 @@
                         <div class="border-t border-blue-200 pt-2">
                             <p><strong>ไปที่:</strong> ${booking.location}</p>
                             <p><strong>เพื่อ:</strong> ${booking.purpose}</p>
+                            <p class="mt-1"><strong>เอกสารแนบ:</strong> ${docBtn}</p>
                         </div>
                     </div>
                     <div class="space-y-4 text-left">
@@ -1456,7 +1637,7 @@
                 `,
                 showCancelButton: true,
                 showDenyButton: true,
-                confirmButtonText: 'อนุมัติ',
+                confirmButtonText: 'อนุมัติ / บันทึก',
                 denyButtonText: 'ไม่อนุมัติ',
                 cancelButtonText: 'ยกเลิก',
                 confirmButtonColor: '#10B981',
@@ -1479,29 +1660,42 @@
                         vehicleId: vId,
                         driverId: dId,
                         approver: currentUser.name,
-                        approveDate: new Date().toISOString()
+                        approveDate: new Date().toISOString(),
+                        rejectReason: null // Clear rejection reason
                     });
-                    Swal.fire({ icon: 'success', title: 'อนุมัติเรียบร้อย', showConfirmButton: false, timer: 1500 });
+                    Swal.fire({ icon: 'success', title: 'บันทึกสถานะ: อนุมัติ', showConfirmButton: false, timer: 1500 });
                 } else if (result.isDenied) {
                     Swal.fire({
                         title: 'ระบุเหตุผลการไม่อนุมัติ',
                         input: 'text',
+                        inputValue: booking.rejectReason || '',
                         inputPlaceholder: 'เช่น รถเต็ม, ภารกิจไม่เหมาะสม',
                         showCancelButton: true,
-                        confirmButtonText: 'ยืนยัน',
-                        cancelButtonText: 'ยกเลิก',
+                        confirmButtonText: 'ยืนยันไม่อนุมัติ',
                         confirmButtonColor: '#EF4444'
                     }).then((res) => {
                         if (res.isConfirmed) {
                             db.ref(`bookings/${id}`).update({
                                 status: 'rejected',
                                 rejectReason: res.value || 'ไม่ระบุ',
-                                approver: currentUser.name
+                                approver: currentUser.name,
+                                vehicleId: null, // Clear assignments
+                                driverId: null
                             });
-                            Swal.fire({ icon: 'success', title: 'บันทึกเรียบร้อย', showConfirmButton: false, timer: 1500 });
+                            Swal.fire({ icon: 'success', title: 'บันทึกสถานะ: ไม่อนุมัติ', showConfirmButton: false, timer: 1500 });
                         }
                     });
                 }
+            });
+        }
+
+        window.showImage = function(base64) {
+            Swal.fire({
+                imageUrl: base64,
+                imageAlt: 'Attachment',
+                width: '80%',
+                showConfirmButton: false,
+                showCloseButton: true
             });
         }
 
@@ -1534,7 +1728,6 @@
             if (type === 'vehicle') {
                 thead.innerHTML = `<tr><th class="text-left rounded-tl-xl">ชื่อรถ</th><th class="text-center">ทะเบียน</th><th class="text-center">ประเภท</th><th class="text-center rounded-tr-xl">จัดการ</th></tr>`;
                 list.forEach(item => {
-                    // Desktop Row
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td class="text-left-align font-bold text-gray-800">${item.name}</td>
@@ -1544,7 +1737,6 @@
                     `;
                     tbody.appendChild(tr);
 
-                    // Mobile Card
                     const card = document.createElement('div');
                     card.className = 'mobile-card';
                     card.innerHTML = `
@@ -1562,7 +1754,6 @@
             } else if (type === 'driver') {
                 thead.innerHTML = `<tr><th class="text-left rounded-tl-xl">ชื่อ-สกุล</th><th class="text-center">เบอร์โทร</th><th class="text-center rounded-tr-xl">จัดการ</th></tr>`;
                 list.forEach(item => {
-                    // Desktop Row
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td class="text-left-align font-bold text-gray-800">${item.name}</td>
@@ -1571,7 +1762,6 @@
                     `;
                     tbody.appendChild(tr);
 
-                    // Mobile Card
                     const card = document.createElement('div');
                     card.className = 'mobile-card';
                     card.innerHTML = `
@@ -1588,7 +1778,6 @@
             } else { // Teacher
                 thead.innerHTML = `<tr><th class="text-left rounded-tl-xl">ชื่อ-สกุล</th><th class="text-center">เลขบัตรฯ</th><th class="text-center">รหัสผ่าน</th><th class="text-center rounded-tr-xl">จัดการ</th></tr>`;
                 list.forEach(item => {
-                    // Desktop Row
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td class="text-left-align font-bold text-gray-800">${item.prefix}${item.name} ${item.surname}</td>
@@ -1601,7 +1790,6 @@
                     `;
                     tbody.appendChild(tr);
 
-                    // Mobile Card
                     const card = document.createElement('div');
                     card.className = 'mobile-card';
                     card.innerHTML = `
@@ -1702,21 +1890,29 @@
                          // Process Bulk
                          const lines = res.value.split('\n');
                          let count = 0;
+                         let duplicates = 0;
                          lines.forEach(line => {
                              const parts = line.trim().split(/\s+/); // Split by spaces
                              if(parts.length >= 4) {
-                                 db.ref('users').push({
-                                     prefix: parts[0],
-                                     name: parts[1],
-                                     surname: parts[2],
-                                     cardId: parts[3],
-                                     password: 'sateacher',
-                                     role: 'teacher'
-                                 });
-                                 count++;
+                                 const cardId = parts[3];
+                                 if (dataUsers.some(u => u.cardId === cardId)) {
+                                     duplicates++;
+                                 } else {
+                                     db.ref('users').push({
+                                         prefix: parts[0],
+                                         name: parts[1],
+                                         surname: parts[2],
+                                         cardId: parts[3],
+                                         password: 'sateacher',
+                                         role: 'teacher'
+                                     });
+                                     count++;
+                                 }
                              }
                          });
-                         Swal.fire('สำเร็จ', `เพิ่มข้อมูล ${count} รายการ`, 'success');
+                         let msg = `เพิ่มข้อมูล ${count} รายการ`;
+                         if (duplicates > 0) msg += ` (ซ้ำ ${duplicates} รายการ ไม่ถูกเพิ่ม)`;
+                         Swal.fire('สำเร็จ', msg, 'success');
                     }
                 });
             }
@@ -1730,6 +1926,11 @@
 
             if(!name || !surname || !card) return Swal.fire('ผิดพลาด', 'กรอกข้อมูลให้ครบ', 'error');
             
+            // Check Duplicate
+            if (dataUsers.some(u => u.cardId === card)) {
+                return Swal.fire('ข้อมูลซ้ำ', `มีเลขบัตรประชาชน ${card} ในระบบแล้ว`, 'warning');
+            }
+
             db.ref('users').push({
                 prefix, name, surname, cardId: card, password: 'sateacher', role: 'teacher'
             });
@@ -1812,11 +2013,7 @@
                     if(!overlap) return false;
 
                     if (b.status === 'approved' && b.vehicleId === v.id) return true;
-                    
-                    // Show pending on the FIRST vehicle of that type
-                    if (b.status === 'pending' && b.requestedType === v.type) {
-                        return firstVehicleIdsOfType[v.type] === v.id;
-                    }
+                    if (b.status === 'pending' && b.requestedType === v.type && firstVehicleIdsOfType[v.type] === v.id) return true;
                     
                     return false;
                 });
@@ -1862,6 +2059,68 @@
             });
         }
 
+        // --- Usage Stats Logic ---
+        function renderUsageTable() {
+            const days = parseInt(document.getElementById('usage-period').value);
+            const container = document.getElementById('usage-container');
+            container.innerHTML = '';
+
+            const now = new Date();
+            const pastDate = new Date();
+            pastDate.setDate(now.getDate() - days);
+
+            const colors = ['#eff6ff', '#fdf2f8', '#ecfdf5', '#fffbeb', '#fef2f2', '#f0f9ff']; // Soft bg colors
+            const borderColors = ['#3B82F6', '#EC4899', '#10B981', '#F59E0B', '#EF4444', '#06B6D4']; // Bar colors
+
+            dataVehicles.forEach((v, index) => {
+                const colorIdx = index % colors.length;
+                
+                // Get approved trips in range
+                const trips = dataBookings.filter(b => {
+                    if (b.status !== 'approved' || b.vehicleId !== v.id) return false;
+                    const bStart = new Date(b.startDateTime);
+                    return bStart >= pastDate && bStart <= now;
+                }).sort((a,b) => new Date(a.startDateTime) - new Date(b.startDateTime));
+
+                let tripsHtml = '';
+                if(trips.length === 0) {
+                    tripsHtml = '<div class="text-xs text-gray-400 italic">ไม่มีการใช้งาน</div>';
+                } else {
+                    trips.forEach(t => {
+                        const dateStr = formatDate(t.startDateTime);
+                        // Add time range
+                        const timeStr = `${new Date(t.startDateTime).toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})} - ${new Date(t.endDateTime).toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})}`;
+                        tripsHtml += `<div class="usage-history-item flex justify-between items-center">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-gray-700">${dateStr}</span>
+                                <span class="text-xs text-gray-400">${timeStr}</span>
+                            </div>
+                            <span class="font-medium truncate w-1/2 text-right text-xs">${t.location}</span>
+                        </div>`;
+                    });
+                }
+
+                const card = document.createElement('div');
+                card.className = "flex flex-col sm:flex-row bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden";
+                card.innerHTML = `
+                    <div class="w-full sm:w-2 bg-[${borderColors[colorIdx]}] p-4 flex flex-col justify-center items-center text-white" style="background-color: ${borderColors[colorIdx]}">
+                        <span class="font-bold text-lg">${trips.length}</span>
+                        <span class="text-xs">เที่ยว</span>
+                    </div>
+                    <div class="flex-grow p-3">
+                        <div class="flex justify-between items-center mb-2 border-b pb-1">
+                            <span class="font-bold text-gray-800">${v.name}</span>
+                            <span class="text-xs bg-gray-100 px-2 rounded">${v.plate}</span>
+                        </div>
+                        <div class="max-h-32 overflow-y-auto pr-1">
+                            ${tripsHtml}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
         // --- Helpers ---
         function formatDate(iso) {
             if (!iso) return "-";
@@ -1901,6 +2160,15 @@
             document.getElementById('pdf-driver').innerText = d.name || '-';
             document.getElementById('pdf-driver-sign').innerText = d.name || '-';
 
+            // Show Signature Image if exists
+            const sigImg = document.getElementById('pdf-sig-img');
+            if (b.signature) {
+                sigImg.src = b.signature;
+                sigImg.style.display = 'block';
+            } else {
+                sigImg.style.display = 'none';
+            }
+
             document.querySelectorAll('.checkbox-box').forEach(el => el.classList.remove('checkbox-checked'));
             // Check requested type for top section
             if (b.requestedType === 'รถตู้') document.getElementById('chk-van').classList.add('checkbox-checked');
@@ -1911,12 +2179,20 @@
             document.getElementById('chk-approve').classList.remove('checkbox-checked');
             document.getElementById('chk-reject').classList.remove('checkbox-checked');
             document.getElementById('pdf-reject-reason').innerText = "";
+            
+            // Hide/Show Driver Section based on Status
+            const driverRow = document.getElementById('pdf-driver-row');
+            const driverSignRow = document.getElementById('pdf-driver-sign-row');
 
             if (b.status === 'approved') {
                 document.getElementById('chk-approve').classList.add('checkbox-checked');
+                driverRow.style.display = 'flex'; // Changed to flex for proper alignment
+                driverSignRow.style.display = 'block';
             } else if (b.status === 'rejected') {
                 document.getElementById('chk-reject').classList.add('checkbox-checked');
                 document.getElementById('pdf-reject-reason').innerText = b.rejectReason || "";
+                driverRow.style.display = 'none'; // Hide driver name
+                driverSignRow.style.display = 'none'; // Hide driver sign
             }
 
             const element = document.getElementById('pdf-template');
@@ -1924,7 +2200,7 @@
                 margin: 0,
                 filename: `ใบขออนุญาต_${b.requesterName}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 3, logging: false },
+                html2canvas: { scale: 3, logging: false, useCORS: true },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
             html2pdf().set(opt).from(element).save();
