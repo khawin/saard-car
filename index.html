@@ -481,7 +481,7 @@
                         </div>
                        
                         <div class="flex gap-2">
-                            <button id="btn-print-summary" onclick="printSummaryPDF()" class="hidden-section px-4 sm:px-5 py-2 sm:py-2.5 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100 text-xs sm:text-sm font-bold transition shadow-sm border border-purple-100 hover:-translate-y-0.5"><i class="fas fa-print mr-2"></i>พิมพ์สรุป</button>
+                            <button id="btn-print-summary" onclick="showSummaryPrintOptions()" class="hidden-section px-4 sm:px-5 py-2 sm:py-2.5 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100 text-xs sm:text-sm font-bold transition shadow-sm border border-purple-100 hover:-translate-y-0.5"><i class="fas fa-print mr-2"></i>พิมพ์สรุป</button>
                         </div>
                     </div>
                     
@@ -541,11 +541,9 @@
 
                     <!-- 3. Usage View -->
                     <div id="view-mode-usage" class="hidden-section p-4 sm:p-6 bg-gray-50/50">
-                        <div class="flex justify-end mb-4">
-                            <select id="usage-period" onchange="renderUsageTable()" class="custom-input w-48">
-                                <option value="7">7 วันย้อนหลัง</option>
-                                <option value="30" selected>30 วันย้อนหลัง</option>
-                            </select>
+                        <div class="flex justify-end gap-2 mb-4">
+                            <select id="usage-month" class="custom-input w-32" onchange="renderUsageTable()"></select>
+                            <select id="usage-year" class="custom-input w-32" onchange="renderUsageTable()"></select>
                         </div>
                         <div id="usage-container" class="space-y-2">
                             <!-- Usage stats injected here -->
@@ -654,8 +652,6 @@
                     
                     <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 text-left space-y-4">
                         <h3 class="font-bold text-gray-700 mb-2">จัดการรหัสผ่าน</h3>
-                        
-                        <!-- Current Password Display -->
                         <div>
                             <label class="block text-xs font-bold text-gray-500 mb-1">รหัสผ่านปัจจุบัน</label>
                             <div class="relative">
@@ -665,8 +661,6 @@
                                 </button>
                             </div>
                         </div>
-
-                        <!-- Change Password Form -->
                         <form onsubmit="changePassword(event)" class="space-y-4 pt-4 border-t border-gray-200">
                              <div>
                                 <label class="block text-xs font-bold text-gray-500 mb-1">กำหนดรหัสผ่านใหม่</label>
@@ -871,7 +865,7 @@
 
         <!-- Summary PDF Template (Landscape) -->
         <div id="pdf-summary-template" class="pdf-page" style="width: 297mm; min-height: 210mm;">
-            <h2 style="text-align: center; font-weight: bold; font-size: 24px; margin-bottom: 5px;">รายงานสรุปการใช้งานยานพาหนะ</h2>
+            <h2 id="summary-title" style="text-align: center; font-weight: bold; font-size: 24px; margin-bottom: 5px;">รายงานสรุปการใช้งานยานพาหนะ</h2>
             <p style="text-align: center; font-size: 16px; margin-bottom: 20px;">โรงเรียนสอาดเผดิมวิทยา</p>
             <div class="summary-table-container">
                 <table class="summary-table">
@@ -975,10 +969,29 @@
                 refreshDashboard();
             });
 
-            // Set default date for timeline
+            // Init dropdowns
+            initDateSelectors();
             document.getElementById('timeline-date').valueAsDate = new Date();
         }
         init();
+
+        function initDateSelectors() {
+            const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth();
+
+            const monthOpts = months.map((m, i) => `<option value="${i}">${m}</option>`).join('');
+            let yearOpts = '';
+            for(let i = currentYear - 2; i <= currentYear + 2; i++) {
+                yearOpts += `<option value="${i}">${i + 543}</option>`;
+            }
+
+            // Usage Stats Selectors
+            document.getElementById('usage-month').innerHTML = monthOpts;
+            document.getElementById('usage-year').innerHTML = yearOpts;
+            document.getElementById('usage-month').value = currentMonth;
+            document.getElementById('usage-year').value = currentYear;
+        }
 
         // --- Authentication ---
         function switchRole(role) {
@@ -2061,13 +2074,11 @@
 
         // --- Usage Stats Logic ---
         function renderUsageTable() {
-            const days = parseInt(document.getElementById('usage-period').value);
             const container = document.getElementById('usage-container');
             container.innerHTML = '';
-
-            const now = new Date();
-            const pastDate = new Date();
-            pastDate.setDate(now.getDate() - days);
+            
+            const selectedMonth = parseInt(document.getElementById('usage-month').value);
+            const selectedYear = parseInt(document.getElementById('usage-year').value);
 
             const colors = ['#eff6ff', '#fdf2f8', '#ecfdf5', '#fffbeb', '#fef2f2', '#f0f9ff']; // Soft bg colors
             const borderColors = ['#3B82F6', '#EC4899', '#10B981', '#F59E0B', '#EF4444', '#06B6D4']; // Bar colors
@@ -2075,16 +2086,16 @@
             dataVehicles.forEach((v, index) => {
                 const colorIdx = index % colors.length;
                 
-                // Get approved trips in range
+                // Get approved trips in selected Month/Year
                 const trips = dataBookings.filter(b => {
                     if (b.status !== 'approved' || b.vehicleId !== v.id) return false;
                     const bStart = new Date(b.startDateTime);
-                    return bStart >= pastDate && bStart <= now;
+                    return bStart.getMonth() === selectedMonth && bStart.getFullYear() === selectedYear;
                 }).sort((a,b) => new Date(a.startDateTime) - new Date(b.startDateTime));
 
                 let tripsHtml = '';
                 if(trips.length === 0) {
-                    tripsHtml = '<div class="text-xs text-gray-400 italic">ไม่มีการใช้งาน</div>';
+                    tripsHtml = '<div class="text-xs text-gray-400 italic">ไม่มีการใช้งานในเดือนนี้</div>';
                 } else {
                     trips.forEach(t => {
                         const dateStr = formatDate(t.startDateTime);
@@ -2206,29 +2217,99 @@
             html2pdf().set(opt).from(element).save();
         }
 
-        function printSummaryPDF() {
+        // Updated function to show popup for summary print options
+        function showSummaryPrintOptions() {
+            const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth();
+
+            const monthOpts = months.map((m, i) => `<option value="${i}" ${i===currentMonth?'selected':''}>${m}</option>`).join('');
+            let yearOpts = '';
+            for(let i = currentYear - 2; i <= currentYear + 2; i++) {
+                yearOpts += `<option value="${i}" ${i===currentYear?'selected':''}>${i + 543}</option>`;
+            }
+
+            Swal.fire({
+                title: 'พิมพ์รายงานสรุป',
+                html: `
+                    <div class="text-left space-y-4">
+                        <div class="flex items-center gap-2">
+                            <input type="radio" name="print-opt" id="print-month" value="month" checked onclick="document.getElementById('print-selectors').style.display='flex'">
+                            <label for="print-month">รายงานประจำเดือน</label>
+                        </div>
+                        <div id="print-selectors" class="flex gap-2 ml-6">
+                            <select id="swal-month" class="border p-2 rounded w-1/2">${monthOpts}</select>
+                            <select id="swal-year" class="border p-2 rounded w-1/2">${yearOpts}</select>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="radio" name="print-opt" id="print-all" value="all" onclick="document.getElementById('print-selectors').style.display='none'">
+                            <label for="print-all">รายงานทั้งหมด (ทุกรายการ)</label>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'พิมพ์ PDF',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#3B82F6',
+                preConfirm: () => {
+                    const type = document.querySelector('input[name="print-opt"]:checked').value;
+                    const m = document.getElementById('swal-month').value;
+                    const y = document.getElementById('swal-year').value;
+                    return { type, m, y };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    printSummaryPDF(result.value);
+                }
+            });
+        }
+
+        function printSummaryPDF(filter) {
             const tbody = document.getElementById('pdf-summary-body');
             tbody.innerHTML = '';
             
             let count = 1;
-            const approvedList = dataBookings.filter(b => b.status === 'approved').sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+            let approvedList = dataBookings.filter(b => b.status === 'approved').sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
 
-            approvedList.forEach(b => {
-                const v = dataVehicles.find(x => x.id === b.vehicleId) || {};
-                const d = dataDrivers.find(x => x.id === b.driverId) || {};
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${count++}</td>
-                    <td>${v.plate || '-'}</td>
-                    <td>${formatDate(b.created_at)}</td>
-                    <td class="text-left-align">${b.requesterName}</td>
-                    <td class="text-left-align">${b.location}</td>
-                    <td>${formatDate(b.startDateTime)}<br>- ${formatDate(b.endDateTime)}</td>
-                    <td>${d.name || '-'}</td>
-                    <td></td>
-                `;
-                tbody.appendChild(tr);
-            });
+            // Apply filter logic
+            let titleText = "รายงานสรุปการใช้งานยานพาหนะ";
+            if (filter.type === 'month') {
+                const m = parseInt(filter.m);
+                const y = parseInt(filter.y);
+                const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+                titleText += ` ประจำเดือน ${thaiMonths[m]} พ.ศ. ${y + 543}`;
+                
+                approvedList = approvedList.filter(b => {
+                    const d = new Date(b.startDateTime);
+                    return d.getMonth() === m && d.getFullYear() === y;
+                });
+            } else {
+                titleText += " (ข้อมูลทั้งหมด)";
+            }
+
+            // Update title in PDF template
+            document.getElementById('summary-title').innerText = titleText;
+
+            if (approvedList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</td></tr>`;
+            } else {
+                approvedList.forEach(b => {
+                    const v = dataVehicles.find(x => x.id === b.vehicleId) || {};
+                    const d = dataDrivers.find(x => x.id === b.driverId) || {};
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${count++}</td>
+                        <td>${v.plate || '-'}</td>
+                        <td>${formatDate(b.created_at)}</td>
+                        <td class="text-left-align">${b.requesterName}</td>
+                        <td class="text-left-align">${b.location}</td>
+                        <td>${formatDate(b.startDateTime)}<br>- ${formatDate(b.endDateTime)}</td>
+                        <td>${d.name || '-'}</td>
+                        <td></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
 
             const element = document.getElementById('pdf-summary-template');
             const opt = {
