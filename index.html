@@ -6,7 +6,7 @@
     <title>ระบบขออนุญาตใช้ยานพาหนะ - โรงเรียนสอาดเผดิมวิทยา</title>
     <link rel="icon" href="https://www.saard.ac.th/wp-content/uploads/2024/11/saardlogov2-1-1024x1024.png" type="image/png">
     
-    <!-- Fonts -->
+    <!-- Fonts: Sarabun Only for consistency -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
@@ -25,7 +25,6 @@
                     colors: {
                         primary: { DEFAULT: '#3B82F6', dark: '#1E40AF' },
                         secondary: { DEFAULT: '#EC4899', dark: '#BE185D' },
-                        schoolGray: '#F3F4F6'
                     },
                     boxShadow: {
                         'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
@@ -112,6 +111,7 @@
         .glass-table thead th { background-color: rgba(59, 130, 246, 0.1); color: #1E40AF; font-weight: 600; padding: 1rem; border-bottom: 2px solid rgba(59, 130, 246, 0.2); }
         .glass-table tbody td { padding: 1rem; border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: middle; }
         
+        /* Mobile Cards */
         .mobile-card { background: white; border-radius: 1rem; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #f3f4f6; }
         .mobile-card-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; }
         .mobile-card-label { color: #6B7280; font-weight: 500; }
@@ -122,28 +122,38 @@
         .timeline-segment { position: absolute; height: 100%; top: 0; min-width: 2px; }
         .segment-approved { background-color: #EF4444; opacity: 0.9; }
         .segment-pending { background-color: #FBBF24; opacity: 0.9; }
-        .time-scale {
-            display: flex;
-            justify-content: space-between; /* Fix for spaced out numbers */
-            font-size: 0.7rem;
-            color: #9CA3AF;
-            margin-top: 0.25rem;
-            padding: 0 2px;
-        }
+        .time-scale { display: flex; justify-content: space-between; font-size: 0.7rem; color: #9CA3AF; margin-top: 0.25rem; padding: 0 2px; }
         
         .manage-card-active { border-color: #EC4899 !important; background-color: #FDF2F8 !important; transform: translateY(-2px); }
         .manage-card-inactive { border-color: transparent !important; opacity: 0.7; }
         .dash-active { opacity: 1 !important; transform: translateY(-2px); }
         .dash-inactive { opacity: 0.6 !important; transform: scale(0.98); }
-        .usage-row:nth-child(even) { background-color: #f9fafb; }
 
-        /* ==================== PDF STYLES (Strict Layout) ==================== */
-        #pdf-container { position: absolute; top: -9999px; left: -9999px; }
+        /* ==================== PDF STYLES (Strict Fixed Layout) ==================== */
         
+        /* FIXED: Use fixed position top-0 left-0 to ensure coordinate system is correct */
+        #pdf-container { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            z-index: -1000; 
+            opacity: 0; 
+            pointer-events: none;
+            width: fit-content;
+            height: fit-content;
+        }
+        
+        /* Common PDF Page Settings */
         .pdf-page { 
-            background: white; color: black; font-family: 'Prompt', sans-serif !important; 
-            padding: 10mm 20mm 10mm 20mm; box-sizing: border-box; 
+            background: white; color: black; 
+            font-family: 'Sarabun', sans-serif !important; 
+            /* Fixed Padding for Margins */
+            padding: 10mm 20mm 10mm 20mm; 
+            box-sizing: border-box; 
             text-rendering: optimizeLegibility; font-variant-ligatures: none;
+            /* STRICT A4 DIMENSIONS */
+            width: 210mm; 
+            min-height: 297mm; 
         }
         
         .pdf-header { text-align: center; font-weight: bold; font-size: 20px; margin-bottom: 10px; }
@@ -172,11 +182,10 @@
             text-align: center; color: #000; padding: 0 5px; margin: 0 2px;
         }
         
-        /* Fix for "At..." dot position */
         .dotted-line-low {
              border-bottom: 1px dotted #000; display: inline-block; min-width: 20px; 
              text-align: center; color: #000; padding: 0 5px; margin: 0 2px;
-             position: relative; top: 4px; /* Lower the dotted line */
+             position: relative; top: 4px; 
         }
         
         .dotted-line-fill {
@@ -201,7 +210,16 @@
         .driver-sig-block { display: flex; flex-direction: column; align-items: center; width: 250px; margin-left: 20px; }
 
         /* Summary Table (Div based) */
-        #pdf-summary-template { display: block; padding: 10mm; width: 297mm; font-family: 'Prompt', sans-serif !important; }
+        #pdf-summary-template { 
+            display: block; 
+            /* Fixed padding for Landscape Margins */
+            padding: 10mm; 
+            /* STRICT A4 LANDSCAPE WIDTH */
+            width: 297mm; 
+            font-family: 'Sarabun', sans-serif !important; 
+            background: white;
+            box-sizing: border-box;
+        }
         .div-table-container { width: 100%; border: 2px solid #000; display: flex; flex-direction: column; }
         .div-row { display: flex; width: 100%; border-bottom: 1px solid #000; }
         .div-row:last-child { border-bottom: none; }
@@ -212,16 +230,18 @@
         .div-cell:last-child { border-right: none; }
         .div-header { background-color: #f0f0f0; font-weight: bold; }
         .div-header .div-cell { height: 40px; font-size: 14px; }
-        .col-1 { width: 5%; } .col-2 { width: 10%; } .col-3 { width: 12%; } 
-        .col-4 { width: 18%; justify-content: flex-start; text-align: left; padding-left: 8px; }
+        
+        /* Summary Columns */
+        .col-1 { width: 5%; } 
+        .col-2 { width: 10%; } 
+        .col-3 { width: 12%; } 
+        .col-4 { width: 18%; justify-content: flex-start; text-align: left; padding-left: 8px; white-space: pre-wrap; }
         .col-5 { width: 20%; justify-content: flex-start; text-align: left; padding-left: 8px; }
         .col-6 { width: 15%; } 
-        /* Fix for Driver column in Summary PDF */
         .col-7 { width: 13%; justify-content: flex-start; text-align: left; padding-left: 8px; white-space: pre-wrap; } 
         .col-8 { width: 7%; }
         .cell-text { position: relative; top: -2px; }
 
-        /* Optimizations */
         @media (max-width: 640px) {
             .btn-primary, .btn-secondary { padding: 0.5rem 0.75rem; font-size: 0.875rem; }
             .nav-toggle-text { display: none; }
@@ -233,8 +253,8 @@
 
     <!-- ================= 1. Login Section ================= -->
     <div id="login-section" class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-        <div class="absolute top-0 -left-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob" style="will-change: transform;"></div>
-        <div class="absolute top-0 -right-4 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000" style="will-change: transform;"></div>
+        <div class="absolute top-0 -left-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div class="absolute top-0 -right-4 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
         
         <div class="glass-effect rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden relative z-10 animate-fade-in border-white/60">
             <div class="p-8 md:p-10">
@@ -277,6 +297,7 @@
         </nav>
 
         <div class="flex-grow p-4 sm:p-8 max-w-7xl mx-auto w-full space-y-6 sm:space-y-8 pb-20">
+            <!-- View: Home -->
             <div id="view-home" class="space-y-6 sm:space-y-8 animate-slide-up">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                     <div id="card-dash-all" onclick="filterBookings('all')" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card hover:shadow-xl transition-all cursor-pointer border-l-8 border-blue-500 group relative overflow-hidden dash-active"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-blue-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">รายการทั้งหมด</p><h3 class="text-4xl sm:text-5xl font-bold text-gray-800 mt-2" id="count-all">0</h3></div><div class="p-3 sm:p-4 bg-blue-100 rounded-2xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition shadow-sm"><i class="fas fa-list-ul text-xl sm:text-2xl"></i></div></div></div>
@@ -308,7 +329,11 @@
             <div id="view-request" class="hidden-section animate-slide-up"><div class="glass-effect max-w-4xl mx-auto rounded-[2rem] shadow-card p-6 sm:p-10 relative overflow-hidden border border-white/60"><div class="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-blue-400 via-pink-400 to-blue-400"></div><div class="text-center mb-8"><h2 class="text-2xl sm:text-3xl font-bold text-gray-800">แบบฟอร์มขออนุญาตใช้ยานพาหนะ</h2><p class="text-gray-500 mt-2 text-sm sm:text-base">กรอกข้อมูลให้ครบถ้วนเพื่อให้หัวหน้างานพิจารณา</p></div><form onsubmit="submitRequest(event)" class="space-y-6 sm:space-y-8"><div class="bg-white/40 p-5 sm:p-8 rounded-3xl border border-white/60 shadow-sm"><h3 class="font-bold text-blue-600 mb-4 sm:mb-6 flex items-center gap-3 text-base sm:text-lg border-b border-blue-100 pb-2"><span class="bg-blue-100 p-2 rounded-lg"><i class="fas fa-user"></i></span> ข้อมูลผู้ขอ</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6"><div><label class="block text-sm font-bold text-gray-700 mb-2">ชื่อ-นามสกุล</label><input type="text" id="req-name-display" class="custom-input bg-gray-100 text-gray-500 cursor-not-allowed" readonly></div><div><label class="block text-sm font-bold text-gray-700 mb-2">เบอร์โทรศัพท์</label><input type="tel" id="req-phone" class="custom-input" placeholder="0xxxxxxxxx" required></div></div></div><div class="bg-white/40 p-5 sm:p-8 rounded-3xl border border-white/60 shadow-sm"><h3 class="font-bold text-pink-600 mb-4 sm:mb-6 flex items-center gap-3 text-base sm:text-lg border-b border-pink-100 pb-2"><span class="bg-pink-100 p-2 rounded-lg"><i class="fas fa-route"></i></span> รายละเอียดการเดินทาง</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6"><div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">ประเภทรถที่ต้องการ</label><select id="req-type" class="custom-input" required><option value="" disabled selected>-- เลือกประเภทรถ --</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div><div><label class="block text-sm font-bold text-gray-700 mb-2">วัน-เวลา เริ่มต้น</label><input type="datetime-local" id="req-start" class="custom-input" required></div><div><label class="block text-sm font-bold text-gray-700 mb-2">วัน-เวลา สิ้นสุด</label><input type="datetime-local" id="req-end" class="custom-input" required></div><div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">สถานที่ที่ไป</label><input type="text" id="req-location" class="custom-input" placeholder="ระบุจังหวัดหรือชื่อสถานที่" required></div><div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">เพื่อวัตถุประสงค์</label><textarea id="req-purpose" rows="3" class="custom-input" placeholder="ระบุรายละเอียดการไปราชการหรือธุระ" required></textarea></div><div><label class="block text-sm font-bold text-gray-700 mb-2">จำนวนผู้โดยสาร (คน)</label><input type="number" id="req-passengers" min="1" class="custom-input" placeholder="ไม่รวมคนขับ" required></div>
             <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">แนบหนังสืออนุญาตไปราชการ (รูปภาพ) <span class="text-red-500">*</span></label><input type="file" id="req-doc" class="custom-input" accept="image/*" required></div>
             <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">ลายเซ็นผู้ขออนุญาต <span class="text-red-500">*</span></label><div class="flex gap-4 mb-2"><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="sig-option" value="saved" checked onchange="toggleSigInput()"> ใช้ลายเซ็นที่บันทึกไว้</label><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="sig-option" value="upload" onchange="toggleSigInput()"> อัปโหลดใหม่</label></div><div id="sig-preview-container" class="border p-2 rounded bg-gray-50 h-24 flex items-center justify-center"><span class="text-gray-400 text-sm">ลายเซ็นจะปรากฏที่นี่</span></div><input type="file" id="req-sig-file" class="custom-input mt-2 hidden-section" accept="image/png" onchange="previewUploadSig()"></div></div></div><div class="flex flex-col sm:flex-row justify-center gap-4 pt-4"><button type="button" onclick="checkVehicleAvailability()" class="btn-secondary text-blue-600 bg-white border-blue-200 hover:bg-blue-50 py-3 px-6 shadow-sm"><i class="fas fa-search mr-2"></i>ตรวจสอบรถว่าง</button><button type="submit" class="btn-primary px-10 py-3 text-lg shadow-lg shadow-blue-500/30 transform hover:-translate-y-1"><i class="fas fa-paper-plane mr-2"></i>ส่งคำขออนุญาต</button></div></form></div></div>
+            
+            <!-- View: Profile -->
             <div id="view-profile" class="hidden-section animate-slide-up"><div class="glass-effect max-w-lg mx-auto rounded-[2rem] shadow-card p-6 sm:p-10 text-center"><div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 text-4xl"><i class="fas fa-user"></i></div><h2 class="text-2xl font-bold text-gray-800" id="profile-name">-</h2><p class="text-gray-500 mb-6" id="profile-id">-</p><div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 text-left space-y-4"><h3 class="font-bold text-gray-700 mb-2">จัดการรหัสผ่าน</h3><div><label class="block text-xs font-bold text-gray-500 mb-1">รหัสผ่านปัจจุบัน</label><div class="relative"><input type="password" id="current-password-display" class="custom-input bg-gray-100 text-gray-600" readonly><button type="button" onclick="togglePassword('current-password-display', 'eye-curr')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition"><i class="fas fa-eye" id="eye-curr"></i></button></div></div><form onsubmit="changePassword(event)" class="space-y-4 pt-4 border-t border-gray-200"><div><label class="block text-xs font-bold text-gray-500 mb-1">กำหนดรหัสผ่านใหม่</label><div class="relative"><input type="password" id="new-password" class="custom-input" placeholder="รหัสผ่านใหม่" required minlength="4"><button type="button" onclick="togglePassword('new-password', 'eye-new')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition"><i class="fas fa-eye" id="eye-new"></i></button></div></div><button type="submit" class="w-full btn-primary">บันทึกรหัสผ่านใหม่</button></form></div><div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 text-left space-y-4 mt-6"><h3 class="font-bold text-gray-700 mb-2">ลายเซ็น (สำหรับแนบใบขออนุญาต)</h3><div id="profile-sig-preview" class="border bg-white h-24 flex items-center justify-center mb-2 overflow-hidden"><span class="text-gray-400 text-sm">ยังไม่มีลายเซ็น</span></div><input type="file" id="profile-sig-upload" class="custom-input text-sm" accept="image/png" onchange="uploadProfileSig()"><p class="text-xs text-red-500 mt-1">*กรุณาถ่ายภาพลายเซ็นที่เขียนด้วยปากกาน้ำเงินบนกระดาษขาว (.png เท่านั้น)</p></div></div></div>
+            
+            <!-- View: Manage -->
             <div id="view-manage" class="hidden-section animate-slide-up space-y-8"><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div onclick="renderManageTable('vehicle')" id="card-manage-vehicle" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-active"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p><h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">ยานพาหนะ</h3><div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-vehicles">0</div></div><div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-bus text-xl sm:text-2xl"></i></div></div></div><div onclick="renderManageTable('driver')" id="card-manage-driver" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-inactive"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p><h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">พนักงานขับรถ</h3><div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-drivers">0</div></div><div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-user-tie text-xl sm:text-2xl"></i></div></div></div><div onclick="renderManageTable('teacher')" id="card-manage-teacher" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-inactive"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p><h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">บุคลากรครู</h3><div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-teachers">0</div></div><div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-chalkboard-teacher text-xl sm:text-2xl"></i></div></div></div></div><div class="glass-effect rounded-3xl shadow-card p-6 sm:p-8 border border-white/50"><div class="flex justify-between items-center mb-6"><h3 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-3"><span class="w-2 h-6 sm:h-8 bg-gradient-to-b from-blue-500 to-pink-500 rounded-full"></span> <span id="manage-title">ข้อมูลยานพาหนะ</span></h3><button onclick="addNewData()" class="btn-primary px-4 sm:px-5 py-2 sm:py-2.5 text-sm shadow-md"><i class="fas fa-plus mr-2"></i>เพิ่มข้อมูล</button></div><div class="hidden md:block overflow-x-auto rounded-xl border border-gray-100"><table class="w-full glass-table"><thead id="manage-table-head"></thead><tbody id="manage-table-body"></tbody></table></div><div id="manage-mobile-container" class="md:hidden space-y-4"></div></div></div>
         </div>
     </div>
@@ -316,11 +341,12 @@
     <!-- ================= PDF Templates ================= -->
     <div id="pdf-container">
         <!-- Single Permission PDF (Strictly Configured) -->
-        <div id="pdf-template" class="pdf-page" style="width: 210mm; min-height: 297mm;">
+        <div id="pdf-template" class="pdf-page">
             <div class="pdf-header">ใบขออนุญาตใช้รถส่วนกลาง</div>
             <div class="pdf-content">
                 <div class="pdf-row justify-between items-end" style="margin-top: 5px;">
-                    <div>ที่ <span class="dotted-line-low" style="width: 100px;"></span></div>
+                    <!-- FIXED: Modified 'At' section to have slash -->
+                    <div>ที่ <span class="dotted-line-low" style="width: 50px;"></span> / <span class="dotted-line-low" style="width: 50px;"></span></div>
                     <div>วันที่ <span class="dotted-line" id="pdf-day" style="width: 40px;"></span> เดือน <span class="dotted-line" id="pdf-month" style="width: 100px;"></span> พ.ศ. <span class="dotted-line" id="pdf-year" style="width: 60px;"></span></div>
                 </div>
                 <div class="pdf-row" style="margin-top: 15px;">เรียน ผู้อำนวยการโรงเรียนสอาดเผดิมวิทยา</div>
@@ -340,7 +366,6 @@
                 <div class="approval-grid"><div class="col-label"></div><div class="col-check"><span class="checkbox-box" id="chk-reject"></span></div><div class="col-text">ไม่อนุญาตเพราะ <span id="pdf-reject-reason" class="dotted-line" style="width: 320px;"></span></div></div>
                 <div class="pdf-row justify-between" style="margin-top: 30px; align-items: flex-start;">
                     <div style="text-align: center; width: 45%; line-height: 1.6;">ลงชื่อ <span class="dotted-line" style="width: 150px;"></span><br>(นางสาวจุฑาดา ชุมเกษียน)<br>หัวหน้างานยานพาหนะ<br>วันที่ <span class="dotted-line" style="width: 100px;"></span></div>
-                    <!-- Added padding-top to move this block down slightly -->
                     <div style="text-align: center; width: 45%; line-height: 1.6; padding-top: 10px;">ลงชื่อ <span class="dotted-line" style="width: 150px;"></span><br>(นายหัตถเชษฐ์ แสงประดิษฐ์)<br>รองผู้อำนวยการโรงเรียน ปฏิบัติราชการแทน<br>ผู้อำนวยการโรงเรียนสอาดเผดิมวิทยา<br>วันที่ <span class="dotted-line" style="width: 100px;"></span></div>
                 </div>
                  <div class="pdf-row" style="margin-top: 30px; display: none;" id="pdf-driver-sign-row">
@@ -388,34 +413,25 @@
         // Data Storage
         let dataBookings = [], dataVehicles = [], dataDrivers = [], dataUsers = [];
         let currentUser = null, currentRole = 'teacher', currentFilter = 'all', manageMode = 'vehicle';
-        
         let refreshTimer;
 
         // Init
         function init() {
             auth.signInAnonymously().catch(e => console.error(e));
-            const setupListener = (ref, targetArray) => {
+            const setupListener = (ref) => {
                 db.ref(ref).on('value', snap => {
                     const val = snap.val();
-                    if (ref === 'bookings') {
-                        dataBookings = val ? Object.keys(val).map(k => ({id: k, ...val[k]})) : [];
-                        dataBookings.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-                    } else if (ref === 'vehicles') {
-                        dataVehicles = val ? Object.keys(val).map(k => ({id: k, ...val[k]})) : [];
-                    } else if (ref === 'drivers') {
-                        dataDrivers = val ? Object.keys(val).map(k => ({id: k, ...val[k]})) : [];
-                    } else if (ref === 'users') {
-                        dataUsers = val ? Object.keys(val).map(k => ({id: k, ...val[k]})) : [];
-                    }
+                    if (ref === 'bookings') dataBookings = val ? Object.keys(val).map(k => ({id: k, ...val[k]})) : [];
+                    else if (ref === 'vehicles') dataVehicles = val ? Object.keys(val).map(k => ({id: k, ...val[k]})) : [];
+                    else if (ref === 'drivers') dataDrivers = val ? Object.keys(val).map(k => ({id: k, ...val[k]})) : [];
+                    else if (ref === 'users') dataUsers = val ? Object.keys(val).map(k => ({id: k, ...val[k]})) : [];
+                    
+                    if(ref === 'bookings') dataBookings.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
                     debouncedRefresh();
                 });
             };
 
-            setupListener('bookings');
-            setupListener('vehicles');
-            setupListener('drivers');
-            setupListener('users');
-
+            ['bookings', 'vehicles', 'drivers', 'users'].forEach(setupListener);
             initDateSelectors();
             document.getElementById('timeline-date').valueAsDate = new Date();
         }
@@ -478,7 +494,8 @@
                 const foundUser = dataUsers.find(user => user.cardId === u && user.password === p);
                 if (foundUser) {
                     success = true;
-                    userObj = { ...foundUser, role: 'teacher', uid: foundUser.id, realName: foundUser.name };
+                    // Note: 'name' from DB is just First Name.
+                    userObj = { ...foundUser, role: 'teacher', uid: foundUser.id };
                 }
             }
 
@@ -486,17 +503,20 @@
                 currentUser = userObj;
                 document.getElementById('login-section').classList.add('hidden-section');
                 document.getElementById('dashboard-section').classList.remove('hidden-section');
-                document.getElementById('user-role-display').innerText = currentUser.name ? currentUser.name : (currentUser.prefix + currentUser.realName + ' ' + currentUser.surname);
+                
+                // Display Name logic
+                let displayName = currentUser.name;
+                if(currentUser.role === 'teacher') displayName = `${currentUser.prefix}${currentUser.name} ${currentUser.surname}`;
+                document.getElementById('user-role-display').innerText = displayName;
                 
                 document.getElementById('nav-menu-teacher').classList.toggle('hidden-section', currentRole === 'admin');
                 document.getElementById('nav-menu-admin').classList.toggle('hidden-section', currentRole !== 'admin');
                 
                 if(currentRole === 'teacher') {
-                    const fullName = `${currentUser.prefix}${currentUser.realName} ${currentUser.surname}`;
-                    document.getElementById('profile-name').innerText = fullName;
+                    document.getElementById('profile-name').innerText = displayName;
                     document.getElementById('profile-id').innerText = `ID: ${currentUser.id}`;
                     document.getElementById('current-password-display').value = currentUser.password;
-                    document.getElementById('req-name-display').value = fullName;
+                    document.getElementById('req-name-display').value = displayName;
                     document.getElementById('profile-sig-preview').innerHTML = currentUser.signature ? `<img src="${currentUser.signature}" class="h-20 object-contain">` : `<span class="text-gray-400 text-sm">ยังไม่มีลายเซ็น</span>`;
                     toggleSigInput();
                     document.getElementById('label-pending').innerText = "รายการรออนุมัติของคุณ";
@@ -526,27 +546,17 @@
         }
 
         function updateNavState(activePage) {
-            const resetBtns = (prefix, items) => {
-                items.forEach(item => {
-                     const btn = document.getElementById(`${prefix}-${item}`);
-                     if(item === activePage) {
-                         btn.classList.replace('text-gray-500', 'text-blue-600');
-                     } else {
-                         btn.classList.replace('text-blue-600', 'text-gray-500');
-                     }
+            const update = (prefix, items) => {
+                items.forEach((item, idx) => {
+                    const btn = document.getElementById(`${prefix}-${item}`);
+                    if(item === activePage) {
+                        btn.classList.replace('text-gray-500', 'text-blue-600');
+                        document.getElementById(`${prefix}-indicator`).style.transform = `translateX(${idx * 100}%)`;
+                    } else btn.classList.replace('text-blue-600', 'text-gray-500');
                 });
             };
-            if (currentRole === 'teacher') {
-                const items = ['home', 'request', 'profile'];
-                const idx = items.indexOf(activePage);
-                if(idx !== -1) document.getElementById('nav-t-indicator').style.transform = `translateX(${idx * 100}%)`;
-                resetBtns('nav-t', items);
-            } else {
-                const items = ['home', 'manage'];
-                const idx = items.indexOf(activePage);
-                if(idx !== -1) document.getElementById('nav-a-indicator').style.transform = `translateX(${idx * 100}%)`;
-                resetBtns('nav-a', items);
-            }
+            if (currentRole === 'teacher') update('nav-t', ['home', 'request', 'profile']);
+            else update('nav-a', ['home', 'manage']);
         }
 
         function toggleView(mode) {
@@ -591,6 +601,18 @@
             if (!document.getElementById('view-manage').classList.contains('hidden-section')) renderManageTable(manageMode);
         }
 
+        // Helper to get full name (compatibility check)
+        function getBookingFullName(b) {
+            // If the saved name already has a space, assume it is full name
+            if (b.requesterName && b.requesterName.includes(' ')) return b.requesterName;
+            
+            // If not, try to look up from user ID (for old records or partial saves)
+            const user = dataUsers.find(u => u.id === b.requesterId);
+            if (user) return `${user.prefix}${user.name} ${user.surname}`;
+            
+            return b.requesterName || '-';
+        }
+
         function filterBookings(status) {
             currentFilter = status;
             const tbody = document.getElementById('table-body');
@@ -608,6 +630,7 @@
                 if (!document.getElementById('view-mode-list').classList.contains('hidden-section') === false) toggleView('list');
             }
 
+            // Tabs styling
             const statusMap = { 'all': 'card-dash-all', 'pending': 'card-dash-pending', 'processed': 'card-dash-processed' };
             Object.keys(statusMap).forEach(key => {
                 const el = document.getElementById(statusMap[key]);
@@ -631,8 +654,9 @@
             const displayData = filtered.slice(0, 20);
 
             if (displayData.length === 0) {
+                const msg = `<div class="text-center py-10 text-gray-400">ไม่มีข้อมูลรายการ</div>`;
                 tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-gray-400 bg-white/50">ไม่มีข้อมูลรายการ</td></tr>`;
-                mobileContainer.innerHTML = `<div class="text-center py-10 text-gray-400">ไม่มีข้อมูลรายการ</div>`;
+                mobileContainer.innerHTML = msg;
                 return;
             }
 
@@ -651,10 +675,11 @@
 
                 const startStr = `${formatDate(b.startDateTime)} ${new Date(b.startDateTime).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})}`;
                 const endStr = `${formatDate(b.endDateTime)} ${new Date(b.endDateTime).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})}`;
+                const fullName = getBookingFullName(b);
+
+                tbody.insertAdjacentHTML('beforeend', `<tr class="transition hover:bg-white/40"><td class="text-left-align rounded-l-lg">${formatDate(b.created_at)}</td><td class="text-left-align font-bold text-gray-800">${fullName}</td><td class="text-left-align"><div class="font-bold text-gray-700">${b.location}</div><div class="text-xs text-gray-500 truncate w-48">${b.purpose}</div></td><td class="text-left-align"><span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-xs font-bold border border-blue-100">${b.requestedType}</span></td><td class="text-left-align text-sm"><div class="flex flex-col"><span class="text-gray-800 font-medium">${startStr}</span><span class="text-gray-400 text-xs">ถึง ${endStr}</span></div></td><td class="text-center">${statusBadge}</td><td class="text-center rounded-r-lg">${actionBtn}</td></tr>`);
                 
-                tbody.insertAdjacentHTML('beforeend', `<tr class="transition hover:bg-white/40"><td class="text-left-align rounded-l-lg">${formatDate(b.created_at)}</td><td class="text-left-align font-bold text-gray-800">${b.requesterName}</td><td class="text-left-align"><div class="font-bold text-gray-700">${b.location}</div><div class="text-xs text-gray-500 truncate w-48">${b.purpose}</div></td><td class="text-left-align"><span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-xs font-bold border border-blue-100">${b.requestedType}</span></td><td class="text-left-align text-sm"><div class="flex flex-col"><span class="text-gray-800 font-medium">${startStr}</span><span class="text-gray-400 text-xs">ถึง ${endStr}</span></div></td><td class="text-center">${statusBadge}</td><td class="text-center rounded-r-lg">${actionBtn}</td></tr>`);
-                
-                mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-3"><div class="text-xs text-gray-500">${formatDate(b.created_at)}</div><div>${statusBadge}</div></div><div class="mobile-card-row"><span class="mobile-card-label">ผู้ขอ:</span><span class="mobile-card-value">${b.requesterName}</span></div><div class="mobile-card-row"><span class="mobile-card-label">สถานที่:</span><span class="mobile-card-value">${b.location}</span></div><div class="mobile-card-row"><span class="mobile-card-label">ประเภท:</span><span class="mobile-card-value">${b.requestedType}</span></div><div class="mobile-card-row"><span class="mobile-card-label">เวลาเดินทาง:</span><span class="mobile-card-value text-xs text-right">${startStr}<br>ถึง ${endStr}</span></div><div class="mt-3 pt-3 border-t border-gray-100 flex justify-end">${actionBtn}</div></div>`);
+                mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-3"><div class="text-xs text-gray-500">${formatDate(b.created_at)}</div><div>${statusBadge}</div></div><div class="mobile-card-row"><span class="mobile-card-label">ผู้ขอ:</span><span class="mobile-card-value">${fullName}</span></div><div class="mobile-card-row"><span class="mobile-card-label">สถานที่:</span><span class="mobile-card-value">${b.location}</span></div><div class="mobile-card-row"><span class="mobile-card-label">ประเภท:</span><span class="mobile-card-value">${b.requestedType}</span></div><div class="mobile-card-row"><span class="mobile-card-label">เวลาเดินทาง:</span><span class="mobile-card-value text-xs text-right">${startStr}<br>ถึง ${endStr}</span></div><div class="mt-3 pt-3 border-t border-gray-100 flex justify-end">${actionBtn}</div></div>`);
             });
         }
 
@@ -666,7 +691,6 @@
             const selectedYear = parseInt(document.getElementById('usage-year').value);
             const filterType = document.getElementById('usage-filter-type').value;
 
-            const colors = ['#eff6ff', '#fdf2f8', '#ecfdf5', '#fffbeb', '#fef2f2', '#f0f9ff']; 
             const borderColors = ['#3B82F6', '#EC4899', '#10B981', '#F59E0B', '#EF4444', '#06B6D4']; 
 
             let displayVehicles = dataVehicles;
@@ -680,7 +704,7 @@
             }
 
             displayVehicles.forEach((v, index) => { 
-                const colorIdx = index % colors.length; 
+                const colorIdx = index % borderColors.length; 
                 const trips = dataBookings.filter(b => { 
                     if (b.status !== 'approved' || b.vehicleId !== v.id) return false; 
                     const bStart = new Date(b.startDateTime);
@@ -769,59 +793,37 @@
             } 
         }
 
-        // --- NEW: Check Vehicle Availability Function ---
         function checkVehicleAvailability() {
             const start = document.getElementById('req-start').value;
             const end = document.getElementById('req-end').value;
             const type = document.getElementById('req-type').value;
 
-            if (!start || !end || !type) {
-                return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาเลือกประเภทรถ, วันเวลาเริ่มต้น และสิ้นสุด', 'warning');
-            }
+            if (!start || !end || !type) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาเลือกประเภทรถ, วันเวลาเริ่มต้น และสิ้นสุด', 'warning');
 
             const sDate = new Date(start);
             const eDate = new Date(end);
             
-            if (eDate <= sDate) {
-                return Swal.fire('ข้อมูลไม่ถูกต้อง', 'เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่มต้น', 'error');
-            }
+            if (eDate <= sDate) return Swal.fire('ข้อมูลไม่ถูกต้อง', 'เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่มต้น', 'error');
 
-            // Find all vehicles of this type
             const targetVehicles = dataVehicles.filter(v => v.type === type);
-            
-            if (targetVehicles.length === 0) {
-                return Swal.fire('ไม่พบรถ', `ไม่มีรถประเภท ${type} ในระบบ`, 'info');
-            }
+            if (targetVehicles.length === 0) return Swal.fire('ไม่พบรถ', `ไม่มีรถประเภท ${type} ในระบบ`, 'info');
 
-            // Find busy vehicles in this range
             const busyVehicleIds = new Set();
             dataBookings.forEach(b => {
-                if (b.status === 'approved') { // Check only approved bookings
+                if (b.status === 'approved') {
                     const bs = new Date(b.startDateTime);
                     const be = new Date(b.endDateTime);
-                    // Check overlap
-                    if (sDate < be && eDate > bs) {
-                        if (b.vehicleId) busyVehicleIds.add(b.vehicleId);
-                    }
+                    if (sDate < be && eDate > bs && b.vehicleId) busyVehicleIds.add(b.vehicleId);
                 }
             });
 
-            // Calculate free vehicles
             const freeVehicles = targetVehicles.filter(v => !busyVehicleIds.has(v.id));
 
             if (freeVehicles.length > 0) {
                 const listHtml = freeVehicles.map(v => `<li class="text-left text-green-600 mb-1"><i class="fas fa-check-circle"></i> ${v.name} (${v.plate})</li>`).join('');
-                Swal.fire({
-                    title: 'รถว่าง',
-                    html: `<div class="text-center mb-2 font-bold text-gray-700">มีรถประเภท ${type} ว่าง ${freeVehicles.length} คัน</div><ul class="list-none pl-0 inline-block">${listHtml}</ul>`,
-                    icon: 'success'
-                });
+                Swal.fire({ title: 'รถว่าง', html: `<div class="text-center mb-2 font-bold text-gray-700">มีรถประเภท ${type} ว่าง ${freeVehicles.length} คัน</div><ul class="list-none pl-0 inline-block">${listHtml}</ul>`, icon: 'success' });
             } else {
-                Swal.fire({
-                    title: 'รถไม่ว่าง',
-                    text: `รถประเภท ${type} ถูกจองเต็มแล้วในช่วงเวลานี้`,
-                    icon: 'error'
-                });
+                Swal.fire({ title: 'รถไม่ว่าง', text: `รถประเภท ${type} ถูกจองเต็มแล้วในช่วงเวลานี้`, icon: 'error' });
             }
         }
 
@@ -861,8 +863,7 @@
         }
 
         function processSubmission(start, end, type, sigData, docFile) {
-            // Validation logic (overlap check) before submission
-            const sDate = new Date(start); const eDate = new Date(end); const sTime = sDate.getTime(); const eTime = eDate.getTime();
+            const sTime = new Date(start).getTime(); const eTime = new Date(end).getTime();
             const totalVehiclesOfType = dataVehicles.filter(v => v.type === type);
             if (totalVehiclesOfType.length === 0) return Swal.fire('ไม่พบข้อมูล', `ไม่มีข้อมูลรถประเภท ${type}`, 'error');
             
@@ -871,20 +872,17 @@
             let busyCountForType = 0; totalVehiclesOfType.forEach(v => { if (busyVehicleIds.has(v.id)) busyCountForType++; });
             
             if (busyCountForType >= totalVehiclesOfType.length) {
-                return Swal.fire({ 
-                    icon: 'error', 
-                    title: 'รถเต็ม', 
-                    text: `รถประเภท ${type} ไม่ว่างในช่วงเวลาที่เลือก กรุณาตรวจสอบช่วงเวลาอื่นด้วยปุ่มตรวจสอบรถว่าง`, 
-                    confirmButtonText: 'ตกลง', 
-                    confirmButtonColor: '#EF4444' 
-                });
+                return Swal.fire({ icon: 'error', title: 'รถเต็ม', text: `รถประเภท ${type} ไม่ว่างในช่วงเวลาที่เลือก`, confirmButtonText: 'ตกลง', confirmButtonColor: '#EF4444' });
             }
 
             const saveData = (docBase64) => {
                 Swal.fire({ title: 'ยืนยันการส่งคำขอ', text: 'ตรวจสอบข้อมูลถูกต้องครบถ้วนแล้ว', icon: 'question', showCancelButton: true, confirmButtonText: 'ยืนยัน', cancelButtonText: 'แก้ไข', confirmButtonColor: '#3B82F6' }).then((result) => {
                     if (result.isConfirmed) {
+                        // FIXED: Save Full Name + Surname for PDF consistency
+                        const reqFullName = currentUser.role === 'admin' ? currentUser.name : `${currentUser.prefix}${currentUser.name} ${currentUser.surname}`;
+                        
                         const data = {
-                            requesterId: currentUser.id, requesterName: currentUser.name, requesterPhone: document.getElementById('req-phone').value,
+                            requesterId: currentUser.id, requesterName: reqFullName, requesterPhone: document.getElementById('req-phone').value,
                             startDateTime: start, endDateTime: end, location: document.getElementById('req-location').value,
                             purpose: document.getElementById('req-purpose').value, passengers: document.getElementById('req-passengers').value,
                             requestedType: type, status: 'pending', created_at: new Date().toISOString(), signature: sigData, attachment: docBase64
@@ -892,7 +890,9 @@
                         db.ref('bookings').push(data);
                         Swal.fire({ icon: 'success', title: 'ส่งคำขอเรียบร้อย', showConfirmButton: false, timer: 1500 });
                         document.querySelector('form').reset();
-                        document.getElementById('req-name-display').value = currentUser.name;
+                        // Reset Display Name
+                        const displayName = currentUser.role === 'admin' ? currentUser.name : `${currentUser.prefix}${currentUser.name} ${currentUser.surname}`;
+                        document.getElementById('req-name-display').value = displayName;
                         showPage('home');
                     }
                 });
@@ -902,7 +902,6 @@
 
         // --- Helpers ---
         function formatDate(iso) { if (!iso) return "-"; const d = new Date(iso); const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']; return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543}`; }
-        function formatDateFull(iso) { if (!iso) return "-"; const d = new Date(iso); const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม']; return `${d.getDate()} ${months[d.getMonth()]} พ.ศ. ${d.getFullYear() + 543}`; }
         function getDateParts(iso) { if (!iso) return { d: '-', m: '-', y: '-', t: '-' }; const d = new Date(iso); const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม']; return { d: d.getDate(), m: months[d.getMonth()], y: d.getFullYear() + 543, t: d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + " น." }; }
 
         // --- Render Functions (Admin) ---
@@ -911,36 +910,38 @@
             const titles = { vehicle: 'ข้อมูลยานพาหนะ', driver: 'ข้อมูลพนักงานขับรถ', teacher: 'ข้อมูลบุคลากรครู' };
             document.getElementById('manage-title').innerText = titles[type];
             const thead = document.getElementById('manage-table-head'); const tbody = document.getElementById('manage-table-body'); const mobileContainer = document.getElementById('manage-mobile-container');
+            
             ['vehicle', 'driver', 'teacher'].forEach(t => { 
                 const card = document.getElementById(`card-manage-${t}`); 
                 if (t === type) { card.classList.add('manage-card-active'); card.classList.remove('manage-card-inactive'); } 
                 else { card.classList.remove('manage-card-active'); card.classList.add('manage-card-inactive'); } 
             });
             tbody.innerHTML = ''; mobileContainer.innerHTML = '';
+            
             const list = type === 'vehicle' ? dataVehicles : (type === 'driver' ? dataDrivers : dataUsers);
             
             if (type === 'vehicle') {
                 thead.innerHTML = `<tr><th class="text-left rounded-tl-xl">ชื่อรถ</th><th class="text-center">ทะเบียน</th><th class="text-center">ประเภท</th><th class="text-center rounded-tr-xl">จัดการ</th></tr>`;
                 list.forEach(item => {
-                    tbody.insertAdjacentHTML('beforeend', `<tr><td class="text-left-align font-bold text-gray-800">${item.name}</td><td class="text-center"><span class="bg-gray-100 px-2 py-1 rounded text-sm">${item.plate}</span></td><td class="text-center">${item.type}</td><td class="text-center"><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-full"><i class="fas fa-trash"></i></button></td></tr>`);
-                    mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-gray-800">${item.name}</h4><span class="bg-gray-100 px-2 py-0.5 rounded text-xs">${item.plate}</span></div><div class="text-sm text-gray-500 mb-2">${item.type}</div><div class="flex justify-end pt-2 border-t border-gray-100"><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button></div></div>`);
+                    tbody.insertAdjacentHTML('beforeend', `<tr><td class="text-left-align font-bold text-gray-800">${item.name}</td><td class="text-center"><span class="bg-gray-100 px-2 py-1 rounded text-sm">${item.plate}</span></td><td class="text-center">${item.type}</td><td class="text-center"><div class="flex justify-center gap-2"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full"><i class="fas fa-edit"></i></button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-full"><i class="fas fa-trash"></i></button></div></td></tr>`);
+                    mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-gray-800">${item.name}</h4><span class="bg-gray-100 px-2 py-0.5 rounded text-xs">${item.plate}</span></div><div class="text-sm text-gray-500 mb-2">${item.type}</div><div class="flex justify-end pt-2 border-t border-gray-100 gap-3"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-edit"></i> แก้ไข</button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button></div></div>`);
                 });
             } else if (type === 'driver') {
                 thead.innerHTML = `<tr><th class="text-left rounded-tl-xl">ชื่อ-สกุล</th><th class="text-center">เบอร์โทร</th><th class="text-center rounded-tr-xl">จัดการ</th></tr>`;
                 list.forEach(item => {
-                    tbody.insertAdjacentHTML('beforeend', `<tr><td class="text-left-align font-bold text-gray-800">${item.name}</td><td class="text-center text-blue-600 font-medium">${item.phone}</td><td class="text-center"><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-full"><i class="fas fa-trash"></i></button></td></tr>`);
-                    mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-gray-800">${item.name}</h4></div><div class="text-sm text-blue-600 mb-2"><i class="fas fa-phone mr-1"></i> ${item.phone}</div><div class="flex justify-end pt-2 border-t border-gray-100"><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button></div></div>`);
+                    tbody.insertAdjacentHTML('beforeend', `<tr><td class="text-left-align font-bold text-gray-800">${item.name}</td><td class="text-center text-blue-600 font-medium">${item.phone}</td><td class="text-center"><div class="flex justify-center gap-2"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full"><i class="fas fa-edit"></i></button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-full"><i class="fas fa-trash"></i></button></div></td></tr>`);
+                    mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-gray-800">${item.name}</h4></div><div class="text-sm text-blue-600 mb-2"><i class="fas fa-phone mr-1"></i> ${item.phone}</div><div class="flex justify-end pt-2 border-t border-gray-100 gap-3"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-edit"></i> แก้ไข</button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button></div></div>`);
                 });
             } else { // Teacher
                 thead.innerHTML = `<tr><th class="text-left rounded-tl-xl">ชื่อ-สกุล</th><th class="text-center">เลขบัตรฯ</th><th class="text-center">รหัสผ่าน</th><th class="text-center rounded-tr-xl">จัดการ</th></tr>`;
                 list.forEach(item => {
-                    tbody.insertAdjacentHTML('beforeend', `<tr><td class="text-left-align font-bold text-gray-800">${item.prefix}${item.name} ${item.surname}</td><td class="text-center text-sm text-gray-500">${item.cardId}</td><td class="text-center text-sm font-mono text-blue-500">${item.password}</td><td class="text-center flex justify-center gap-2"><button onclick="resetPassword('${item.id}')" class="text-yellow-500 hover:bg-yellow-50 w-8 h-8 rounded-full" title="รีเซ็ตรหัสผ่าน"><i class="fas fa-key"></i></button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-full"><i class="fas fa-trash"></i></button></td></tr>`);
-                    mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-gray-800">${item.prefix}${item.name} ${item.surname}</h4></div><div class="mobile-card-row"><span class="mobile-card-label">เลขบัตรฯ:</span> <span class="mobile-card-value">${item.cardId}</span></div><div class="mobile-card-row"><span class="mobile-card-label">รหัสผ่าน:</span> <span class="mobile-card-value font-mono text-blue-600">${item.password}</span></div><div class="flex justify-end gap-3 pt-2 border-t border-gray-100"><button onclick="resetPassword('${item.id}')" class="text-yellow-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-key"></i> รีเซ็ต</button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button></div></div>`);
+                    tbody.insertAdjacentHTML('beforeend', `<tr><td class="text-left-align font-bold text-gray-800">${item.prefix}${item.name} ${item.surname}</td><td class="text-center text-sm text-gray-500">${item.cardId}</td><td class="text-center text-sm font-mono text-blue-500">${item.password}</td><td class="text-center flex justify-center gap-2"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full"><i class="fas fa-edit"></i></button><button onclick="resetPassword('${item.id}')" class="text-yellow-500 hover:bg-yellow-50 w-8 h-8 rounded-full" title="รีเซ็ตรหัสผ่าน"><i class="fas fa-key"></i></button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-full"><i class="fas fa-trash"></i></button></td></tr>`);
+                    mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-gray-800">${item.prefix}${item.name} ${item.surname}</h4></div><div class="mobile-card-row"><span class="mobile-card-label">เลขบัตรฯ:</span> <span class="mobile-card-value">${item.cardId}</span></div><div class="mobile-card-row"><span class="mobile-card-label">รหัสผ่าน:</span> <span class="mobile-card-value font-mono text-blue-600">${item.password}</span></div><div class="flex justify-end gap-3 pt-2 border-t border-gray-100"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-edit"></i> แก้ไข</button><button onclick="resetPassword('${item.id}')" class="text-yellow-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-key"></i> รีเซ็ต</button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button></div></div>`);
                 });
             }
         }
 
-        // --- NEW: Fix Bulk Import Logic ---
+        // Logic for Add/Delete/Edit Data
         function addNewData() { 
             if (manageMode === 'vehicle') { 
                 Swal.fire({ title: 'เพิ่มยานพาหนะ', html: `<div class="space-y-3 text-left"><input id="new-v-name" class="swal2-input w-full mx-0" placeholder="ชื่อรถ"><input id="new-v-plate" class="swal2-input w-full mx-0" placeholder="ทะเบียน"><select id="new-v-type" class="swal2-input w-full mx-0"><option>รถตู้</option><option>รถกระบะ</option><option>รถบรรทุก</option><option>รถยนต์ส่วนบุคคล</option></select></div>`, showCancelButton: true, confirmButtonText: 'บันทึก' }).then((res) => { if (res.isConfirmed) { db.ref('vehicles').push({ name: document.getElementById('new-v-name').value, plate: document.getElementById('new-v-plate').value, type: document.getElementById('new-v-type').value }); Swal.fire('สำเร็จ', '', 'success'); } }); 
@@ -951,63 +952,117 @@
                     title: 'เพิ่มบุคลากรครู', 
                     width: '700px', 
                     html: `<div class="space-y-4 text-left"><div class="bg-blue-50 p-4 rounded-xl border border-blue-100"><h4 class="font-bold text-blue-600 mb-2">วิธีที่ 1: เพิ่มทีละคน</h4><div class="grid grid-cols-2 gap-2"><select id="new-t-prefix" class="border p-2 rounded"><option>นาย</option><option>นาง</option><option>นางสาว</option></select><input id="new-t-name" class="border p-2 rounded" placeholder="ชื่อ"><input id="new-t-surname" class="border p-2 rounded" placeholder="นามสกุล"><input id="new-t-card" class="border p-2 rounded" placeholder="เลขบัตรฯ 13 หลัก"></div><button onclick="addTeacherSingle()" class="mt-2 bg-blue-500 text-white px-4 py-1 rounded text-sm w-full">บันทึก 1 คน</button></div><div class="bg-gray-50 p-4 rounded-xl border border-gray-100"><h4 class="font-bold text-gray-600 mb-2">วิธีที่ 2: เพิ่มหลายคน (Copy Paste)</h4><p class="text-xs text-gray-400 mb-1">รูปแบบ: คำนำหน้า ชื่อ นามสกุล เลขบัตรฯ (1 คนต่อ 1 บรรทัด)</p><textarea id="new-t-bulk" class="w-full border p-2 rounded h-40 text-sm font-mono" placeholder="นาย สมชาย ใจดี 1234567890123&#10;นางสาว มีนา รักเรียน 1234567890124"></textarea></div></div>`, 
-                    showCancelButton: true, 
-                    showConfirmButton: true, 
-                    confirmButtonText: 'บันทึก (หลายคน)', 
-                    confirmButtonColor: '#3B82F6', 
-                    preConfirm: () => { 
-                        const bulk = document.getElementById('new-t-bulk').value; 
-                        return bulk ? bulk : null; 
-                    } 
+                    showCancelButton: true, confirmButtonText: 'บันทึก (หลายคน)', confirmButtonColor: '#3B82F6', 
+                    preConfirm: () => { const bulk = document.getElementById('new-t-bulk').value; return bulk ? bulk : null; } 
                 }).then((res) => { 
                     if (res.isConfirmed && res.value) { 
-                        // Improved Bulk Parse Logic
-                        const lines = res.value.split('\n'); 
-                        let count = 0; 
-                        let duplicates = 0; 
-                        let errors = 0;
-
+                        const lines = res.value.split('\n'); let count = 0; let duplicates = 0; 
                         lines.forEach(line => { 
-                            const cleanLine = line.trim();
-                            if(!cleanLine) return; // Skip empty lines
-
-                            const parts = cleanLine.split(/\s+/); // Split by any whitespace
+                            const parts = line.trim().split(/\s+/); 
                             if(parts.length >= 4) { 
-                                const cardId = parts[parts.length - 1]; // Last part is ID
-                                const prefix = parts[0];
-                                const name = parts[1];
-                                const surname = parts.slice(2, parts.length - 1).join(' '); // Handle multi-part middle names if any
-
-                                if (dataUsers.some(u => u.cardId === cardId)) { 
-                                    duplicates++; 
-                                } else { 
-                                    db.ref('users').push({ 
-                                        prefix: prefix, 
-                                        name: name, 
-                                        surname: surname, 
-                                        cardId: cardId, 
-                                        password: 'sateacher', 
-                                        role: 'teacher' 
-                                    }); 
-                                    count++; 
-                                } 
-                            } else {
-                                errors++;
-                            }
+                                const cardId = parts[parts.length - 1]; 
+                                const prefix = parts[0]; 
+                                const name = parts[1]; 
+                                const surname = parts.slice(2, parts.length - 1).join(' '); 
+                                if (dataUsers.some(u => u.cardId === cardId)) duplicates++; 
+                                else { db.ref('users').push({ prefix, name, surname, cardId, password: 'sateacher', role: 'teacher' }); count++; } 
+                            } 
                         }); 
-
-                        let msg = `เพิ่มข้อมูลสำเร็จ ${count} รายการ`; 
-                        if (duplicates > 0) msg += `<br><span class="text-yellow-600">ข้อมูลซ้ำ ${duplicates} รายการ</span>`;
-                        if (errors > 0) msg += `<br><span class="text-red-500">รูปแบบผิด ${errors} รายการ</span>`;
-                        Swal.fire('ผลการทำงาน', msg, 'success'); 
+                        Swal.fire('ผลการทำงาน', `เพิ่มสำเร็จ ${count} รายการ${duplicates > 0 ? `<br>ข้อมูลซ้ำ ${duplicates} รายการ` : ''}`, 'success'); 
                     } 
                 }); 
             } 
         }
 
+        // --- NEW: Edit Item Function ---
+        function editItem(type, id) {
+            if (type === 'vehicle') {
+                const item = dataVehicles.find(v => v.id === id);
+                if (!item) return;
+                Swal.fire({
+                    title: 'แก้ไขยานพาหนะ',
+                    html: `<div class="space-y-3 text-left">
+                            <label class="text-sm font-bold">ชื่อรถ</label><input id="edit-v-name" class="swal2-input w-full mx-0" value="${item.name}">
+                            <label class="text-sm font-bold">ทะเบียน</label><input id="edit-v-plate" class="swal2-input w-full mx-0" value="${item.plate}">
+                            <label class="text-sm font-bold">ประเภท</label><select id="edit-v-type" class="swal2-input w-full mx-0"><option ${item.type === 'รถตู้' ? 'selected' : ''}>รถตู้</option><option ${item.type === 'รถกระบะ' ? 'selected' : ''}>รถกระบะ</option><option ${item.type === 'รถบรรทุก' ? 'selected' : ''}>รถบรรทุก</option><option ${item.type === 'รถยนต์ส่วนบุคคล' ? 'selected' : ''}>รถยนต์ส่วนบุคคล</option></select>
+                           </div>`,
+                    showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: '#3B82F6',
+                    preConfirm: () => {
+                        return {
+                            name: document.getElementById('edit-v-name').value,
+                            plate: document.getElementById('edit-v-plate').value,
+                            type: document.getElementById('edit-v-type').value
+                        }
+                    }
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        db.ref(`vehicles/${id}`).update(res.value);
+                        Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success');
+                    }
+                });
+            } else if (type === 'driver') {
+                const item = dataDrivers.find(d => d.id === id);
+                if (!item) return;
+                Swal.fire({
+                    title: 'แก้ไขพนักงานขับรถ',
+                    html: `<div class="space-y-3 text-left">
+                            <label class="text-sm font-bold">ชื่อ-สกุล</label><input id="edit-d-name" class="swal2-input w-full mx-0" value="${item.name}">
+                            <label class="text-sm font-bold">เบอร์โทร</label><input id="edit-d-phone" class="swal2-input w-full mx-0" value="${item.phone}">
+                           </div>`,
+                    showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: '#3B82F6',
+                    preConfirm: () => {
+                        return {
+                            name: document.getElementById('edit-d-name').value,
+                            phone: document.getElementById('edit-d-phone').value
+                        }
+                    }
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        db.ref(`drivers/${id}`).update(res.value);
+                        Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success');
+                    }
+                });
+            } else if (type === 'teacher') {
+                const item = dataUsers.find(u => u.id === id);
+                if (!item) return;
+                Swal.fire({
+                    title: 'แก้ไขบุคลากรครู',
+                    html: `<div class="space-y-3 text-left">
+                            <label class="text-sm font-bold">คำนำหน้า</label>
+                            <select id="edit-t-prefix" class="swal2-input w-full mx-0">
+                                <option ${item.prefix === 'นาย' ? 'selected' : ''}>นาย</option>
+                                <option ${item.prefix === 'นาง' ? 'selected' : ''}>นาง</option>
+                                <option ${item.prefix === 'นางสาว' ? 'selected' : ''}>นางสาว</option>
+                            </select>
+                            <label class="text-sm font-bold">ชื่อ</label><input id="edit-t-name" class="swal2-input w-full mx-0" value="${item.name}">
+                            <label class="text-sm font-bold">นามสกุล</label><input id="edit-t-surname" class="swal2-input w-full mx-0" value="${item.surname}">
+                            <label class="text-sm font-bold">เลขบัตรประชาชน (Login)</label><input id="edit-t-card" class="swal2-input w-full mx-0" value="${item.cardId}">
+                           </div>`,
+                    showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: '#3B82F6',
+                    preConfirm: () => {
+                        return {
+                            prefix: document.getElementById('edit-t-prefix').value,
+                            name: document.getElementById('edit-t-name').value,
+                            surname: document.getElementById('edit-t-surname').value,
+                            cardId: document.getElementById('edit-t-card').value
+                        }
+                    }
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        // Check duplicate card ID if changed
+                        if (res.value.cardId !== item.cardId && dataUsers.some(u => u.cardId === res.value.cardId)) {
+                            return Swal.fire('ข้อมูลซ้ำ', 'เลขบัตรประชาชนนี้มีในระบบแล้ว', 'error');
+                        }
+                        db.ref(`users/${id}`).update(res.value);
+                        Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success');
+                    }
+                });
+            }
+        }
+
         window.addTeacherSingle = function() { const prefix = document.getElementById('new-t-prefix').value; const name = document.getElementById('new-t-name').value; const surname = document.getElementById('new-t-surname').value; const card = document.getElementById('new-t-card').value; if(!name || !surname || !card) return Swal.fire('ผิดพลาด', 'กรอกข้อมูลให้ครบ', 'error'); if (dataUsers.some(u => u.cardId === card)) return Swal.fire('ข้อมูลซ้ำ', `มีเลขบัตรประชาชน ${card} ในระบบแล้ว`, 'warning'); db.ref('users').push({ prefix, name, surname, cardId: card, password: 'sateacher', role: 'teacher' }); Swal.fire('สำเร็จ', 'เพิ่มข้อมูลเรียบร้อย', 'success'); }
         function resetPassword(uid) { Swal.fire({ title: 'รีเซ็ตรหัสผ่าน?', text: "รหัสผ่านจะกลับเป็น 'sateacher'", icon: 'warning', showCancelButton: true, confirmButtonText: 'รีเซ็ต', confirmButtonColor: '#F59E0B' }).then((res) => { if (res.isConfirmed) { db.ref(`users/${uid}`).update({ password: 'sateacher' }); Swal.fire('สำเร็จ', 'รีเซ็ตรหัสผ่านแล้ว', 'success'); } }); }
-        function deleteItem(type, id) { Swal.fire({ title: 'ยืนยันการลบ?', text: "ข้อมูลจะหายไปอย่างถาวร", icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#EF4444' }).then((res) => { if (res.isConfirmed) { const collection = type === 'vehicle' ? 'vehicles' : (type === 'driver' ? 'drivers' : 'users'); db.ref(`${collection}/${id}`).remove(); Swal.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ', showConfirmButton: false, timer: 1000 }); } }); }
+        function deleteItem(type, id) { Swal.fire({ title: 'ยืนยันการลบ?', text: "ข้อมูลจะหายไปอย่างถาวร", icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบ', confirmButtonColor: '#EF4444' }).then((res) => { if (res.isConfirmed) { const collection = type === 'vehicle' ? 'vehicles' : (type === 'driver' ? 'drivers' : 'users'); db.ref(`${collection}/${id}`).remove(); Swal.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ', showConfirmButton: false, timer: 1000 }); } }); }
         
         function openApproval(id) { 
             const booking = dataBookings.find(b => b.id === id); 
@@ -1020,10 +1075,7 @@
                 if (b.status === 'approved' && b.id !== id) { 
                     const bs = new Date(b.startDateTime).getTime(); 
                     const be = new Date(b.endDateTime).getTime(); 
-                    if (sTime < be && eTime > bs) { 
-                        busyCars.add(b.vehicleId); 
-                        busyDrivers.add(b.driverId); 
-                    } 
+                    if (sTime < be && eTime > bs) { busyCars.add(b.vehicleId); busyDrivers.add(b.driverId); } 
                 } 
             }); 
             
@@ -1041,8 +1093,8 @@
             Swal.fire({ 
                 title: 'พิจารณาคำขอ', 
                 width: '600px', 
-                html: `<div class="text-left text-sm mb-4 bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-2"><div class="grid grid-cols-2 gap-2"><p><strong>ผู้ขอ:</strong> ${booking.requesterName}</p><p><strong>เบอร์โทร:</strong> ${booking.requesterPhone}</p><p><strong>วันที่เริ่ม:</strong> ${formatDate(booking.startDateTime)}</p><p><strong>สิ้นสุด:</strong> ${formatDate(booking.endDateTime)}</p><p><strong>จำนวนคน:</strong> ${booking.passengers} คน</p><p><strong>ประเภทรถ:</strong> ${booking.requestedType}</p></div><div class="border-t border-blue-200 pt-2"><p><strong>ไปที่:</strong> ${booking.location}</p><p><strong>เพื่อ:</strong> ${booking.purpose}</p><p class="mt-1"><strong>เอกสารแนบ:</strong> ${docBtn}</p></div></div><div class="space-y-4 text-left"><div><label class="block text-sm font-bold text-gray-700 mb-1">เลือกยานพาหนะ (${booking.requestedType})</label><select id="swal-car" class="w-full border-2 rounded-lg p-2 border-gray-200 focus:border-blue-500 outline-none">${carOptions}</select></div><div><label class="block text-sm font-bold text-gray-700 mb-1">เลือกคนขับ</label><select id="swal-driver" class="w-full border-2 rounded-lg p-2 border-gray-200 focus:border-blue-500 outline-none">${driverOptions}</select></div></div>`, 
-                showCancelButton: true, showDenyButton: true, confirmButtonText: 'อนุมัติ / บันทึก', denyButtonText: 'ไม่อนุมัติ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#10B981', denyButtonColor: '#EF4444', cancelButtonColor: '#9CA3AF', 
+                html: `<div class="text-left text-sm mb-4 bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-2"><div class="grid grid-cols-2 gap-2"><p><strong>ผู้ขอ:</strong> ${getBookingFullName(booking)}</p><p><strong>เบอร์โทร:</strong> ${booking.requesterPhone}</p><p><strong>วันที่เริ่ม:</strong> ${formatDate(booking.startDateTime)}</p><p><strong>สิ้นสุด:</strong> ${formatDate(booking.endDateTime)}</p><p><strong>จำนวนคน:</strong> ${booking.passengers} คน</p><p><strong>ประเภทรถ:</strong> ${booking.requestedType}</p></div><div class="border-t border-blue-200 pt-2"><p><strong>ไปที่:</strong> ${booking.location}</p><p><strong>เพื่อ:</strong> ${booking.purpose}</p><p class="mt-1"><strong>เอกสารแนบ:</strong> ${docBtn}</p></div></div><div class="space-y-4 text-left"><div><label class="block text-sm font-bold text-gray-700 mb-1">เลือกยานพาหนะ (${booking.requestedType})</label><select id="swal-car" class="w-full border-2 rounded-lg p-2 border-gray-200 focus:border-blue-500 outline-none">${carOptions}</select></div><div><label class="block text-sm font-bold text-gray-700 mb-1">เลือกคนขับ</label><select id="swal-driver" class="w-full border-2 rounded-lg p-2 border-gray-200 focus:border-blue-500 outline-none">${driverOptions}</select></div></div>`, 
+                showCancelButton: true, showDenyButton: true, confirmButtonText: 'อนุมัติ / บันทึก', denyButtonText: 'ไม่อนุมัติ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#10B981', denyButtonColor: '#EF4444', 
                 preConfirm: () => { return { vehicleId: document.getElementById('swal-car').value, driverId: document.getElementById('swal-driver').value } } 
             }).then((result) => { 
                 if (result.isConfirmed) { 
@@ -1051,7 +1103,7 @@
                     db.ref(`bookings/${id}`).update({ status: 'approved', vehicleId: vId, driverId: dId, approver: currentUser.name, approveDate: new Date().toISOString(), rejectReason: null }); 
                     Swal.fire({ icon: 'success', title: 'บันทึกสถานะ: อนุมัติ', showConfirmButton: false, timer: 1500 }); 
                 } else if (result.isDenied) { 
-                    Swal.fire({ title: 'ระบุเหตุผลการไม่อนุมัติ', input: 'text', inputValue: booking.rejectReason || '', inputPlaceholder: 'เช่น รถเต็ม, ภารกิจไม่เหมาะสม', showCancelButton: true, confirmButtonText: 'ยืนยันไม่อนุมัติ', confirmButtonColor: '#EF4444' }).then((res) => { 
+                    Swal.fire({ title: 'ระบุเหตุผล', input: 'text', inputValue: booking.rejectReason || '', showCancelButton: true, confirmButtonText: 'ยืนยันไม่อนุมัติ', confirmButtonColor: '#EF4444' }).then((res) => { 
                         if (res.isConfirmed) { db.ref(`bookings/${id}`).update({ status: 'rejected', rejectReason: res.value || 'ไม่ระบุ', approver: currentUser.name, vehicleId: null, driverId: null }); Swal.fire({ icon: 'success', title: 'บันทึกสถานะ: ไม่อนุมัติ', showConfirmButton: false, timer: 1500 }); } 
                     }); 
                 } 
@@ -1073,54 +1125,48 @@
             if(filterType !== 'all') displayVehicles = displayVehicles.filter(v => v.type === filterType); 
             if(displayVehicles.length === 0) { container.innerHTML = `<div class="text-center text-gray-400 py-8">ไม่มีรถประเภทนี้</div>`; return; } 
             
-            const firstVehicleIdsOfType = {}; dataVehicles.forEach(v => { if(!firstVehicleIdsOfType[v.type]) firstVehicleIdsOfType[v.type] = v.id; }); 
-            
             displayVehicles.forEach(v => { 
                 const dayBookings = dataBookings.filter(b => { 
-                    const bStart = new Date(b.startDateTime); 
-                    const bEnd = new Date(b.endDateTime); 
+                    const bStart = new Date(b.startDateTime); const bEnd = new Date(b.endDateTime); 
                     const overlap = (bStart < selectedDateEnd && bEnd > selectedDateStart); 
                     if(!overlap) return false; 
                     if (b.status === 'approved' && b.vehicleId === v.id) return true; 
-                    if (b.status === 'pending' && b.requestedType === v.type && firstVehicleIdsOfType[v.type] === v.id) return true; 
                     return false; 
                 }); 
                 
                 let barsHtml = ''; 
                 dayBookings.forEach(b => { 
-                    const bStart = new Date(b.startDateTime); 
-                    const bEnd = new Date(b.endDateTime); 
-                    const dayStart = selectedDateStart.getTime(); 
-                    const dayEnd = selectedDateEnd.getTime(); 
-                    const totalDay = 24 * 60 * 60 * 1000; 
-                    const actualStart = Math.max(bStart.getTime(), dayStart); 
-                    const actualEnd = Math.min(bEnd.getTime(), dayEnd); 
-                    const startPct = ((actualStart - dayStart) / totalDay) * 100; 
-                    const widthPct = ((actualEnd - actualStart) / totalDay) * 100; 
-                    const colorClass = b.status === 'approved' ? 'segment-approved' : 'segment-pending'; 
-                    barsHtml += `<div class="timeline-segment ${colorClass}" style="left: ${startPct}%; width: ${widthPct}%;" title="${b.status}: ${b.requesterName}"></div>`; 
+                    const bStart = new Date(b.startDateTime); const bEnd = new Date(b.endDateTime); 
+                    const dayStart = selectedDateStart.getTime(); const dayEnd = selectedDateEnd.getTime(); const totalDay = 24 * 60 * 60 * 1000; 
+                    const actualStart = Math.max(bStart.getTime(), dayStart); const actualEnd = Math.min(bEnd.getTime(), dayEnd); 
+                    const startPct = ((actualStart - dayStart) / totalDay) * 100; const widthPct = ((actualEnd - actualStart) / totalDay) * 100; 
+                    barsHtml += `<div class="timeline-segment segment-approved" style="left: ${startPct}%; width: ${widthPct}%;" title="${b.status}: ${b.requesterName}"></div>`; 
                 }); 
                 
                 const card = document.createElement('div'); 
                 card.className = "bg-white p-3 rounded-xl border border-gray-200 shadow-sm"; 
-                // Updated HTML structure for Time Scale to match new CSS
                 card.innerHTML = `<div class="flex justify-between items-center mb-1"><span class="font-bold text-sm text-gray-700">${v.name}</span><span class="text-xs bg-gray-100 px-2 rounded">${v.plate}</span></div><div class="timeline-bar">${barsHtml}</div><div class="time-scale"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>`; 
                 container.appendChild(card); 
             }); 
         }
+
+        // ================= PDF Generation Functions =================
 
         function printSinglePDF(id) { 
             const b = dataBookings.find(x => x.id === id); 
             const v = dataVehicles.find(x => x.id === b.vehicleId) || {}; 
             const d = dataDrivers.find(x => x.id === b.driverId) || {}; 
             
-            // Header Date
             const today = getDateParts(new Date().toISOString());
             document.getElementById('pdf-day').innerText = today.d;
             document.getElementById('pdf-month').innerText = today.m;
             document.getElementById('pdf-year').innerText = today.y;
 
-            document.getElementById('pdf-name').innerText = b.requesterName;
+            // FIXED: Use full name logic
+            const fullName = getBookingFullName(b);
+            document.getElementById('pdf-name').innerText = fullName;
+            document.getElementById('pdf-sign-name').innerText = fullName;
+
             document.getElementById('pdf-location').innerText = b.location;
             document.getElementById('pdf-purpose').innerText = b.purpose;
             document.getElementById('pdf-pax').innerText = b.passengers;
@@ -1138,7 +1184,6 @@
             document.getElementById('pdf-e-y').innerText = e.y;
             document.getElementById('pdf-e-t').innerText = e.t;
 
-            document.getElementById('pdf-sign-name').innerText = b.requesterName;
             document.getElementById('pdf-phone').innerText = b.requesterPhone;
             document.getElementById('pdf-plate').innerText = v.plate || '-';
             document.getElementById('pdf-driver').innerText = d.name || '-';
@@ -1173,11 +1218,18 @@
             } 
             
             const element = document.getElementById('pdf-template'); 
+            // FIXED: Options for correct scaling without coordinate shifts
             const opt = { 
-                margin: 0, 
+                margin: 0, // IMPORTANT: Let CSS handle margins
                 filename: `ใบขออนุญาต_${b.requesterName}.pdf`, 
                 image: { type: 'jpeg', quality: 0.98 }, 
-                html2canvas: { scale: 3, logging: false, useCORS: true, allowTaint: true }, 
+                html2canvas: { 
+                    scale: 4, 
+                    logging: false, 
+                    useCORS: true, 
+                    allowTaint: true,
+                    // Note: Removing windowWidth fixed coordinate issues in hidden divs
+                }, 
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
             }; 
             html2pdf().set(opt).from(element).save(); 
@@ -1212,17 +1264,26 @@
                 approvedList.forEach(b => {
                     const v = dataVehicles.find(x => x.id === b.vehicleId) || {};
                     const d = dataDrivers.find(x => x.id === b.driverId) || {};
-                    
-                    // Format Driver Name (Split First Name and Last Name to new lines if needed, handled by CSS white-space)
                     const driverName = d.name || '-';
                     
+                    // FIXED: Split Name/Surname with <br> for Column 4
+                    let rawName = getBookingFullName(b);
+                    let formattedName = rawName;
+                    
+                    if (rawName.includes(' ') && rawName.length < 50) {
+                        const lastSpace = rawName.lastIndexOf(' ');
+                        if (lastSpace !== -1) {
+                            formattedName = rawName.substring(0, lastSpace) + '<br>' + rawName.substring(lastSpace + 1);
+                        }
+                    }
+
                     const row = document.createElement('div');
                     row.className = 'div-row';
                     row.innerHTML = `
                         <div class="div-cell col-1"><span class="cell-text">${count++}</span></div>
                         <div class="div-cell col-2"><span class="cell-text">${v.plate || '-'}</span></div>
                         <div class="div-cell col-3"><span class="cell-text">${formatDate(b.created_at)}</span></div>
-                        <div class="div-cell col-4"><span class="cell-text">${b.requesterName}</span></div>
+                        <div class="div-cell col-4"><span class="cell-text">${formattedName}</span></div>
                         <div class="div-cell col-5"><span class="cell-text">${b.location}</span></div>
                         <div class="div-cell col-6"><span class="cell-text">${formatDate(b.startDateTime)}<br>- ${formatDate(b.endDateTime)}</span></div>
                         <div class="div-cell col-7"><span class="cell-text">${driverName}</span></div>
@@ -1233,8 +1294,9 @@
             }
 
             const element = document.getElementById('pdf-summary-template');
+            // FIXED: Landscape A4 Settings with fixed padding
             const opt = {
-                margin: [10, 0, 10, 0],
+                margin: 0, 
                 filename: `รายงานสรุปการใช้รถ.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
