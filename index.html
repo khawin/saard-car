@@ -120,8 +120,8 @@
         /* Timeline Fixes */
         .timeline-bar { height: 1.5rem; background-color: #E5E7EB; border-radius: 9999px; position: relative; overflow: hidden; margin-top: 0.5rem; }
         .timeline-segment { position: absolute; height: 100%; top: 0; min-width: 2px; }
-        .segment-approved { background-color: #EF4444; opacity: 0.9; }
-        .segment-pending { background-color: #FBBF24; opacity: 0.9; }
+        .segment-approved { background-color: #EF4444; opacity: 0.9; } /* สีแดงสำหรับอนุมัติแล้ว */
+        .segment-pending { background-color: #FBBF24; opacity: 0.7; } /* สีเหลืองสำหรับรออนุมัติ - ลด Opacity เพื่อให้ดูเบากว่าแดง */
         .time-scale { display: flex; justify-content: space-between; font-size: 0.7rem; color: #9CA3AF; margin-top: 0.25rem; padding: 0 2px; }
         
         .manage-card-active { border-color: #EC4899 !important; background-color: #FDF2F8 !important; transform: translateY(-2px); }
@@ -154,9 +154,14 @@
             /* STRICT A4 DIMENSIONS */
             width: 210mm; 
             min-height: 297mm; 
+            page-break-after: always;
+        }
+
+        .pdf-page:last-child {
+            page-break-after: avoid;
         }
         
-        .pdf-header { text-align: center; font-weight: bold; font-size: 20px; margin-bottom: 10px; }
+        .pdf-header { text-align: center; font-weight: bold; font-size: 20px; margin-bottom: 12px; }
         .pdf-content { font-size: 15px; line-height: 1.8; }
         
         .pdf-row {
@@ -200,6 +205,22 @@
             max-height: 50px; width: auto; max-width: 90%; z-index: 10; 
             filter: grayscale(100%) contrast(150%) brightness(1.1); mix-blend-mode: multiply; 
         }
+        
+        /* Attachment Page Styles */
+        .pdf-img-container {
+            width: 100%;
+            height: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pdf-attached-img {
+            max-width: 100%;
+            max-height: 250mm;
+            object-fit: contain;
+            border: 1px solid #ddd;
+        }
 
         /* Approval Grid */
         .approval-grid { display: flex; width: 100%; margin-bottom: 8px; align-items: flex-start; }
@@ -229,16 +250,26 @@
         }
         .div-cell:last-child { border-right: none; }
         .div-header { background-color: #f0f0f0; font-weight: bold; }
-        .div-header .div-cell { height: 40px; font-size: 14px; }
+        /* FIXED: Force centered headers and bottom border */
+        .div-header .div-cell { 
+            height: 40px; 
+            font-size: 14px; 
+            justify-content: center !important; 
+            text-align: center !important;
+            border-bottom: 1px solid #000 !important;
+        }
         
         /* Summary Columns */
         .col-1 { width: 5%; } 
         .col-2 { width: 10%; } 
         .col-3 { width: 12%; } 
         .col-4 { width: 18%; justify-content: flex-start; text-align: left; padding-left: 8px; white-space: pre-wrap; }
+        .div-header .col-4 { justify-content: center !important; text-align: center !important; } /* Force header center */
         .col-5 { width: 20%; justify-content: flex-start; text-align: left; padding-left: 8px; }
+        .div-header .col-5 { justify-content: center !important; text-align: center !important; } /* Force header center */
         .col-6 { width: 15%; } 
         .col-7 { width: 13%; justify-content: flex-start; text-align: left; padding-left: 8px; white-space: pre-wrap; } 
+        .div-header .col-7 { justify-content: center !important; text-align: center !important; } /* Force header center */
         .col-8 { width: 7%; }
         .cell-text { position: relative; top: -2px; }
 
@@ -310,7 +341,7 @@
                         <div class="flex gap-2"><button id="btn-print-summary" onclick="showSummaryPrintOptions()" class="hidden-section px-4 sm:px-5 py-2 sm:py-2.5 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100 text-xs sm:text-sm font-bold transition shadow-sm border border-purple-100 hover:-translate-y-0.5"><i class="fas fa-print mr-2"></i>พิมพ์สรุป</button></div>
                     </div>
                     <div id="view-mode-list" class="block"><div class="hidden md:block overflow-x-auto rounded-xl border border-gray-100"><table class="w-full glass-table"><thead><tr><th class="text-left w-32 rounded-tl-xl">วันที่ขอ</th><th class="text-left">ผู้ขอ</th><th class="text-left">รายการ</th><th class="text-left w-24">ประเภท</th><th class="text-left w-48">เวลาเดินทาง</th><th class="text-center w-28">สถานะ</th><th class="text-center w-24 rounded-tr-xl">จัดการ</th></tr></thead><tbody id="table-body"></tbody></table></div><div id="mobile-card-container" class="md:hidden space-y-4"></div><div class="p-4 border-t border-gray-100 text-center text-gray-500 text-xs sm:text-sm">แสดงข้อมูลล่าสุด 20 รายการ</div></div>
-                    <div id="view-mode-timeline" class="hidden-section p-4 sm:p-6 bg-gray-50/50"><div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4"><div class="flex flex-col sm:flex-row gap-4 w-full"><div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">เลือกวันที่:</label><input type="date" id="timeline-date" onchange="renderTimeline()" class="custom-input"></div><div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ประเภทรถ:</label><select id="timeline-filter-type" onchange="renderTimeline()" class="custom-input"><option value="all">ทั้งหมด</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div></div></div><div id="timeline-container" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div><div class="flex gap-4 justify-center mt-4 text-xs text-gray-500"><div class="flex items-center gap-1"><div class="w-3 h-3 bg-gray-300 rounded-full"></div> ว่าง</div><div class="flex items-center gap-1"><div class="w-3 h-3 bg-yellow-400 rounded-full"></div> รออนุมัติ</div><div class="flex items-center gap-1"><div class="w-3 h-3 bg-red-500 rounded-full"></div> จองแล้ว</div></div></div>
+                    <div id="view-mode-timeline" class="hidden-section p-4 sm:p-6 bg-gray-50/50"><div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4"><div class="flex flex-col sm:flex-row gap-4 w-full"><div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">เลือกวันที่:</label><input type="date" id="timeline-date" onchange="renderTimeline()" class="custom-input"></div><div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ประเภทรถ:</label><select id="timeline-filter-type" onchange="renderTimeline()" class="custom-input"><option value="all">ทั้งหมด</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div></div></div><div id="timeline-container" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div><div class="flex gap-4 justify-center mt-4 text-xs text-gray-500"><div class="flex items-center gap-1"><div class="w-3 h-3 bg-gray-300 rounded-full border border-gray-400"></div> ว่าง (สีเทา)</div><div class="flex items-center gap-1"><div class="w-3 h-3 bg-yellow-400 rounded-full border border-yellow-500"></div> รออนุมัติ (สีเหลือง)</div><div class="flex items-center gap-1"><div class="w-3 h-3 bg-red-500 rounded-full border border-red-600"></div> อนุมัติแล้ว (สีแดง)</div></div></div>
                     
                     <div id="view-mode-usage" class="hidden-section p-4 sm:p-6 bg-gray-50/50">
                         <div class="flex flex-col sm:flex-row justify-start items-center mb-6 gap-4">
@@ -340,36 +371,46 @@
 
     <!-- ================= PDF Templates ================= -->
     <div id="pdf-container">
-        <!-- Single Permission PDF (Strictly Configured) -->
-        <div id="pdf-template" class="pdf-page">
-            <div class="pdf-header">ใบขออนุญาตใช้รถส่วนกลาง</div>
-            <div class="pdf-content">
-                <div class="pdf-row justify-between items-end" style="margin-top: 5px;">
-                    <!-- FIXED: Modified 'At' section to have slash -->
-                    <div>ที่ <span class="dotted-line-low" style="width: 50px;"></span> / <span class="dotted-line-low" style="width: 50px;"></span></div>
-                    <div>วันที่ <span class="dotted-line" id="pdf-day" style="width: 40px;"></span> เดือน <span class="dotted-line" id="pdf-month" style="width: 100px;"></span> พ.ศ. <span class="dotted-line" id="pdf-year" style="width: 60px;"></span></div>
+        <!-- WRAPPER FOR SINGLE PDF (2 Pages) -->
+        <div id="pdf-print-wrapper">
+            <!-- Page 1: Single Permission Form -->
+            <div id="pdf-template" class="pdf-page">
+                <div class="pdf-header">ใบขออนุญาตใช้รถส่วนกลาง</div>
+                <div class="pdf-content">
+                    <div class="pdf-row justify-between items-end" style="margin-top: 5px;">
+                        <div>ที่ <span class="dotted-line-low" id="pdf-run-num" style="width: 50px;"></span> / <span class="dotted-line-low" id="pdf-run-year" style="width: 50px;"></span></div>
+                        <div>วันที่ <span class="dotted-line" id="pdf-day" style="width: 40px;"></span> เดือน <span class="dotted-line" id="pdf-month" style="width: 100px;"></span> พ.ศ. <span class="dotted-line" id="pdf-year" style="width: 60px;"></span></div>
+                    </div>
+                    <div class="pdf-row" style="margin-top: 25px;">เรียน ผู้อำนวยการโรงเรียนสอาดเผดิมวิทยา</div>
+                    <div class="pdf-row"><span class="indent-tab">ข้าพเจ้า <span id="pdf-name" class="dotted-line" style="width: 250px;"></span></span><span>ตำแหน่ง <span class="dotted-line" style="width: 150px;">ครู</span></span></div>
+                    <div class="pdf-row"><span>ขออนุญาตใช้</span><span class="checkbox-box" id="chk-van"></span> <span>รถตู้</span><span class="checkbox-box" id="chk-pickup"></span> <span>รถกระบะ</span><span class="checkbox-box" id="chk-truck"></span> <span>รถบรรทุก</span><span class="checkbox-box" id="chk-car"></span> <span>รถยนต์ส่วนบุคคล</span></div>
+                    <div class="pdf-row"><span>สถานที่ที่ไป</span><div class="dotted-line-fill"><span id="pdf-location"></span></div></div>
+                    <div class="pdf-row"><span>เพื่อ</span><div class="dotted-line-fill"><span id="pdf-purpose"></span></div></div>
+                    <div class="pdf-row"><span>มีผู้โดยสารจำนวน <span id="pdf-pax" class="dotted-line" style="width: 40px;"></span> คน </span><span>ในวันที่ <span id="pdf-s-d" class="dotted-line" style="width: 25px;"></span> เดือน <span id="pdf-s-m" class="dotted-line" style="width: 70px;"></span> พ.ศ. <span id="pdf-s-y" class="dotted-line" style="width: 40px;"></span> เวลา <span id="pdf-s-t" class="dotted-line" style="width: 50px;"></span></span></div>
+                    <div class="pdf-row"><span>ถึงวันที่ <span id="pdf-e-d" class="dotted-line" style="width: 25px;"></span> เดือน <span id="pdf-e-m" class="dotted-line" style="width: 70px;"></span> พ.ศ. <span id="pdf-e-y" class="dotted-line" style="width: 40px;"></span> เวลา <span id="pdf-e-t" class="dotted-line" style="width: 50px;"></span></span></div>
+                    <div class="pdf-row"><span>และได้แนบหนังสืออนุญาตไปราชการมาด้วยแล้ว</span></div>
+                    <div class="pdf-row justify-end" style="margin-top: 30px; margin-right: 40px;">
+                        <div style="text-align: center;"><div style="display: flex; align-items: flex-end; justify-content: center;">ลงชื่อ <div class="signature-box"><span class="dotted-line" style="width: 100%; display: block; position: absolute; bottom: 5px;"></span><img id="pdf-sig-img" src="" class="signature-img" style="display: none;"></div>ผู้ขออนุญาต</div><div style="margin-top: 4px;">(<span id="pdf-sign-name"></span>)</div><div>ตำแหน่ง ครู</div><div>เบอร์โทรศัพท์ <span id="pdf-phone"></span></div></div>
+                    </div>
+                    <div style="font-weight: bold; margin-bottom: 10px; margin-top: 15px;">ผลการพิจารณา</div>
+                    <div class="approval-grid"><div class="col-label">เห็นควร</div><div class="col-check"><span class="checkbox-box" id="chk-approve"></span></div><div class="col-text">อนุญาตและรับผิดชอบการใช้รถหมายเลขทะเบียน <span id="pdf-plate" class="dotted-line" style="width: 120px;"></span></div></div>
+                    <div class="approval-grid" style="display: none;" id="pdf-driver-row"><div class="col-label"></div><div class="col-check"></div><div class="col-text">โดยมีนาย <span id="pdf-driver" class="dotted-line" style="width: 220px;"></span> เป็นพนักงานขับรถ</div></div>
+                    <div class="approval-grid"><div class="col-label"></div><div class="col-check"><span class="checkbox-box" id="chk-reject"></span></div><div class="col-text">ไม่อนุญาตเพราะ <span id="pdf-reject-reason" class="dotted-line" style="width: 320px;"></span></div></div>
+                    <div class="pdf-row justify-between" style="margin-top: 30px; align-items: flex-start;">
+                        <div style="text-align: center; width: 45%; line-height: 1.6;">ลงชื่อ <span class="dotted-line" style="width: 150px;"></span><br>(นางสาวจุฑาดา ชุมเกษียน)<br>หัวหน้างานยานพาหนะ<br>วันที่ <span class="dotted-line" style="width: 100px;"></span></div>
+                        <div style="text-align: center; width: 45%; line-height: 1.6; padding-top: 10px;">ลงชื่อ <span class="dotted-line" style="width: 150px;"></span><br>(นายหัตถเชษฐ์ แสงประดิษฐ์)<br>รองผู้อำนวยการโรงเรียน ปฏิบัติราชการแทน<br>ผู้อำนวยการโรงเรียนสอาดเผดิมวิทยา<br>วันที่ <span class="dotted-line" style="width: 100px;"></span></div>
+                    </div>
+                     <div class="pdf-row" style="margin-top: 30px; display: none;" id="pdf-driver-sign-row">
+                        <div class="driver-sig-block"><div style="margin-bottom: 8px;">รับทราบ</div><div style="margin-bottom: 8px;">ลงชื่อ <span class="dotted-line" style="width: 150px;"></span></div><div style="margin-bottom: 4px;">(<span id="pdf-driver-sign"></span>)</div><div>พนักงานขับรถ</div></div>
+                    </div>
                 </div>
-                <div class="pdf-row" style="margin-top: 15px;">เรียน ผู้อำนวยการโรงเรียนสอาดเผดิมวิทยา</div>
-                <div class="pdf-row"><span class="indent-tab">ข้าพเจ้า <span id="pdf-name" class="dotted-line" style="width: 250px;"></span></span><span>ตำแหน่ง <span class="dotted-line" style="width: 150px;">ครู</span></span></div>
-                <div class="pdf-row"><span>ขออนุญาตใช้</span><span class="checkbox-box" id="chk-van"></span> <span>รถตู้</span><span class="checkbox-box" id="chk-pickup"></span> <span>รถกระบะ</span><span class="checkbox-box" id="chk-truck"></span> <span>รถบรรทุก</span><span class="checkbox-box" id="chk-car"></span> <span>รถยนต์ส่วนบุคคล</span></div>
-                <div class="pdf-row"><span>สถานที่ที่ไป</span><div class="dotted-line-fill"><span id="pdf-location"></span></div></div>
-                <div class="pdf-row"><span>เพื่อ</span><div class="dotted-line-fill"><span id="pdf-purpose"></span></div></div>
-                <div class="pdf-row"><span>มีผู้โดยสารจำนวน <span id="pdf-pax" class="dotted-line" style="width: 40px;"></span> คน </span><span>ในวันที่ <span id="pdf-s-d" class="dotted-line" style="width: 25px;"></span> เดือน <span id="pdf-s-m" class="dotted-line" style="width: 70px;"></span> พ.ศ. <span id="pdf-s-y" class="dotted-line" style="width: 40px;"></span> เวลา <span id="pdf-s-t" class="dotted-line" style="width: 50px;"></span></span></div>
-                <div class="pdf-row"><span>ถึงวันที่ <span id="pdf-e-d" class="dotted-line" style="width: 25px;"></span> เดือน <span id="pdf-e-m" class="dotted-line" style="width: 70px;"></span> พ.ศ. <span id="pdf-e-y" class="dotted-line" style="width: 40px;"></span> เวลา <span id="pdf-e-t" class="dotted-line" style="width: 50px;"></span></span></div>
-                <div class="pdf-row"><span>และได้แนบหนังสืออนุญาตไปราชการมาด้วยแล้ว</span></div>
-                <div class="pdf-row justify-end" style="margin-top: 30px; margin-right: 40px;">
-                    <div style="text-align: center;"><div style="display: flex; align-items: flex-end; justify-content: center;">ลงชื่อ <div class="signature-box"><span class="dotted-line" style="width: 100%; display: block; position: absolute; bottom: 5px;"></span><img id="pdf-sig-img" src="" class="signature-img" style="display: none;"></div>ผู้ขออนุญาต</div><div style="margin-top: 4px;">(<span id="pdf-sign-name"></span>)</div><div>ตำแหน่ง ครู</div><div>เบอร์โทรศัพท์ <span id="pdf-phone"></span></div></div>
-                </div>
-                <div style="font-weight: bold; margin-bottom: 10px; margin-top: 15px;">ผลการพิจารณา</div>
-                <div class="approval-grid"><div class="col-label">เห็นควร</div><div class="col-check"><span class="checkbox-box" id="chk-approve"></span></div><div class="col-text">อนุญาตและรับผิดชอบการใช้รถหมายเลขทะเบียน <span id="pdf-plate" class="dotted-line" style="width: 120px;"></span></div></div>
-                <div class="approval-grid" style="display: none;" id="pdf-driver-row"><div class="col-label"></div><div class="col-check"></div><div class="col-text">โดยมีนาย <span id="pdf-driver" class="dotted-line" style="width: 220px;"></span> เป็นพนักงานขับรถ</div></div>
-                <div class="approval-grid"><div class="col-label"></div><div class="col-check"><span class="checkbox-box" id="chk-reject"></span></div><div class="col-text">ไม่อนุญาตเพราะ <span id="pdf-reject-reason" class="dotted-line" style="width: 320px;"></span></div></div>
-                <div class="pdf-row justify-between" style="margin-top: 30px; align-items: flex-start;">
-                    <div style="text-align: center; width: 45%; line-height: 1.6;">ลงชื่อ <span class="dotted-line" style="width: 150px;"></span><br>(นางสาวจุฑาดา ชุมเกษียน)<br>หัวหน้างานยานพาหนะ<br>วันที่ <span class="dotted-line" style="width: 100px;"></span></div>
-                    <div style="text-align: center; width: 45%; line-height: 1.6; padding-top: 10px;">ลงชื่อ <span class="dotted-line" style="width: 150px;"></span><br>(นายหัตถเชษฐ์ แสงประดิษฐ์)<br>รองผู้อำนวยการโรงเรียน ปฏิบัติราชการแทน<br>ผู้อำนวยการโรงเรียนสอาดเผดิมวิทยา<br>วันที่ <span class="dotted-line" style="width: 100px;"></span></div>
-                </div>
-                 <div class="pdf-row" style="margin-top: 30px; display: none;" id="pdf-driver-sign-row">
-                    <div class="driver-sig-block"><div style="margin-bottom: 8px;">รับทราบ</div><div style="margin-bottom: 8px;">ลงชื่อ <span class="dotted-line" style="width: 150px;"></span></div><div style="margin-bottom: 4px;">(<span id="pdf-driver-sign"></span>)</div><div>พนักงานขับรถ</div></div>
+            </div>
+            
+            <!-- Page 2: Attachment -->
+            <div id="pdf-attachment-template" class="pdf-page" style="display:none;">
+                <div class="pdf-header">เอกสารแนบ: หนังสืออนุญาตไปราชการ</div>
+                <div class="pdf-img-container">
+                    <img id="pdf-att-img" class="pdf-attached-img" src="">
                 </div>
             </div>
         </div>
@@ -444,20 +485,29 @@
 
         function initDateSelectors() {
             const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            // BE 2569 - 2580 corresponds to CE 2026 - 2037
+            const startYearCE = 2026; // 2569
+            const endYearCE = 2037;   // 2580
             const currentYear = new Date().getFullYear();
             const currentMonth = new Date().getMonth();
 
             const monthOpts = months.map((m, i) => `<option value="${i}">${m}</option>`).join('');
             let yearOpts = '';
-            for(let i = currentYear - 2; i <= currentYear + 2; i++) yearOpts += `<option value="${i}">${i + 543}</option>`;
+            
+            // Loop from BE 2569 (2026) to BE 2580 (2037)
+            for(let i = startYearCE; i <= endYearCE; i++) {
+                yearOpts += `<option value="${i}">${i + 543}</option>`;
+            }
             
             const mSel = document.getElementById('usage-month');
             const ySel = document.getElementById('usage-year');
+            
             if(mSel && ySel) {
                 mSel.innerHTML = monthOpts;
                 ySel.innerHTML = yearOpts;
                 mSel.value = currentMonth;
-                ySel.value = currentYear;
+                // Default to current year if within range, else first available
+                ySel.value = (currentYear >= startYearCE && currentYear <= endYearCE) ? currentYear : startYearCE;
             }
         }
 
@@ -1130,7 +1180,14 @@
                     const bStart = new Date(b.startDateTime); const bEnd = new Date(b.endDateTime); 
                     const overlap = (bStart < selectedDateEnd && bEnd > selectedDateStart); 
                     if(!overlap) return false; 
-                    if (b.status === 'approved' && b.vehicleId === v.id) return true; 
+                    
+                    // FIXED: Show Approved matches specific vehicle
+                    if (b.status === 'approved' && b.vehicleId === v.id) return true;
+                    
+                    // FIXED: Show Pending matches vehicle TYPE (since vehicle ID is null in pending)
+                    // This will show yellow bars on ALL vehicles of that type to indicate potential usage
+                    if (b.status === 'pending' && b.requestedType === v.type) return true;
+                    
                     return false; 
                 }); 
                 
@@ -1140,7 +1197,11 @@
                     const dayStart = selectedDateStart.getTime(); const dayEnd = selectedDateEnd.getTime(); const totalDay = 24 * 60 * 60 * 1000; 
                     const actualStart = Math.max(bStart.getTime(), dayStart); const actualEnd = Math.min(bEnd.getTime(), dayEnd); 
                     const startPct = ((actualStart - dayStart) / totalDay) * 100; const widthPct = ((actualEnd - actualStart) / totalDay) * 100; 
-                    barsHtml += `<div class="timeline-segment segment-approved" style="left: ${startPct}%; width: ${widthPct}%;" title="${b.status}: ${b.requesterName}"></div>`; 
+                    
+                    // FIXED: Determine class based on status (Red for Approved, Yellow for Pending)
+                    const segClass = b.status === 'pending' ? 'segment-pending' : 'segment-approved';
+                    
+                    barsHtml += `<div class="timeline-segment ${segClass}" style="left: ${startPct}%; width: ${widthPct}%;" title="${b.status}: ${b.requesterName}"></div>`; 
                 }); 
                 
                 const card = document.createElement('div'); 
@@ -1157,10 +1218,24 @@
             const v = dataVehicles.find(x => x.id === b.vehicleId) || {}; 
             const d = dataDrivers.find(x => x.id === b.driverId) || {}; 
             
-            const today = getDateParts(new Date().toISOString());
-            document.getElementById('pdf-day').innerText = today.d;
-            document.getElementById('pdf-month').innerText = today.m;
-            document.getElementById('pdf-year').innerText = today.y;
+            // FIXED: Use CREATED DATE instead of today
+            const createdParts = getDateParts(b.created_at);
+            document.getElementById('pdf-day').innerText = createdParts.d;
+            document.getElementById('pdf-month').innerText = createdParts.m;
+            document.getElementById('pdf-year').innerText = createdParts.y;
+
+            // FIXED: Running Number Logic
+            // 1. Get all bookings for the created year
+            const bYear = new Date(b.created_at).getFullYear();
+            const yearBookings = dataBookings
+                .filter(x => new Date(x.created_at).getFullYear() === bYear)
+                .sort((a,b) => new Date(a.created_at) - new Date(b.created_at)); // Sort Oldest first
+            
+            // 2. Find index
+            const runIndex = yearBookings.findIndex(x => x.id === b.id) + 1;
+            
+            document.getElementById('pdf-run-num').innerText = runIndex;
+            document.getElementById('pdf-run-year').innerText = bYear + 543;
 
             // FIXED: Use full name logic
             const fullName = getBookingFullName(b);
@@ -1217,18 +1292,28 @@
                 driverSignRow.style.display = 'none'; 
             } 
             
-            const element = document.getElementById('pdf-template'); 
+            // --- NEW: Handle Attachment Page ---
+            const attPage = document.getElementById('pdf-attachment-template');
+            const attImg = document.getElementById('pdf-att-img');
+            
+            if (b.attachment) {
+                attImg.src = b.attachment;
+                attPage.style.display = 'block';
+            } else {
+                attPage.style.display = 'none';
+            }
+            
+            const element = document.getElementById('pdf-print-wrapper'); // TARGET THE WRAPPER 
             // FIXED: Options for correct scaling without coordinate shifts
             const opt = { 
                 margin: 0, // IMPORTANT: Let CSS handle margins
                 filename: `ใบขออนุญาต_${b.requesterName}.pdf`, 
                 image: { type: 'jpeg', quality: 0.98 }, 
                 html2canvas: { 
-                    scale: 4, 
+                    scale: 3, 
                     logging: false, 
                     useCORS: true, 
-                    allowTaint: true,
-                    // Note: Removing windowWidth fixed coordinate issues in hidden divs
+                    allowTaint: true
                 }, 
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
             }; 
@@ -1266,11 +1351,12 @@
                     const d = dataDrivers.find(x => x.id === b.driverId) || {};
                     const driverName = d.name || '-';
                     
-                    // FIXED: Split Name/Surname with <br> for Column 4
+                    // FIXED: Split Name/Surname Logic
                     let rawName = getBookingFullName(b);
                     let formattedName = rawName;
                     
-                    if (rawName.includes(' ') && rawName.length < 50) {
+                    // Logic: If length > 25 and has space, replace last space with <br>
+                    if (rawName.length > 25 && rawName.includes(' ')) {
                         const lastSpace = rawName.lastIndexOf(' ');
                         if (lastSpace !== -1) {
                             formattedName = rawName.substring(0, lastSpace) + '<br>' + rawName.substring(lastSpace + 1);
