@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ระบบขออนุญาตใช้ยานพาหนะ - โรงเรียนสอาดเผดิมวิทยา</title>
     <link rel="icon" href="https://www.saard.ac.th/wp-content/uploads/2024/11/saardlogov2-1-1024x1024.png" type="image/png">
     
@@ -55,6 +55,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -68,6 +69,7 @@
             background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #fce7f3 100%);
             min-height: 100vh;
             overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .glass-effect {
@@ -78,6 +80,8 @@
         }
 
         .hidden-section { display: none !important; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         /* Interactive Elements */
         .btn-primary {
@@ -120,164 +124,64 @@
         /* Timeline Fixes */
         .timeline-bar { height: 1.5rem; background-color: #E5E7EB; border-radius: 9999px; position: relative; overflow: hidden; margin-top: 0.5rem; }
         .timeline-segment { position: absolute; height: 100%; top: 0; min-width: 2px; }
-        .segment-approved { background-color: #EF4444; opacity: 0.9; } /* สีแดงสำหรับอนุมัติแล้ว */
-        .segment-pending { background-color: #FBBF24; opacity: 0.7; } /* สีเหลืองสำหรับรออนุมัติ - ลด Opacity เพื่อให้ดูเบากว่าแดง */
+        .segment-approved { background-color: #EF4444; opacity: 0.9; } 
+        .segment-pending { background-color: #FBBF24; opacity: 0.7; } 
         .time-scale { display: flex; justify-content: space-between; font-size: 0.7rem; color: #9CA3AF; margin-top: 0.25rem; padding: 0 2px; }
         
-        .manage-card-active { border-color: #EC4899 !important; background-color: #FDF2F8 !important; transform: translateY(-2px); }
-        .manage-card-inactive { border-color: transparent !important; opacity: 0.7; }
-        .dash-active { opacity: 1 !important; transform: translateY(-2px); }
-        .dash-inactive { opacity: 0.6 !important; transform: scale(0.98); }
+        /* Desktop UI: Dashboard Cards Highlighting */
+        .dash-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; }
+        
+        /* Active States - Make them Pop! */
+        .dash-card-all.dash-active { border-color: #3B82F6 !important; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4) !important; transform: translateY(-6px) scale(1.03); opacity: 1 !important; background: linear-gradient(to bottom right, #ffffff, #eff6ff); }
+        .dash-card-pending.dash-active { border-color: #FBBF24 !important; box-shadow: 0 10px 25px -5px rgba(251, 191, 36, 0.4) !important; transform: translateY(-6px) scale(1.03); opacity: 1 !important; background: linear-gradient(to bottom right, #ffffff, #fef3c7); }
+        .dash-card-processed.dash-active { border-color: #10B981 !important; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4) !important; transform: translateY(-6px) scale(1.03); opacity: 1 !important; background: linear-gradient(to bottom right, #ffffff, #d1fae5); }
+        
+        /* Inactive States - Push them back visually but keep text readable */
+        .dash-inactive { opacity: 0.75 !important; filter: grayscale(40%); transform: scale(0.96); background-color: #f9fafb; border-color: transparent !important; box-shadow: none !important; pointer-events: auto; }
+        .dash-inactive:hover { opacity: 0.95 !important; filter: grayscale(10%); transform: scale(0.98); }
+
+        .manage-card-active { border-color: #EC4899 !important; background-color: #FDF2F8 !important; transform: translateY(-4px) scale(1.02); box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.3) !important;}
+        .manage-card-inactive { border-color: transparent !important; opacity: 0.75 !important; filter: grayscale(40%); transform: scale(0.96); transition: all 0.3s ease; }
+        .manage-card-inactive:hover { opacity: 0.95 !important; filter: grayscale(10%); transform: scale(0.98); }
 
         /* ==================== PDF STYLES (Strict Fixed Layout) ==================== */
-        
-        /* FIXED: Use fixed position top-0 left-0 to ensure coordinate system is correct */
-        #pdf-container { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            z-index: -1000; 
-            opacity: 0; 
-            pointer-events: none;
-            width: fit-content;
-            height: fit-content;
-        }
-        
-        /* Common PDF Page Settings */
-        .pdf-page { 
-            background: white; color: black; 
-            font-family: 'Sarabun', sans-serif !important; 
-            /* Fixed Padding for Margins */
-            padding: 10mm 20mm 10mm 20mm; 
-            box-sizing: border-box; 
-            text-rendering: optimizeLegibility; font-variant-ligatures: none;
-            /* STRICT A4 DIMENSIONS */
-            width: 210mm; 
-            min-height: 297mm; 
-            page-break-after: always;
-        }
-
-        .pdf-page:last-child {
-            page-break-after: avoid;
-        }
-        
+        #pdf-container { position: fixed; top: 0; left: 0; z-index: -1000; opacity: 0; pointer-events: none; width: fit-content; height: fit-content; }
+        .pdf-page { background: white; color: black; font-family: 'Sarabun', sans-serif !important; padding: 10mm 20mm 10mm 20mm; box-sizing: border-box; text-rendering: optimizeLegibility; font-variant-ligatures: none; width: 210mm; min-height: 297mm; page-break-after: always; }
+        .pdf-page:last-child { page-break-after: avoid; }
         .pdf-header { text-align: center; font-weight: bold; font-size: 20px; margin-bottom: 12px; }
         .pdf-content { font-size: 15px; line-height: 1.8; }
-        
-        .pdf-row {
-            display: flex; align-items: flex-end; width: 100%; margin-bottom: 12px;
-            flex-wrap: nowrap; white-space: nowrap;
-        }
-
+        .pdf-row { display: flex; align-items: flex-end; width: 100%; margin-bottom: 12px; flex-wrap: nowrap; white-space: nowrap; }
         .justify-between { justify-content: space-between; }
         .justify-end { justify-content: flex-end; }
         .indent-tab { margin-left: 40px; } 
-        
-        .checkbox-box { 
-            display: inline-block; width: 14px; height: 14px; border: 1px solid #000; 
-            margin-left: 8px; margin-right: 8px; vertical-align: middle; position: relative; margin-bottom: 3px; 
-        }
-        .checkbox-checked::after { 
-            content: '✓'; position: absolute; top: -50%; left: 50%; 
-            transform: translate(-50%, -10%); font-size: 18px; font-weight: bold; color: black; line-height: 1; 
-        }
-        
-        .dotted-line { 
-            border-bottom: 1px dotted #000; display: inline-block; min-width: 20px; 
-            text-align: center; color: #000; padding: 0 5px; margin: 0 2px;
-        }
-        
-        .dotted-line-low {
-             border-bottom: 1px dotted #000; display: inline-block; min-width: 20px; 
-             text-align: center; color: #000; padding: 0 5px; margin: 0 2px;
-             position: relative; top: 4px; 
-        }
-        
-        .dotted-line-fill {
-            flex-grow: 1; border-bottom: 1px dotted #000; margin-left: 5px;
-            display: flex; align-items: flex-end; padding-bottom: 2px;
-        }
+        .checkbox-box { display: inline-block; width: 14px; height: 14px; border: 1px solid #000; margin-left: 8px; margin-right: 8px; vertical-align: middle; position: relative; margin-bottom: 3px; }
+        .checkbox-checked::after { content: '✓'; position: absolute; top: -50%; left: 50%; transform: translate(-50%, -10%); font-size: 18px; font-weight: bold; color: black; line-height: 1; }
+        .dotted-line { border-bottom: 1px dotted #000; display: inline-block; min-width: 20px; text-align: center; color: #000; padding: 0 5px; margin: 0 2px; }
+        .dotted-line-low { border-bottom: 1px dotted #000; display: inline-block; min-width: 20px; text-align: center; color: #000; padding: 0 5px; margin: 0 2px; position: relative; top: 4px; }
+        .dotted-line-fill { flex-grow: 1; border-bottom: 1px dotted #000; margin-left: 5px; display: flex; align-items: flex-end; padding-bottom: 2px; }
         .dotted-line-fill span { padding-left: 10px; width: 100%; }
-
         .signature-box { position: relative; display: inline-block; width: 180px; height: 30px; vertical-align: bottom; }
-        .signature-img { 
-            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); 
-            max-height: 50px; width: auto; max-width: 90%; z-index: 10; 
-            filter: grayscale(100%) contrast(150%) brightness(1.1); mix-blend-mode: multiply; 
-        }
-        
-        /* Attachment Page Styles */
-        .pdf-img-container {
-            width: 100%;
-            height: 90%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-        }
-        .pdf-attached-img {
-            max-width: 100%;
-            max-height: 250mm;
-            object-fit: contain;
-            border: 1px solid #ddd;
-        }
-
-        /* Approval Grid */
+        .signature-img { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); max-height: 50px; width: auto; max-width: 90%; z-index: 10; filter: grayscale(100%) contrast(150%) brightness(1.1); mix-blend-mode: multiply; }
+        .pdf-img-container { width: 100%; height: 90%; display: flex; justify-content: center; align-items: center; margin-top: 20px; }
+        .pdf-attached-img { max-width: 100%; max-height: 250mm; object-fit: contain; border: 1px solid #ddd; }
         .approval-grid { display: flex; width: 100%; margin-bottom: 8px; align-items: flex-start; }
         .col-label { width: 70px; flex-shrink: 0; padding-top: 2px; }
         .col-check { width: 40px; flex-shrink: 0; display: flex; justify-content: flex-start; }
         .col-text { flex-grow: 1; padding-top: 2px; }
-
         .driver-sig-block { display: flex; flex-direction: column; align-items: center; width: 250px; margin-left: 20px; }
-
-        /* Summary Table (Div based) */
-        #pdf-summary-template { 
-            display: block; 
-            /* Fixed padding for Landscape Margins */
-            padding: 10mm; 
-            /* STRICT A4 LANDSCAPE WIDTH */
-            width: 297mm; 
-            font-family: 'Sarabun', sans-serif !important; 
-            background: white;
-            box-sizing: border-box;
-        }
+        
+        #pdf-summary-template { display: block; padding: 10mm; width: 297mm; font-family: 'Sarabun', sans-serif !important; background: white; box-sizing: border-box; }
         .div-table-container { width: 100%; border: 2px solid #000; display: flex; flex-direction: column; }
         .div-row { display: flex; width: 100%; border-bottom: 1px solid #000; }
         .div-row:last-child { border-bottom: none; }
-        .div-cell { 
-            padding: 8px 4px; border-right: 1px solid #000; display: flex; align-items: center; 
-            justify-content: center; text-align: center; font-size: 13px; line-height: 1.4; word-break: break-word; 
-        }
+        .div-cell { padding: 8px 4px; border-right: 1px solid #000; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 13px; line-height: 1.4; word-break: break-word; }
         .div-cell:last-child { border-right: none; }
         .div-header { background-color: #f0f0f0; font-weight: bold; }
-        /* FIXED: Force centered headers and bottom border */
-        .div-header .div-cell { 
-            height: 40px; 
-            font-size: 14px; 
-            justify-content: center !important; 
-            text-align: center !important;
-            border-bottom: 1px solid #000 !important;
-        }
-        
-        /* Summary Columns */
-        .col-1 { width: 5%; } 
-        .col-2 { width: 10%; } 
-        .col-3 { width: 12%; } 
-        .col-4 { width: 18%; justify-content: flex-start; text-align: left; padding-left: 8px; white-space: pre-wrap; }
-        .div-header .col-4 { justify-content: center !important; text-align: center !important; } /* Force header center */
-        .col-5 { width: 20%; justify-content: flex-start; text-align: left; padding-left: 8px; }
-        .div-header .col-5 { justify-content: center !important; text-align: center !important; } /* Force header center */
-        .col-6 { width: 15%; } 
-        .col-7 { width: 13%; justify-content: flex-start; text-align: left; padding-left: 8px; white-space: pre-wrap; } 
-        .div-header .col-7 { justify-content: center !important; text-align: center !important; } /* Force header center */
-        .col-8 { width: 7%; }
-        .cell-text { position: relative; top: -2px; }
-
-        @media (max-width: 640px) {
-            .btn-primary, .btn-secondary { padding: 0.5rem 0.75rem; font-size: 0.875rem; }
-            .nav-toggle-text { display: none; }
-            .nav-toggle-btn { padding: 0.5rem !important; }
-        }
+        .div-header .div-cell { height: 40px; font-size: 14px; justify-content: center !important; text-align: center !important; border-bottom: 1px solid #000 !important; }
+        .col-1 { width: 5%; } .col-2 { width: 10%; } .col-3 { width: 12%; } .col-4 { width: 18%; justify-content: flex-start; text-align: left; padding-left: 8px; white-space: pre-wrap; }
+        .div-header .col-4 { justify-content: center !important; text-align: center !important; } .col-5 { width: 20%; justify-content: flex-start; text-align: left; padding-left: 8px; }
+        .div-header .col-5 { justify-content: center !important; text-align: center !important; } .col-6 { width: 15%; } .col-7 { width: 13%; justify-content: flex-start; text-align: left; padding-left: 8px; white-space: pre-wrap; } 
+        .div-header .col-7 { justify-content: center !important; text-align: center !important; } .col-8 { width: 7%; } .cell-text { position: relative; top: -2px; }
     </style>
 </head>
 <body class="text-gray-700 antialiased selection:bg-pink-200 selection:text-pink-900">
@@ -314,58 +218,225 @@
 
     <!-- ================= Dashboard Section ================= -->
     <div id="dashboard-section" class="hidden-section min-h-screen flex flex-col animate-fade-in relative z-0">
-        <nav class="glass-effect sticky top-0 z-50 shadow-sm border-b border-white/60">
-            <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-20">
-                    <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0"><img src="https://www.saard.ac.th/wp-content/uploads/2024/11/saardlogov2-1-1024x1024.png" alt="Logo" class="h-10 w-10 sm:h-12 sm:w-12 drop-shadow-sm flex-shrink-0"><div class="flex flex-col"><h1 class="text-sm sm:text-xl font-bold leading-tight flex flex-col sm:block"><span class="text-gray-800">ระบบ</span><span class="text-pink-500">ขออนุญาตใช้ยานพาหนะ</span></h1><p class="text-[10px] sm:text-xs text-blue-600 font-medium bg-blue-50 inline-block px-2 py-0.5 rounded-full self-start" id="user-role-display">บุคลากรครู</p></div></div>
-                    <div class="flex items-center gap-1 sm:gap-3">
-                        <div id="nav-menu-teacher" class="bg-gray-100 p-1 rounded-xl relative flex items-center h-10 sm:h-12"><div id="nav-t-indicator" class="absolute h-[calc(100%-0.5rem)] w-[calc(33.33%-0.25rem)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out top-1 left-1 pointer-events-none"></div><button id="nav-t-home" onclick="showPage('home')" class="nav-toggle-btn relative z-10 flex-1 px-3 sm:px-5 py-1 sm:py-2 rounded-lg text-sm font-bold transition-colors text-blue-600 flex items-center justify-center gap-2"><i class="fas fa-home"></i><span class="nav-toggle-text">หน้าหลัก</span></button><button id="nav-t-request" onclick="showPage('request')" class="nav-toggle-btn relative z-10 flex-1 px-3 sm:px-5 py-1 sm:py-2 rounded-lg text-sm font-bold transition-colors text-gray-500 flex items-center justify-center gap-2"><i class="fas fa-edit"></i><span class="nav-toggle-text">ขออนุญาต</span></button><button id="nav-t-profile" onclick="showPage('profile')" class="nav-toggle-btn relative z-10 flex-1 px-3 sm:px-5 py-1 sm:py-2 rounded-lg text-sm font-bold transition-colors text-gray-500 flex items-center justify-center gap-2"><i class="fas fa-user-circle"></i><span class="nav-toggle-text">ส่วนตัว</span></button></div>
-                        <div id="nav-menu-admin" class="hidden-section bg-gray-100 p-1 rounded-xl relative flex items-center h-10 sm:h-12"><div id="nav-a-indicator" class="absolute h-[calc(100%-0.5rem)] w-[calc(50%-0.25rem)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out top-1 left-1 pointer-events-none"></div><button id="nav-a-home" onclick="showPage('home')" class="nav-toggle-btn relative z-10 flex-1 px-3 sm:px-5 py-1 sm:py-2 rounded-lg text-sm font-bold transition-colors text-blue-600 flex items-center justify-center gap-2"><i class="fas fa-home"></i><span class="nav-toggle-text">หน้าหลัก</span></button><button id="nav-a-manage" onclick="showPage('manage')" class="nav-toggle-btn relative z-10 flex-1 px-3 sm:px-5 py-1 sm:py-2 rounded-lg text-sm font-bold transition-colors text-gray-500 flex items-center justify-center gap-2"><i class="fas fa-database"></i><span class="nav-toggle-text">จัดการข้อมูล</span></button></div>
-                        <div class="h-6 sm:h-8 w-px bg-gray-300 mx-1 sm:mx-2"></div><button onclick="handleLogout()" class="text-gray-500 hover:text-red-500 font-medium text-sm p-2 rounded-lg hover:bg-red-50 transition-colors"><i class="fas fa-sign-out-alt text-lg"></i></button>
+        <!-- TOP NAV (Navbar 1 & 2 combined logically) -->
+        <nav class="glass-effect sticky top-0 z-50 shadow-sm border-b border-white/60 flex flex-col w-full">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                <!-- Main Header Row (Navbar 1) -->
+                <div class="flex justify-between items-center h-16 sm:h-20 w-full">
+                    <div class="flex items-center gap-3 flex-shrink-0">
+                        <img src="https://www.saard.ac.th/wp-content/uploads/2024/11/saardlogov2-1-1024x1024.png" alt="Logo" class="h-10 w-10 sm:h-12 sm:w-12 drop-shadow-sm flex-shrink-0">
+                        <div class="flex flex-col justify-center">
+                            <h1 class="text-[14px] sm:text-xl font-bold leading-tight flex flex-col sm:block"><span class="text-gray-800">ระบบ</span><span class="text-pink-500">ขออนุญาตใช้ยานพาหนะ</span></h1>
+                            <p class="text-[10px] sm:text-xs text-blue-600 font-medium bg-blue-50 inline-block px-2 py-0.5 mt-0.5 rounded-full self-start" id="user-role-display">บุคลากรครู</p>
+                        </div>
                     </div>
+                    
+                    <!-- Right Aligned Group: Desktop Nav + Logout -->
+                    <div class="flex items-center gap-2 sm:gap-4 ml-auto">
+                        <!-- Desktop Nav Menu (Hidden on Mobile) -->
+                        <div class="hidden md:flex items-center gap-3">
+                            <div id="nav-menu-teacher" class="bg-gray-100 p-1 rounded-xl relative flex items-center h-12">
+                                <div id="nav-t-indicator" class="absolute h-[calc(100%-0.5rem)] w-[calc(33.33%-0.25rem)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out top-1 left-1 pointer-events-none"></div>
+                                <button id="nav-t-home" onclick="showPage('home')" class="relative z-10 flex-1 px-5 py-2 rounded-lg text-sm font-bold transition-colors text-blue-600 flex items-center justify-center gap-2"><i class="fas fa-home"></i><span>หน้าหลัก</span></button>
+                                <button id="nav-t-request" onclick="showPage('request')" class="relative z-10 flex-1 px-5 py-2 rounded-lg text-sm font-bold transition-colors text-gray-500 flex items-center justify-center gap-2"><i class="fas fa-edit"></i><span>ขออนุญาต</span></button>
+                                <button id="nav-t-profile" onclick="showPage('profile')" class="relative z-10 flex-1 px-5 py-2 rounded-lg text-sm font-bold transition-colors text-gray-500 flex items-center justify-center gap-2"><i class="fas fa-user-circle"></i><span>ส่วนตัว</span></button>
+                            </div>
+                            <div id="nav-menu-admin" class="hidden-section bg-gray-100 p-1 rounded-xl relative flex items-center h-12">
+                                <div id="nav-a-indicator" class="absolute h-[calc(100%-0.5rem)] w-[calc(50%-0.25rem)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out top-1 left-1 pointer-events-none"></div>
+                                <button id="nav-a-home" onclick="showPage('home')" class="relative z-10 flex-1 px-5 py-2 rounded-lg text-sm font-bold transition-colors text-blue-600 flex items-center justify-center gap-2"><i class="fas fa-home"></i><span>หน้าหลัก</span></button>
+                                <button id="nav-a-manage" onclick="showPage('manage')" class="relative z-10 flex-1 px-5 py-2 rounded-lg text-sm font-bold transition-colors text-gray-500 flex items-center justify-center gap-2"><i class="fas fa-database"></i><span>จัดการข้อมูล</span></button>
+                            </div>
+                            <div class="hidden md:block h-8 w-px bg-gray-300 mx-1"></div>
+                        </div>
+                        
+                        <!-- Logout Button (Always Visible) -->
+                        <button onclick="handleLogout()" class="text-gray-500 hover:text-red-500 font-medium text-sm p-2 rounded-lg hover:bg-red-50 transition-colors">
+                            <i class="fas fa-sign-out-alt text-[20px] sm:text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Secondary Navbar (Navbar 2 - Top Sub Nav: Filter Tabs) -->
+            <!-- Changed from scrollable flex to grid for no-scroll experience -->
+            <div id="mobile-filter-nav" class="md:hidden border-t border-gray-100 bg-white/95 px-2 py-2 shadow-sm w-full">
+                <div class="grid grid-cols-3 gap-1.5 w-full">
+                    <button onclick="filterBookings('all')" id="mob-btn-all" class="flex flex-col items-center justify-center py-1.5 rounded-lg text-[12px] font-bold transition-all border shadow-sm leading-tight text-blue-600 bg-blue-50 border-blue-500"><span>ทั้งหมด</span><span class="text-[10px] opacity-80">(<span id="mob-count-all">0</span>)</span></button>
+                    <button onclick="filterBookings('pending')" id="mob-btn-pending" class="flex flex-col items-center justify-center py-1.5 rounded-lg text-[12px] font-bold transition-all border leading-tight text-gray-400 bg-gray-50 border-transparent"><span>รออนุมัติ</span><span class="text-[10px] opacity-80">(<span id="mob-count-pending">0</span>)</span></button>
+                    <button onclick="filterBookings('processed')" id="mob-btn-processed" class="flex flex-col items-center justify-center py-1.5 rounded-lg text-[12px] font-bold transition-all border leading-tight text-gray-400 bg-gray-50 border-transparent"><span>ตอบรับแล้ว</span><span class="text-[10px] opacity-80">(<span id="mob-count-processed">0</span>)</span></button>
                 </div>
             </div>
         </nav>
 
-        <div class="flex-grow p-4 sm:p-8 max-w-7xl mx-auto w-full space-y-6 sm:space-y-8 pb-20">
+        <!-- Main Content Area -->
+        <div class="flex-grow p-4 sm:p-8 max-w-7xl mx-auto w-full space-y-6 sm:space-y-8 pb-32 md:pb-20"> 
+            
             <!-- View: Home -->
             <div id="view-home" class="space-y-6 sm:space-y-8 animate-slide-up">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-                    <div id="card-dash-all" onclick="filterBookings('all')" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card hover:shadow-xl transition-all cursor-pointer border-l-8 border-blue-500 group relative overflow-hidden dash-active"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-blue-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">รายการทั้งหมด</p><h3 class="text-4xl sm:text-5xl font-bold text-gray-800 mt-2" id="count-all">0</h3></div><div class="p-3 sm:p-4 bg-blue-100 rounded-2xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition shadow-sm"><i class="fas fa-list-ul text-xl sm:text-2xl"></i></div></div></div>
-                    <div id="card-dash-pending" onclick="filterBookings('pending')" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card hover:shadow-xl transition-all cursor-pointer border-l-8 border-yellow-400 group relative overflow-hidden dash-inactive"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-yellow-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase" id="label-pending">รออนุมัติ</p><h3 class="text-4xl sm:text-5xl font-bold text-gray-800 mt-2" id="count-pending">0</h3></div><div class="p-3 sm:p-4 bg-yellow-100 rounded-2xl text-yellow-600 group-hover:bg-yellow-500 group-hover:text-white transition shadow-sm"><i class="fas fa-clock text-xl sm:text-2xl"></i></div></div></div>
-                    <div id="card-dash-processed" onclick="filterBookings('processed')" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card hover:shadow-xl transition-all cursor-pointer border-l-8 border-green-500 group relative overflow-hidden dash-inactive"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-green-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase" id="label-processed">ตอบรับแล้ว</p><h3 class="text-4xl sm:text-5xl font-bold text-gray-800 mt-2" id="count-processed">0</h3></div><div class="p-3 sm:p-4 bg-green-100 rounded-2xl text-green-600 group-hover:bg-green-500 group-hover:text-white transition shadow-sm"><i class="fas fa-check-circle text-xl sm:text-2xl"></i></div></div></div>
-                </div>
-                <div class="glass-effect rounded-3xl shadow-card p-6 sm:p-8 border border-white/50">
-                    <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
-                        <div class="flex items-center gap-4"><h3 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center gap-3"><span class="w-2 h-6 sm:h-8 bg-gradient-to-b from-blue-500 to-pink-500 rounded-full"></span> <span id="table-title">รายการทั้งหมด</span></h3><div class="flex bg-gray-200 rounded-lg p-1" id="view-toggle-container"><button onclick="toggleView('list')" id="btn-view-list" class="px-3 py-1 rounded-md text-sm font-bold bg-white text-blue-600 shadow-sm transition">ตาราง</button><button onclick="toggleView('timeline')" id="btn-view-timeline" class="px-3 py-1 rounded-md text-sm font-bold text-gray-500 hover:text-blue-600 transition">Timeline</button><button onclick="toggleView('usage')" id="btn-view-usage" class="px-3 py-1 rounded-md text-sm font-bold text-gray-500 hover:text-blue-600 transition">สถิติการใช้รถ</button></div></div>
-                        <div class="flex gap-2"><button id="btn-print-summary" onclick="showSummaryPrintOptions()" class="hidden-section px-4 sm:px-5 py-2 sm:py-2.5 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100 text-xs sm:text-sm font-bold transition shadow-sm border border-purple-100 hover:-translate-y-0.5"><i class="fas fa-print mr-2"></i>พิมพ์สรุป</button></div>
+                
+                <!-- Desktop Big Cards (Hidden on Mobile) -->
+                <div class="hidden md:grid md:grid-cols-3 gap-6">
+                    <div id="card-dash-all" onclick="filterBookings('all')" class="dash-card dash-card-all glass-effect p-6 rounded-3xl cursor-pointer border-l-8 group relative overflow-hidden dash-active">
+                        <div class="absolute right-0 top-0 w-32 h-32 bg-blue-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                            <!-- Changed text color to match card theme -->
+                            <div><p class="text-blue-500 text-sm font-bold mb-1 tracking-wide uppercase">รายการทั้งหมด</p><h3 class="text-5xl font-bold text-gray-800 mt-2" id="count-all">0</h3></div>
+                            <div class="p-4 bg-blue-100 rounded-2xl text-blue-600 transition shadow-sm"><i class="fas fa-list-ul text-2xl"></i></div>
+                        </div>
                     </div>
-                    <div id="view-mode-list" class="block"><div class="hidden md:block overflow-x-auto rounded-xl border border-gray-100"><table class="w-full glass-table"><thead><tr><th class="text-left w-32 rounded-tl-xl">วันที่ขอ</th><th class="text-left">ผู้ขอ</th><th class="text-left">รายการ</th><th class="text-left w-24">ประเภท</th><th class="text-left w-48">เวลาเดินทาง</th><th class="text-center w-28">สถานะ</th><th class="text-center w-24 rounded-tr-xl">จัดการ</th></tr></thead><tbody id="table-body"></tbody></table></div><div id="mobile-card-container" class="md:hidden space-y-4"></div><div class="p-4 border-t border-gray-100 text-center text-gray-500 text-xs sm:text-sm">แสดงข้อมูลล่าสุด 20 รายการ</div></div>
-                    <div id="view-mode-timeline" class="hidden-section p-4 sm:p-6 bg-gray-50/50"><div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4"><div class="flex flex-col sm:flex-row gap-4 w-full"><div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">เลือกวันที่:</label><input type="date" id="timeline-date" onchange="renderTimeline()" class="custom-input"></div><div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ประเภทรถ:</label><select id="timeline-filter-type" onchange="renderTimeline()" class="custom-input"><option value="all">ทั้งหมด</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div></div></div><div id="timeline-container" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div><div class="flex gap-4 justify-center mt-4 text-xs text-gray-500"><div class="flex items-center gap-1"><div class="w-3 h-3 bg-gray-300 rounded-full border border-gray-400"></div> ว่าง (สีเทา)</div><div class="flex items-center gap-1"><div class="w-3 h-3 bg-yellow-400 rounded-full border border-yellow-500"></div> รออนุมัติ (สีเหลือง)</div><div class="flex items-center gap-1"><div class="w-3 h-3 bg-red-500 rounded-full border border-red-600"></div> อนุมัติแล้ว (สีแดง)</div></div></div>
-                    
-                    <div id="view-mode-usage" class="hidden-section p-4 sm:p-6 bg-gray-50/50">
-                        <div class="flex flex-col sm:flex-row justify-start items-center mb-6 gap-4">
-                            <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">เดือน:</label><select id="usage-month" class="custom-input w-32" onchange="renderUsageTable()"></select></div>
-                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ปี:</label><select id="usage-year" class="custom-input w-32" onchange="renderUsageTable()"></select></div>
-                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ประเภทรถ:</label><select id="usage-filter-type" onchange="renderUsageTable()" class="custom-input"><option value="all">ทั้งหมด</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div>
+                    <div id="card-dash-pending" onclick="filterBookings('pending')" class="dash-card dash-card-pending glass-effect p-6 rounded-3xl cursor-pointer border-l-8 group relative overflow-hidden dash-inactive">
+                        <div class="absolute right-0 top-0 w-32 h-32 bg-yellow-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                             <!-- Changed text color to match card theme -->
+                            <div><p class="text-yellow-600 text-sm font-bold mb-1 tracking-wide uppercase" id="label-pending">รออนุมัติ</p><h3 class="text-5xl font-bold text-gray-800 mt-2" id="count-pending">0</h3></div>
+                            <div class="p-4 bg-yellow-100 rounded-2xl text-yellow-600 transition shadow-sm"><i class="fas fa-clock text-2xl"></i></div>
+                        </div>
+                    </div>
+                    <div id="card-dash-processed" onclick="filterBookings('processed')" class="dash-card dash-card-processed glass-effect p-6 rounded-3xl cursor-pointer border-l-8 group relative overflow-hidden dash-inactive">
+                        <div class="absolute right-0 top-0 w-32 h-32 bg-green-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                             <!-- Changed text color to match card theme -->
+                            <div><p class="text-green-600 text-sm font-bold mb-1 tracking-wide uppercase" id="label-processed">ตอบรับแล้ว</p><h3 class="text-5xl font-bold text-gray-800 mt-2" id="count-processed">0</h3></div>
+                            <div class="p-4 bg-green-100 rounded-2xl text-green-600 transition shadow-sm"><i class="fas fa-check-circle text-2xl"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-effect rounded-3xl shadow-card p-4 sm:p-8 border border-white/50">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+                            <h3 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3 shrink-0">
+                                <span class="w-1.5 sm:w-2 h-6 sm:h-8 bg-gradient-to-b from-blue-500 to-pink-500 rounded-full"></span> 
+                                <span id="table-title">รายการทั้งหมด</span>
+                            </h3>
+                            <!-- Adjusted View Toggles to fill width on mobile -->
+                            <div class="flex bg-gray-200 rounded-lg p-1 w-full sm:w-auto mt-2 sm:mt-0" id="view-toggle-container">
+                                <button onclick="toggleView('list')" id="btn-view-list" class="flex-1 sm:flex-none px-2 sm:px-4 py-1.5 rounded-md text-[13px] sm:text-sm font-bold bg-white text-blue-600 shadow-sm transition">ทั้งหมด</button>
+                                <button onclick="toggleView('timeline')" id="btn-view-timeline" class="flex-1 sm:flex-none px-2 sm:px-4 py-1.5 rounded-md text-[13px] sm:text-sm font-bold text-gray-500 hover:text-blue-600 transition">Timeline</button>
+                                <button onclick="toggleView('usage')" id="btn-view-usage" class="flex-1 sm:flex-none px-2 sm:px-4 py-1.5 rounded-md text-[13px] sm:text-sm font-bold text-gray-500 hover:text-blue-600 transition">สถิติ</button>
                             </div>
                         </div>
-                        <div id="usage-container" class="space-y-2"></div>
+                        <div class="flex w-full sm:w-auto justify-end">
+                            <button id="btn-print-summary" onclick="showSummaryPrintOptions()" class="hidden-section w-full sm:w-auto px-4 sm:px-5 py-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 text-sm font-bold transition shadow-sm border border-blue-100 hover:-translate-y-0.5 flex justify-center items-center">
+                                <i class="fas fa-file-export mr-2"></i>ส่งออกรายงาน
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="view-mode-list" class="block">
+                        <div class="hidden md:block overflow-x-auto rounded-xl border border-gray-100">
+                            <table class="w-full glass-table">
+                                <thead><tr><th class="text-left w-32 rounded-tl-xl">วันที่ขอ</th><th class="text-left">ผู้ขอ</th><th class="text-left">รายการ</th><th class="text-left w-24">ประเภท</th><th class="text-left w-48">เวลาเดินทาง</th><th class="text-center w-28">สถานะ</th><th class="text-center w-24 rounded-tr-xl">จัดการ</th></tr></thead>
+                                <tbody id="table-body"></tbody>
+                            </table>
+                        </div>
+                        <div id="mobile-card-container" class="md:hidden space-y-4"></div>
+                        <div class="p-4 border-t border-gray-100 text-center text-gray-500 text-xs sm:text-sm">แสดงข้อมูลล่าสุด 20 รายการ</div>
+                    </div>
+                    
+                    <div id="view-mode-timeline" class="hidden-section p-4 sm:p-6 bg-gray-50/50 rounded-xl">
+                        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                            <div class="flex flex-col sm:flex-row gap-4 w-full">
+                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">เลือกวันที่:</label><input type="date" id="timeline-date" onchange="renderTimeline()" class="custom-input"></div>
+                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ประเภทรถ:</label><select id="timeline-filter-type" onchange="renderTimeline()" class="custom-input"><option value="all">ทั้งหมด</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div>
+                            </div>
+                        </div>
+                        <div id="timeline-container" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
+                        <div class="flex flex-wrap gap-4 justify-center mt-4 text-xs text-gray-500">
+                            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-gray-300 rounded-full border border-gray-400"></div> ว่าง</div>
+                            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-yellow-400 rounded-full border border-yellow-500"></div> รออนุมัติ</div>
+                            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-red-500 rounded-full border border-red-600"></div> อนุมัติแล้ว</div>
+                        </div>
+                    </div>
+                    
+                    <div id="view-mode-usage" class="hidden-section p-4 sm:p-6 bg-gray-50/50 rounded-xl">
+                        <div class="flex flex-col sm:flex-row justify-start items-center mb-6 gap-4">
+                            <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">เดือน:</label><select id="usage-month" class="custom-input w-full sm:w-32" onchange="renderUsageTable()"></select></div>
+                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ปี:</label><select id="usage-year" class="custom-input w-full sm:w-32" onchange="renderUsageTable()"></select></div>
+                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ประเภทรถ:</label><select id="usage-filter-type" onchange="renderUsageTable()" class="custom-input w-full"><option value="all">ทั้งหมด</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div>
+                            </div>
+                        </div>
+                        <div id="usage-container" class="space-y-3"></div>
                     </div>
                 </div>
             </div>
 
             <!-- View: Request Form -->
-            <div id="view-request" class="hidden-section animate-slide-up"><div class="glass-effect max-w-4xl mx-auto rounded-[2rem] shadow-card p-6 sm:p-10 relative overflow-hidden border border-white/60"><div class="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-blue-400 via-pink-400 to-blue-400"></div><div class="text-center mb-8"><h2 class="text-2xl sm:text-3xl font-bold text-gray-800">แบบฟอร์มขออนุญาตใช้ยานพาหนะ</h2><p class="text-gray-500 mt-2 text-sm sm:text-base">กรอกข้อมูลให้ครบถ้วนเพื่อให้หัวหน้างานพิจารณา</p></div><form onsubmit="submitRequest(event)" class="space-y-6 sm:space-y-8"><div class="bg-white/40 p-5 sm:p-8 rounded-3xl border border-white/60 shadow-sm"><h3 class="font-bold text-blue-600 mb-4 sm:mb-6 flex items-center gap-3 text-base sm:text-lg border-b border-blue-100 pb-2"><span class="bg-blue-100 p-2 rounded-lg"><i class="fas fa-user"></i></span> ข้อมูลผู้ขอ</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6"><div><label class="block text-sm font-bold text-gray-700 mb-2">ชื่อ-นามสกุล</label><input type="text" id="req-name-display" class="custom-input bg-gray-100 text-gray-500 cursor-not-allowed" readonly></div><div><label class="block text-sm font-bold text-gray-700 mb-2">เบอร์โทรศัพท์</label><input type="tel" id="req-phone" class="custom-input" placeholder="0xxxxxxxxx" required></div></div></div><div class="bg-white/40 p-5 sm:p-8 rounded-3xl border border-white/60 shadow-sm"><h3 class="font-bold text-pink-600 mb-4 sm:mb-6 flex items-center gap-3 text-base sm:text-lg border-b border-pink-100 pb-2"><span class="bg-pink-100 p-2 rounded-lg"><i class="fas fa-route"></i></span> รายละเอียดการเดินทาง</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6"><div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">ประเภทรถที่ต้องการ</label><select id="req-type" class="custom-input" required><option value="" disabled selected>-- เลือกประเภทรถ --</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div><div><label class="block text-sm font-bold text-gray-700 mb-2">วัน-เวลา เริ่มต้น</label><input type="datetime-local" id="req-start" class="custom-input" required></div><div><label class="block text-sm font-bold text-gray-700 mb-2">วัน-เวลา สิ้นสุด</label><input type="datetime-local" id="req-end" class="custom-input" required></div><div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">สถานที่ที่ไป</label><input type="text" id="req-location" class="custom-input" placeholder="ระบุจังหวัดหรือชื่อสถานที่" required></div><div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">เพื่อวัตถุประสงค์</label><textarea id="req-purpose" rows="3" class="custom-input" placeholder="ระบุรายละเอียดการไปราชการหรือธุระ" required></textarea></div><div><label class="block text-sm font-bold text-gray-700 mb-2">จำนวนผู้โดยสาร (คน)</label><input type="number" id="req-passengers" min="1" class="custom-input" placeholder="ไม่รวมคนขับ" required></div>
-            <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">แนบหนังสืออนุญาตไปราชการ (รูปภาพ) <span class="text-red-500">*</span></label><input type="file" id="req-doc" class="custom-input" accept="image/*" required></div>
-            <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">ลายเซ็นผู้ขออนุญาต <span class="text-red-500">*</span></label><div class="flex gap-4 mb-2"><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="sig-option" value="saved" checked onchange="toggleSigInput()"> ใช้ลายเซ็นที่บันทึกไว้</label><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="sig-option" value="upload" onchange="toggleSigInput()"> อัปโหลดใหม่</label></div><div id="sig-preview-container" class="border p-2 rounded bg-gray-50 h-24 flex items-center justify-center"><span class="text-gray-400 text-sm">ลายเซ็นจะปรากฏที่นี่</span></div><input type="file" id="req-sig-file" class="custom-input mt-2 hidden-section" accept="image/png" onchange="previewUploadSig()"></div></div></div><div class="flex flex-col sm:flex-row justify-center gap-4 pt-4"><button type="button" onclick="checkVehicleAvailability()" class="btn-secondary text-blue-600 bg-white border-blue-200 hover:bg-blue-50 py-3 px-6 shadow-sm"><i class="fas fa-search mr-2"></i>ตรวจสอบรถว่าง</button><button type="submit" class="btn-primary px-10 py-3 text-lg shadow-lg shadow-blue-500/30 transform hover:-translate-y-1"><i class="fas fa-paper-plane mr-2"></i>ส่งคำขออนุญาต</button></div></form></div></div>
+            <div id="view-request" class="hidden-section animate-slide-up">
+                <div class="glass-effect max-w-4xl mx-auto rounded-[2rem] shadow-card p-6 sm:p-10 relative overflow-hidden border border-white/60">
+                    <div class="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-blue-400 via-pink-400 to-blue-400"></div>
+                    <div class="text-center mb-8">
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">แบบฟอร์มขออนุญาตใช้ยานพาหนะ</h2>
+                        <p class="text-gray-500 mt-2 text-sm sm:text-base">กรอกข้อมูลให้ครบถ้วนเพื่อให้พิจารณา</p>
+                    </div>
+                    <form onsubmit="submitRequest(event)" class="space-y-6 sm:space-y-8">
+                        <div class="bg-white/40 p-5 sm:p-8 rounded-3xl border border-white/60 shadow-sm">
+                            <h3 class="font-bold text-blue-600 mb-4 sm:mb-6 flex items-center gap-3 text-base sm:text-lg border-b border-blue-100 pb-2"><span class="bg-blue-100 p-2 rounded-lg"><i class="fas fa-user"></i></span> ข้อมูลผู้ขอ</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">ชื่อ-นามสกุล</label><input type="text" id="req-name-display" class="custom-input bg-gray-100 text-gray-500 cursor-not-allowed" readonly></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">เบอร์โทรศัพท์</label><input type="tel" id="req-phone" class="custom-input" placeholder="0xxxxxxxxx" required></div>
+                            </div>
+                        </div>
+                        <div class="bg-white/40 p-5 sm:p-8 rounded-3xl border border-white/60 shadow-sm">
+                            <h3 class="font-bold text-pink-600 mb-4 sm:mb-6 flex items-center gap-3 text-base sm:text-lg border-b border-pink-100 pb-2"><span class="bg-pink-100 p-2 rounded-lg"><i class="fas fa-route"></i></span> รายละเอียดการเดินทาง</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                                <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">ประเภทรถที่ต้องการ</label><select id="req-type" class="custom-input" required><option value="" disabled selected>-- เลือกประเภทรถ --</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">วัน-เวลา เริ่มต้น</label><input type="datetime-local" id="req-start" class="custom-input" required></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">วัน-เวลา สิ้นสุด</label><input type="datetime-local" id="req-end" class="custom-input" required></div>
+                                <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">สถานที่ที่ไป</label><input type="text" id="req-location" class="custom-input" placeholder="ระบุจังหวัดหรือชื่อสถานที่" required></div>
+                                <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">เพื่อวัตถุประสงค์</label><textarea id="req-purpose" rows="3" class="custom-input" placeholder="ระบุรายละเอียดการไปราชการหรือธุระ" required></textarea></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">จำนวนผู้โดยสาร (คน)</label><input type="number" id="req-passengers" min="1" class="custom-input" placeholder="ไม่รวมคนขับ" required></div>
+                                <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">แนบหนังสืออนุญาตไปราชการ (รูปภาพ) <span class="text-red-500">*</span></label><input type="file" id="req-doc" class="custom-input bg-white" accept="image/*" required></div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">ลายเซ็นผู้ขออนุญาต <span class="text-red-500">*</span></label>
+                                    <div class="flex gap-4 mb-2"><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="sig-option" value="saved" checked onchange="toggleSigInput()"> ใช้ลายเซ็นที่บันทึกไว้</label><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="sig-option" value="upload" onchange="toggleSigInput()"> อัปโหลดใหม่</label></div>
+                                    <div id="sig-preview-container" class="border border-gray-200 p-2 rounded-xl bg-gray-50 h-24 flex items-center justify-center"><span class="text-gray-400 text-sm">ลายเซ็นจะปรากฏที่นี่</span></div>
+                                    <input type="file" id="req-sig-file" class="custom-input mt-2 hidden-section bg-white" accept="image/png" onchange="previewUploadSig()">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+                            <button type="button" onclick="checkVehicleAvailability()" class="btn-secondary text-blue-600 bg-white border-blue-200 hover:bg-blue-50 py-3 px-6 shadow-sm"><i class="fas fa-search mr-2"></i>ตรวจสอบรถว่าง</button>
+                            <button type="submit" class="btn-primary px-10 py-3 text-lg shadow-lg shadow-blue-500/30 transform hover:-translate-y-1"><i class="fas fa-paper-plane mr-2"></i>ส่งคำขออนุญาต</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
             
             <!-- View: Profile -->
-            <div id="view-profile" class="hidden-section animate-slide-up"><div class="glass-effect max-w-lg mx-auto rounded-[2rem] shadow-card p-6 sm:p-10 text-center"><div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 text-4xl"><i class="fas fa-user"></i></div><h2 class="text-2xl font-bold text-gray-800" id="profile-name">-</h2><p class="text-gray-500 mb-6" id="profile-id">-</p><div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 text-left space-y-4"><h3 class="font-bold text-gray-700 mb-2">จัดการรหัสผ่าน</h3><div><label class="block text-xs font-bold text-gray-500 mb-1">รหัสผ่านปัจจุบัน</label><div class="relative"><input type="password" id="current-password-display" class="custom-input bg-gray-100 text-gray-600" readonly><button type="button" onclick="togglePassword('current-password-display', 'eye-curr')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition"><i class="fas fa-eye" id="eye-curr"></i></button></div></div><form onsubmit="changePassword(event)" class="space-y-4 pt-4 border-t border-gray-200"><div><label class="block text-xs font-bold text-gray-500 mb-1">กำหนดรหัสผ่านใหม่</label><div class="relative"><input type="password" id="new-password" class="custom-input" placeholder="รหัสผ่านใหม่" required minlength="4"><button type="button" onclick="togglePassword('new-password', 'eye-new')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition"><i class="fas fa-eye" id="eye-new"></i></button></div></div><button type="submit" class="w-full btn-primary">บันทึกรหัสผ่านใหม่</button></form></div><div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 text-left space-y-4 mt-6"><h3 class="font-bold text-gray-700 mb-2">ลายเซ็น (สำหรับแนบใบขออนุญาต)</h3><div id="profile-sig-preview" class="border bg-white h-24 flex items-center justify-center mb-2 overflow-hidden"><span class="text-gray-400 text-sm">ยังไม่มีลายเซ็น</span></div><input type="file" id="profile-sig-upload" class="custom-input text-sm" accept="image/png" onchange="uploadProfileSig()"><p class="text-xs text-red-500 mt-1">*กรุณาถ่ายภาพลายเซ็นที่เขียนด้วยปากกาน้ำเงินบนกระดาษขาว (.png เท่านั้น)</p></div></div></div>
+            <div id="view-profile" class="hidden-section animate-slide-up"><div class="glass-effect max-w-lg mx-auto rounded-[2rem] shadow-card p-6 sm:p-10 text-center"><div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 text-4xl"><i class="fas fa-user"></i></div><h2 class="text-2xl font-bold text-gray-800" id="profile-name">-</h2><p class="text-gray-500 mb-6" id="profile-id">-</p><div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 text-left space-y-4"><h3 class="font-bold text-gray-700 mb-2">จัดการรหัสผ่าน</h3><div><label class="block text-xs font-bold text-gray-500 mb-1">รหัสผ่านปัจจุบัน</label><div class="relative"><input type="password" id="current-password-display" class="custom-input bg-gray-100 text-gray-600" readonly><button type="button" onclick="togglePassword('current-password-display', 'eye-curr')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition"><i class="fas fa-eye" id="eye-curr"></i></button></div></div><form onsubmit="changePassword(event)" class="space-y-4 pt-4 border-t border-gray-200"><div><label class="block text-xs font-bold text-gray-500 mb-1">กำหนดรหัสผ่านใหม่</label><div class="relative"><input type="password" id="new-password" class="custom-input bg-white" placeholder="รหัสผ่านใหม่" required minlength="4"><button type="button" onclick="togglePassword('new-password', 'eye-new')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition"><i class="fas fa-eye" id="eye-new"></i></button></div></div><button type="submit" class="w-full btn-primary">บันทึกรหัสผ่านใหม่</button></form></div><div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 text-left space-y-4 mt-6"><h3 class="font-bold text-gray-700 mb-2">ลายเซ็น (สำหรับแนบใบขออนุญาต)</h3><div id="profile-sig-preview" class="border border-gray-200 rounded-xl bg-white h-24 flex items-center justify-center mb-2 overflow-hidden"><span class="text-gray-400 text-sm">ยังไม่มีลายเซ็น</span></div><input type="file" id="profile-sig-upload" class="custom-input text-sm bg-white" accept="image/png" onchange="uploadProfileSig()"><p class="text-xs text-red-500 mt-1">*กรุณาถ่ายภาพลายเซ็นที่เขียนด้วยปากกาน้ำเงินบนกระดาษขาว (.png เท่านั้น)</p></div></div></div>
             
             <!-- View: Manage -->
             <div id="view-manage" class="hidden-section animate-slide-up space-y-8"><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div onclick="renderManageTable('vehicle')" id="card-manage-vehicle" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-active"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p><h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">ยานพาหนะ</h3><div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-vehicles">0</div></div><div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-bus text-xl sm:text-2xl"></i></div></div></div><div onclick="renderManageTable('driver')" id="card-manage-driver" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-inactive"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p><h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">พนักงานขับรถ</h3><div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-drivers">0</div></div><div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-user-tie text-xl sm:text-2xl"></i></div></div></div><div onclick="renderManageTable('teacher')" id="card-manage-teacher" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-inactive"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p><h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">บุคลากรครู</h3><div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-teachers">0</div></div><div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-chalkboard-teacher text-xl sm:text-2xl"></i></div></div></div></div><div class="glass-effect rounded-3xl shadow-card p-6 sm:p-8 border border-white/50"><div class="flex justify-between items-center mb-6"><h3 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-3"><span class="w-2 h-6 sm:h-8 bg-gradient-to-b from-blue-500 to-pink-500 rounded-full"></span> <span id="manage-title">ข้อมูลยานพาหนะ</span></h3><button onclick="addNewData()" class="btn-primary px-4 sm:px-5 py-2 sm:py-2.5 text-sm shadow-md"><i class="fas fa-plus mr-2"></i>เพิ่มข้อมูล</button></div><div class="hidden md:block overflow-x-auto rounded-xl border border-gray-100"><table class="w-full glass-table"><thead id="manage-table-head"></thead><tbody id="manage-table-body"></tbody></table></div><div id="manage-mobile-container" class="md:hidden space-y-4"></div></div></div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar (Navbar 3 - ONLY shows on Mobile screens after login) -->
+    <!-- Added hidden-section by default -->
+    <div id="mobile-bottom-nav" class="md:hidden hidden-section fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_15px_rgba(0,0,0,0.05)] pt-1 pb-3">
+        <div class="flex justify-around items-center h-14 px-2">
+            <!-- Teacher Links -->
+            <div id="mob-nav-teacher" class="flex justify-around w-full">
+                <button onclick="showPage('home')" id="mob-nav-t-home" class="flex flex-col items-center justify-center w-full h-full text-blue-600 transition-colors gap-1">
+                    <i class="fas fa-home text-[22px]"></i><span class="text-[10px] font-bold">หน้าหลัก</span>
+                </button>
+                <button onclick="showPage('request')" id="mob-nav-t-request" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-blue-500 transition-colors gap-1">
+                    <i class="fas fa-edit text-[22px]"></i><span class="text-[10px] font-bold">ขออนุญาต</span>
+                </button>
+                <button onclick="showPage('profile')" id="mob-nav-t-profile" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-blue-500 transition-colors gap-1">
+                    <i class="fas fa-user-circle text-[22px]"></i><span class="text-[10px] font-bold">ส่วนตัว</span>
+                </button>
+            </div>
+            <!-- Admin Links -->
+            <div id="mob-nav-admin" class="hidden-section flex justify-around w-full">
+                <button onclick="showPage('home')" id="mob-nav-a-home" class="flex flex-col items-center justify-center w-full h-full text-blue-600 transition-colors gap-1">
+                    <i class="fas fa-home text-[22px]"></i><span class="text-[10px] font-bold">หน้าหลัก</span>
+                </button>
+                <button onclick="showPage('manage')" id="mob-nav-a-manage" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-blue-500 transition-colors gap-1">
+                    <i class="fas fa-database text-[22px]"></i><span class="text-[10px] font-bold">จัดการข้อมูล</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -485,16 +556,14 @@
 
         function initDateSelectors() {
             const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
-            // BE 2569 - 2580 corresponds to CE 2026 - 2037
-            const startYearCE = 2026; // 2569
-            const endYearCE = 2037;   // 2580
+            const startYearCE = 2026; 
+            const endYearCE = 2037;   
             const currentYear = new Date().getFullYear();
             const currentMonth = new Date().getMonth();
 
             const monthOpts = months.map((m, i) => `<option value="${i}">${m}</option>`).join('');
             let yearOpts = '';
             
-            // Loop from BE 2569 (2026) to BE 2580 (2037)
             for(let i = startYearCE; i <= endYearCE; i++) {
                 yearOpts += `<option value="${i}">${i + 543}</option>`;
             }
@@ -506,7 +575,6 @@
                 mSel.innerHTML = monthOpts;
                 ySel.innerHTML = yearOpts;
                 mSel.value = currentMonth;
-                // Default to current year if within range, else first available
                 ySel.value = (currentYear >= startYearCE && currentYear <= endYearCE) ? currentYear : startYearCE;
             }
         }
@@ -544,7 +612,6 @@
                 const foundUser = dataUsers.find(user => user.cardId === u && user.password === p);
                 if (foundUser) {
                     success = true;
-                    // Note: 'name' from DB is just First Name.
                     userObj = { ...foundUser, role: 'teacher', uid: foundUser.id };
                 }
             }
@@ -554,13 +621,20 @@
                 document.getElementById('login-section').classList.add('hidden-section');
                 document.getElementById('dashboard-section').classList.remove('hidden-section');
                 
-                // Display Name logic
+                // Show bottom navbar on successful login
+                document.getElementById('mobile-bottom-nav').classList.remove('hidden-section');
+                
                 let displayName = currentUser.name;
                 if(currentUser.role === 'teacher') displayName = `${currentUser.prefix}${currentUser.name} ${currentUser.surname}`;
                 document.getElementById('user-role-display').innerText = displayName;
                 
+                // Toggle Desktop Navs
                 document.getElementById('nav-menu-teacher').classList.toggle('hidden-section', currentRole === 'admin');
                 document.getElementById('nav-menu-admin').classList.toggle('hidden-section', currentRole !== 'admin');
+                
+                // Toggle Mobile Bottom Navs
+                document.getElementById('mob-nav-teacher').classList.toggle('hidden-section', currentRole === 'admin');
+                document.getElementById('mob-nav-admin').classList.toggle('hidden-section', currentRole !== 'admin');
                 
                 if(currentRole === 'teacher') {
                     document.getElementById('profile-name').innerText = displayName;
@@ -590,23 +664,56 @@
         function showPage(page) {
             ['view-home', 'view-request', 'view-manage', 'view-profile'].forEach(id => document.getElementById(id).classList.add('hidden-section'));
             document.getElementById('view-' + page).classList.remove('hidden-section');
+            
+            // Toggle Mobile Secondary Filter Navbar (Only show on Home)
+            const mobFilterNav = document.getElementById('mobile-filter-nav');
+            if(mobFilterNav) {
+                if(page === 'home') mobFilterNav.classList.remove('hidden-section');
+                else mobFilterNav.classList.add('hidden-section');
+            }
+            
             if (page === 'home') filterBookings('all');
             if (page === 'manage') renderManageTable('vehicle');
             updateNavState(page);
         }
 
         function updateNavState(activePage) {
-            const update = (prefix, items) => {
+            // Update Desktop Top Nav
+            const updateDesktop = (prefix, items) => {
                 items.forEach((item, idx) => {
                     const btn = document.getElementById(`${prefix}-${item}`);
-                    if(item === activePage) {
-                        btn.classList.replace('text-gray-500', 'text-blue-600');
-                        document.getElementById(`${prefix}-indicator`).style.transform = `translateX(${idx * 100}%)`;
-                    } else btn.classList.replace('text-blue-600', 'text-gray-500');
+                    if(btn) {
+                        if(item === activePage) {
+                            btn.classList.replace('text-gray-500', 'text-blue-600');
+                            document.getElementById(`${prefix}-indicator`).style.transform = `translateX(${idx * 100}%)`;
+                        } else btn.classList.replace('text-blue-600', 'text-gray-500');
+                    }
                 });
             };
-            if (currentRole === 'teacher') update('nav-t', ['home', 'request', 'profile']);
-            else update('nav-a', ['home', 'manage']);
+            
+            // Update Mobile Bottom Nav
+            const updateMobile = (prefix, items) => {
+                items.forEach(item => {
+                    const btn = document.getElementById(`mob-nav-${prefix}-${item}`);
+                    if(btn) {
+                        if(item === activePage) {
+                            btn.classList.remove('text-gray-400');
+                            btn.classList.add('text-blue-600');
+                        } else {
+                            btn.classList.remove('text-blue-600');
+                            btn.classList.add('text-gray-400');
+                        }
+                    }
+                });
+            };
+
+            if (currentRole === 'teacher') {
+                updateDesktop('nav-t', ['home', 'request', 'profile']);
+                updateMobile('t', ['home', 'request', 'profile']);
+            } else {
+                updateDesktop('nav-a', ['home', 'manage']);
+                updateMobile('a', ['home', 'manage']);
+            }
         }
 
         function toggleView(mode) {
@@ -614,12 +721,12 @@
                 const btn = document.getElementById(`btn-view-${m}`);
                 const view = document.getElementById(`view-mode-${m}`);
                 if (m === mode) {
-                    btn.className = "px-3 py-1 rounded-md text-sm font-bold bg-white text-blue-600 shadow-sm transition";
+                    btn.className = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 rounded-md text-[13px] sm:text-sm font-bold bg-white text-blue-600 shadow-sm transition";
                     view.classList.remove('hidden-section');
                     if(m === 'timeline') renderTimeline();
                     if(m === 'usage') renderUsageTable();
                 } else {
-                    btn.className = "px-3 py-1 rounded-md text-sm font-bold text-gray-500 hover:text-blue-600 transition";
+                    btn.className = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 rounded-md text-[13px] sm:text-sm font-bold text-gray-500 hover:text-blue-600 transition";
                     view.classList.add('hidden-section');
                 }
             });
@@ -636,9 +743,19 @@
                     else if (b.status === 'approved' || b.status === 'rejected') processed++;
                 }
             });
+            
+            // Update Desktop Counters
             document.getElementById('count-all').innerText = total;
             document.getElementById('count-pending').innerText = pending;
             document.getElementById('count-processed').innerText = processed;
+            
+            // Update Mobile Counters
+            if(document.getElementById('mob-count-all')) {
+                document.getElementById('mob-count-all').innerText = total;
+                document.getElementById('mob-count-pending').innerText = pending;
+                document.getElementById('mob-count-processed').innerText = processed;
+            }
+            
             document.getElementById('count-vehicles').innerText = dataVehicles.length;
             document.getElementById('count-drivers').innerText = dataDrivers.length;
             document.getElementById('count-teachers').innerText = dataUsers.length;
@@ -651,15 +768,24 @@
             if (!document.getElementById('view-manage').classList.contains('hidden-section')) renderManageTable(manageMode);
         }
 
-        // Helper to get full name (compatibility check)
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const d = date.getDate().toString().padStart(2, '0');
+            const m = (date.getMonth() + 1).toString().padStart(2, '0');
+            const y = date.getFullYear() + 543;
+            return `${d}/${m}/${y}`;
+        }
+
+        function getDateParts(dateString) {
+            const date = new Date(dateString);
+            const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            return { d: date.getDate(), m: thaiMonths[date.getMonth()], y: date.getFullYear() + 543, t: `${date.getHours().toString().padStart(2,'0')}.${date.getMinutes().toString().padStart(2,'0')} น.` };
+        }
+
         function getBookingFullName(b) {
-            // If the saved name already has a space, assume it is full name
             if (b.requesterName && b.requesterName.includes(' ')) return b.requesterName;
-            
-            // If not, try to look up from user ID (for old records or partial saves)
             const user = dataUsers.find(u => u.id === b.requesterId);
             if (user) return `${user.prefix}${user.name} ${user.surname}`;
-            
             return b.requesterName || '-';
         }
 
@@ -680,17 +806,36 @@
                 if (!document.getElementById('view-mode-list').classList.contains('hidden-section') === false) toggleView('list');
             }
 
-            // Tabs styling
+            // Style Desktop Cards
             const statusMap = { 'all': 'card-dash-all', 'pending': 'card-dash-pending', 'processed': 'card-dash-processed' };
             Object.keys(statusMap).forEach(key => {
                 const el = document.getElementById(statusMap[key]);
-                if(key === status) { el.classList.add('dash-active'); el.classList.remove('dash-inactive'); } 
-                else { el.classList.remove('dash-active'); el.classList.add('dash-inactive'); }
+                if(el) {
+                    if(key === status) { el.classList.add('dash-active'); el.classList.remove('dash-inactive'); } 
+                    else { el.classList.remove('dash-active'); el.classList.add('dash-inactive'); }
+                }
+            });
+            
+            // Style Mobile Filter Tabs (Grid Items)
+            const mobTabs = { 'all': 'mob-btn-all', 'pending': 'mob-btn-pending', 'processed': 'mob-btn-processed' };
+            Object.keys(mobTabs).forEach(key => {
+                const btn = document.getElementById(mobTabs[key]);
+                if(btn) {
+                    btn.className = `flex flex-col items-center justify-center py-1.5 rounded-lg text-[12px] font-bold transition-all border leading-tight text-gray-400 bg-gray-50 border-transparent`; // reset
+                    if(key === status) {
+                        if(key === 'all') btn.className = `flex flex-col items-center justify-center py-1.5 rounded-lg text-[12px] font-bold transition-all border leading-tight text-blue-600 bg-blue-50 border-blue-500 shadow-sm`;
+                        if(key === 'pending') btn.className = `flex flex-col items-center justify-center py-1.5 rounded-lg text-[12px] font-bold transition-all border leading-tight text-yellow-600 bg-yellow-50 border-yellow-500 shadow-sm`;
+                        if(key === 'processed') btn.className = `flex flex-col items-center justify-center py-1.5 rounded-lg text-[12px] font-bold transition-all border leading-tight text-green-600 bg-green-50 border-green-500 shadow-sm`;
+                    }
+                }
             });
 
             const btnPrint = document.getElementById('btn-print-summary');
-            if (currentUser.role === 'admin' && status === 'processed') btnPrint.classList.remove('hidden-section');
-            else btnPrint.classList.add('hidden-section');
+            if (currentUser.role === 'admin') {
+                btnPrint.classList.remove('hidden-section');
+            } else {
+                btnPrint.classList.add('hidden-section');
+            }
 
             let filtered = dataBookings.filter(b => {
                 if (status === 'all') return true; 
@@ -704,7 +849,7 @@
             const displayData = filtered.slice(0, 20);
 
             if (displayData.length === 0) {
-                const msg = `<div class="text-center py-10 text-gray-400">ไม่มีข้อมูลรายการ</div>`;
+                const msg = `<div class="text-center py-10 text-gray-400 bg-white/50 rounded-lg">ไม่มีข้อมูลรายการ</div>`;
                 tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-gray-400 bg-white/50">ไม่มีข้อมูลรายการ</td></tr>`;
                 mobileContainer.innerHTML = msg;
                 return;
@@ -749,7 +894,7 @@
             }
 
             if(displayVehicles.length === 0) {
-                container.innerHTML = `<div class="text-center text-gray-400 py-8">ไม่มีรถประเภทนี้</div>`;
+                container.innerHTML = `<div class="text-center text-gray-400 py-8 bg-white/50 rounded-lg">ไม่มีรถประเภทนี้</div>`;
                 return;
             }
 
@@ -928,7 +1073,6 @@
             const saveData = (docBase64) => {
                 Swal.fire({ title: 'ยืนยันการส่งคำขอ', text: 'ตรวจสอบข้อมูลถูกต้องครบถ้วนแล้ว', icon: 'question', showCancelButton: true, confirmButtonText: 'ยืนยัน', cancelButtonText: 'แก้ไข', confirmButtonColor: '#3B82F6' }).then((result) => {
                     if (result.isConfirmed) {
-                        // FIXED: Save Full Name + Surname for PDF consistency
                         const reqFullName = currentUser.role === 'admin' ? currentUser.name : `${currentUser.prefix}${currentUser.name} ${currentUser.surname}`;
                         
                         const data = {
@@ -940,7 +1084,6 @@
                         db.ref('bookings').push(data);
                         Swal.fire({ icon: 'success', title: 'ส่งคำขอเรียบร้อย', showConfirmButton: false, timer: 1500 });
                         document.querySelector('form').reset();
-                        // Reset Display Name
                         const displayName = currentUser.role === 'admin' ? currentUser.name : `${currentUser.prefix}${currentUser.name} ${currentUser.surname}`;
                         document.getElementById('req-name-display').value = displayName;
                         showPage('home');
@@ -949,10 +1092,6 @@
             };
             const reader = new FileReader(); reader.onload = (e) => saveData(e.target.result); reader.readAsDataURL(docFile);
         }
-
-        // --- Helpers ---
-        function formatDate(iso) { if (!iso) return "-"; const d = new Date(iso); const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']; return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543}`; }
-        function getDateParts(iso) { if (!iso) return { d: '-', m: '-', y: '-', t: '-' }; const d = new Date(iso); const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม']; return { d: d.getDate(), m: months[d.getMonth()], y: d.getFullYear() + 543, t: d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + " น." }; }
 
         // --- Render Functions (Admin) ---
         function renderManageTable(type) {
@@ -991,7 +1130,6 @@
             }
         }
 
-        // Logic for Add/Delete/Edit Data
         function addNewData() { 
             if (manageMode === 'vehicle') { 
                 Swal.fire({ title: 'เพิ่มยานพาหนะ', html: `<div class="space-y-3 text-left"><input id="new-v-name" class="swal2-input w-full mx-0" placeholder="ชื่อรถ"><input id="new-v-plate" class="swal2-input w-full mx-0" placeholder="ทะเบียน"><select id="new-v-type" class="swal2-input w-full mx-0"><option>รถตู้</option><option>รถกระบะ</option><option>รถบรรทุก</option><option>รถยนต์ส่วนบุคคล</option></select></div>`, showCancelButton: true, confirmButtonText: 'บันทึก' }).then((res) => { if (res.isConfirmed) { db.ref('vehicles').push({ name: document.getElementById('new-v-name').value, plate: document.getElementById('new-v-plate').value, type: document.getElementById('new-v-type').value }); Swal.fire('สำเร็จ', '', 'success'); } }); 
@@ -1024,7 +1162,6 @@
             } 
         }
 
-        // --- NEW: Edit Item Function ---
         function editItem(type, id) {
             if (type === 'vehicle') {
                 const item = dataVehicles.find(v => v.id === id);
@@ -1038,17 +1175,10 @@
                            </div>`,
                     showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: '#3B82F6',
                     preConfirm: () => {
-                        return {
-                            name: document.getElementById('edit-v-name').value,
-                            plate: document.getElementById('edit-v-plate').value,
-                            type: document.getElementById('edit-v-type').value
-                        }
+                        return { name: document.getElementById('edit-v-name').value, plate: document.getElementById('edit-v-plate').value, type: document.getElementById('edit-v-type').value }
                     }
                 }).then((res) => {
-                    if (res.isConfirmed) {
-                        db.ref(`vehicles/${id}`).update(res.value);
-                        Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success');
-                    }
+                    if (res.isConfirmed) { db.ref(`vehicles/${id}`).update(res.value); Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success'); }
                 });
             } else if (type === 'driver') {
                 const item = dataDrivers.find(d => d.id === id);
@@ -1061,16 +1191,10 @@
                            </div>`,
                     showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: '#3B82F6',
                     preConfirm: () => {
-                        return {
-                            name: document.getElementById('edit-d-name').value,
-                            phone: document.getElementById('edit-d-phone').value
-                        }
+                        return { name: document.getElementById('edit-d-name').value, phone: document.getElementById('edit-d-phone').value }
                     }
                 }).then((res) => {
-                    if (res.isConfirmed) {
-                        db.ref(`drivers/${id}`).update(res.value);
-                        Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success');
-                    }
+                    if (res.isConfirmed) { db.ref(`drivers/${id}`).update(res.value); Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success'); }
                 });
             } else if (type === 'teacher') {
                 const item = dataUsers.find(u => u.id === id);
@@ -1090,27 +1214,18 @@
                            </div>`,
                     showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: '#3B82F6',
                     preConfirm: () => {
-                        return {
-                            prefix: document.getElementById('edit-t-prefix').value,
-                            name: document.getElementById('edit-t-name').value,
-                            surname: document.getElementById('edit-t-surname').value,
-                            cardId: document.getElementById('edit-t-card').value
-                        }
+                        return { prefix: document.getElementById('edit-t-prefix').value, name: document.getElementById('edit-t-name').value, surname: document.getElementById('edit-t-surname').value, cardId: document.getElementById('edit-t-card').value }
                     }
                 }).then((res) => {
                     if (res.isConfirmed) {
-                        // Check duplicate card ID if changed
-                        if (res.value.cardId !== item.cardId && dataUsers.some(u => u.cardId === res.value.cardId)) {
-                            return Swal.fire('ข้อมูลซ้ำ', 'เลขบัตรประชาชนนี้มีในระบบแล้ว', 'error');
-                        }
-                        db.ref(`users/${id}`).update(res.value);
-                        Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success');
+                        if (res.value.cardId !== item.cardId && dataUsers.some(u => u.cardId === res.value.cardId)) { return Swal.fire('ข้อมูลซ้ำ', 'เลขบัตรประชาชนนี้มีในระบบแล้ว', 'error'); }
+                        db.ref(`users/${id}`).update(res.value); Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success');
                     }
                 });
             }
         }
 
-        window.addTeacherSingle = function() { const prefix = document.getElementById('new-t-prefix').value; const name = document.getElementById('new-t-name').value; const surname = document.getElementById('new-t-surname').value; const card = document.getElementById('new-t-card').value; if(!name || !surname || !card) return Swal.fire('ผิดพลาด', 'กรอกข้อมูลให้ครบ', 'error'); if (dataUsers.some(u => u.cardId === card)) return Swal.fire('ข้อมูลซ้ำ', `มีเลขบัตรประชาชน ${card} ในระบบแล้ว`, 'warning'); db.ref('users').push({ prefix, name, surname, cardId: card, password: 'sateacher', role: 'teacher' }); Swal.fire('สำเร็จ', 'เพิ่มข้อมูลเรียบร้อย', 'success'); }
+        window.addTeacherSingle = function() { const prefix = document.getElementById('new-t-prefix').value; const name = document.getElementById('new-t-name').value; const surname = document.getElementById('new-t-surname').value; const card = document.getElementById('new-t-card').value; if(!name || !surname || !card) return Swal.fire('ผิดพลาด', 'กรอกข้อมูลให้ครบ', 'error'); if (dataUsers.some(u => u.cardId === card)) return Swal.fire('ข้อมูลซ้ำ', `มีเลขบัตรประชาชน ${card}ในระบบแล้ว`, 'warning'); db.ref('users').push({ prefix, name, surname, cardId: card, password: 'sateacher', role: 'teacher' }); Swal.fire('สำเร็จ', 'เพิ่มข้อมูลเรียบร้อย', 'success'); }
         function resetPassword(uid) { Swal.fire({ title: 'รีเซ็ตรหัสผ่าน?', text: "รหัสผ่านจะกลับเป็น 'sateacher'", icon: 'warning', showCancelButton: true, confirmButtonText: 'รีเซ็ต', confirmButtonColor: '#F59E0B' }).then((res) => { if (res.isConfirmed) { db.ref(`users/${uid}`).update({ password: 'sateacher' }); Swal.fire('สำเร็จ', 'รีเซ็ตรหัสผ่านแล้ว', 'success'); } }); }
         function deleteItem(type, id) { Swal.fire({ title: 'ยืนยันการลบ?', text: "ข้อมูลจะหายไปอย่างถาวร", icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบ', confirmButtonColor: '#EF4444' }).then((res) => { if (res.isConfirmed) { const collection = type === 'vehicle' ? 'vehicles' : (type === 'driver' ? 'drivers' : 'users'); db.ref(`${collection}/${id}`).remove(); Swal.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ', showConfirmButton: false, timer: 1000 }); } }); }
         
@@ -1173,7 +1288,7 @@
             
             let displayVehicles = dataVehicles; 
             if(filterType !== 'all') displayVehicles = displayVehicles.filter(v => v.type === filterType); 
-            if(displayVehicles.length === 0) { container.innerHTML = `<div class="text-center text-gray-400 py-8">ไม่มีรถประเภทนี้</div>`; return; } 
+            if(displayVehicles.length === 0) { container.innerHTML = `<div class="text-center text-gray-400 py-8 bg-white/50 rounded-lg">ไม่มีรถประเภทนี้</div>`; return; } 
             
             displayVehicles.forEach(v => { 
                 const dayBookings = dataBookings.filter(b => { 
@@ -1181,13 +1296,8 @@
                     const overlap = (bStart < selectedDateEnd && bEnd > selectedDateStart); 
                     if(!overlap) return false; 
                     
-                    // FIXED: Show Approved matches specific vehicle
                     if (b.status === 'approved' && b.vehicleId === v.id) return true;
-                    
-                    // FIXED: Show Pending matches vehicle TYPE (since vehicle ID is null in pending)
-                    // This will show yellow bars on ALL vehicles of that type to indicate potential usage
                     if (b.status === 'pending' && b.requestedType === v.type) return true;
-                    
                     return false; 
                 }); 
                 
@@ -1198,9 +1308,7 @@
                     const actualStart = Math.max(bStart.getTime(), dayStart); const actualEnd = Math.min(bEnd.getTime(), dayEnd); 
                     const startPct = ((actualStart - dayStart) / totalDay) * 100; const widthPct = ((actualEnd - actualStart) / totalDay) * 100; 
                     
-                    // FIXED: Determine class based on status (Red for Approved, Yellow for Pending)
                     const segClass = b.status === 'pending' ? 'segment-pending' : 'segment-approved';
-                    
                     barsHtml += `<div class="timeline-segment ${segClass}" style="left: ${startPct}%; width: ${widthPct}%;" title="${b.status}: ${b.requesterName}"></div>`; 
                 }); 
                 
@@ -1211,33 +1319,28 @@
             }); 
         }
 
-        // ================= PDF Generation Functions =================
+        // ================= PDF & EXCEL Generation Functions =================
 
         function printSinglePDF(id) { 
             const b = dataBookings.find(x => x.id === id); 
             const v = dataVehicles.find(x => x.id === b.vehicleId) || {}; 
             const d = dataDrivers.find(x => x.id === b.driverId) || {}; 
             
-            // FIXED: Use CREATED DATE instead of today
             const createdParts = getDateParts(b.created_at);
             document.getElementById('pdf-day').innerText = createdParts.d;
             document.getElementById('pdf-month').innerText = createdParts.m;
             document.getElementById('pdf-year').innerText = createdParts.y;
 
-            // FIXED: Running Number Logic
-            // 1. Get all bookings for the created year
             const bYear = new Date(b.created_at).getFullYear();
             const yearBookings = dataBookings
                 .filter(x => new Date(x.created_at).getFullYear() === bYear)
-                .sort((a,b) => new Date(a.created_at) - new Date(b.created_at)); // Sort Oldest first
+                .sort((a,b) => new Date(a.created_at) - new Date(b.created_at)); 
             
-            // 2. Find index
             const runIndex = yearBookings.findIndex(x => x.id === b.id) + 1;
             
             document.getElementById('pdf-run-num').innerText = runIndex;
             document.getElementById('pdf-run-year').innerText = bYear + 543;
 
-            // FIXED: Use full name logic
             const fullName = getBookingFullName(b);
             document.getElementById('pdf-name').innerText = fullName;
             document.getElementById('pdf-sign-name').innerText = fullName;
@@ -1292,7 +1395,6 @@
                 driverSignRow.style.display = 'none'; 
             } 
             
-            // --- NEW: Handle Attachment Page ---
             const attPage = document.getElementById('pdf-attachment-template');
             const attImg = document.getElementById('pdf-att-img');
             
@@ -1303,24 +1405,75 @@
                 attPage.style.display = 'none';
             }
             
-            const element = document.getElementById('pdf-print-wrapper'); // TARGET THE WRAPPER 
-            // FIXED: Options for correct scaling without coordinate shifts
+            const element = document.getElementById('pdf-print-wrapper');
             const opt = { 
-                margin: 0, // IMPORTANT: Let CSS handle margins
+                margin: 0, 
                 filename: `ใบขออนุญาต_${b.requesterName}.pdf`, 
                 image: { type: 'jpeg', quality: 0.98 }, 
-                html2canvas: { 
-                    scale: 3, 
-                    logging: false, 
-                    useCORS: true, 
-                    allowTaint: true
-                }, 
+                html2canvas: { scale: 3, logging: false, useCORS: true, allowTaint: true }, 
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
             }; 
             html2pdf().set(opt).from(element).save(); 
         }
 
-        function showSummaryPrintOptions() { Swal.fire({ title: 'พิมพ์รายงานสรุป', html: `<div class="text-left space-y-4"><div class="flex items-center gap-2"><input type="radio" name="print-opt" id="print-month" value="month" checked onclick="document.getElementById('print-selectors').style.display='flex'"><label for="print-month">รายงานประจำเดือน</label></div><div id="print-selectors" class="flex gap-2 ml-6"><select id="swal-month" class="border p-2 rounded w-1/2">${document.getElementById('usage-month').innerHTML}</select><select id="swal-year" class="border p-2 rounded w-1/2">${document.getElementById('usage-year').innerHTML}</select></div><div class="flex items-center gap-2"><input type="radio" name="print-opt" id="print-all" value="all" onclick="document.getElementById('print-selectors').style.display='none'"><label for="print-all">รายงานทั้งหมด (ทุกรายการ)</label></div></div>`, showCancelButton: true, confirmButtonText: 'พิมพ์ PDF', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#3B82F6', preConfirm: () => { const type = document.querySelector('input[name="print-opt"]:checked').value; const m = document.getElementById('swal-month').value; const y = document.getElementById('swal-year').value; return { type, m, y }; } }).then((result) => { if (result.isConfirmed) { printSummaryPDF(result.value); } }); }
+        function showSummaryPrintOptions() { 
+            Swal.fire({ 
+                title: 'ส่งออกรายงานสรุปการใช้รถ', 
+                html: `
+                <div class="text-left space-y-4">
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="print-opt" id="print-month" value="month" checked onclick="document.getElementById('print-selectors').style.display='flex'">
+                        <label for="print-month" class="font-bold text-gray-700">รายงานประจำเดือน</label>
+                    </div>
+                    <div id="print-selectors" class="flex gap-2 ml-6">
+                        <select id="swal-month" class="border p-2 rounded w-1/2 custom-input" style="padding: 0.5rem;">${document.getElementById('usage-month').innerHTML}</select>
+                        <select id="swal-year" class="border p-2 rounded w-1/2 custom-input" style="padding: 0.5rem;">${document.getElementById('usage-year').innerHTML}</select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="print-opt" id="print-all" value="all" onclick="document.getElementById('print-selectors').style.display='none'">
+                        <label for="print-all" class="font-bold text-gray-700">รายงานทั้งหมด (ทุกรายการ)</label>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mt-4">
+                        <label class="block text-sm font-bold text-gray-700 mb-3">เลือกรูปแบบไฟล์ที่ต้องการ:</label>
+                        <div class="flex flex-col gap-3">
+                            <label class="flex items-center gap-3 cursor-pointer bg-white p-3 rounded-lg border border-gray-200 hover:border-red-300 transition shadow-sm">
+                                <input type="radio" name="export-format" value="pdf" checked class="w-4 h-4 text-blue-600">
+                                <i class="fas fa-file-pdf text-red-500 text-2xl w-8 text-center"></i>
+                                <div>
+                                    <div class="font-bold text-gray-700 text-sm">ไฟล์เอกสาร PDF</div>
+                                    <div class="text-xs text-gray-500">สำหรับพิมพ์เอกสารเพื่อลงนาม</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer bg-white p-3 rounded-lg border border-gray-200 hover:border-green-300 transition shadow-sm">
+                                <input type="radio" name="export-format" value="excel" class="w-4 h-4 text-blue-600">
+                                <i class="fas fa-file-excel text-green-600 text-2xl w-8 text-center"></i>
+                                <div>
+                                    <div class="font-bold text-gray-700 text-sm">ไฟล์ตาราง Excel</div>
+                                    <div class="text-xs text-gray-500">สำหรับนำข้อมูลไปจัดเรียงและสรุปผลต่อ</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>`, 
+                showCancelButton: true, confirmButtonText: '<i class="fas fa-download mr-1"></i> ดาวน์โหลด', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#3B82F6', 
+                preConfirm: () => { 
+                    const type = document.querySelector('input[name="print-opt"]:checked').value; 
+                    const m = document.getElementById('swal-month').value; 
+                    const y = document.getElementById('swal-year').value; 
+                    const format = document.querySelector('input[name="export-format"]:checked').value;
+                    return { type, m, y, format }; 
+                } 
+            }).then((result) => { 
+                if (result.isConfirmed) { 
+                    if (result.value.format === 'pdf') {
+                        printSummaryPDF(result.value); 
+                    } else {
+                        exportSummaryExcel(result.value);
+                    }
+                } 
+            }); 
+        }
 
         function printSummaryPDF(filter) {
             const body = document.getElementById('pdf-summary-body');
@@ -1345,17 +1498,17 @@
                 row.className = 'div-row';
                 row.innerHTML = `<div class="div-cell" style="width:100%; border-right:none; padding:20px;">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</div>`;
                 body.appendChild(row);
+                Swal.fire('ไม่พบข้อมูล', 'ไม่มีข้อมูลการใช้รถในเดือนที่เลือก', 'info');
+                return;
             } else {
                 approvedList.forEach(b => {
                     const v = dataVehicles.find(x => x.id === b.vehicleId) || {};
                     const d = dataDrivers.find(x => x.id === b.driverId) || {};
                     const driverName = d.name || '-';
                     
-                    // FIXED: Split Name/Surname Logic
                     let rawName = getBookingFullName(b);
                     let formattedName = rawName;
                     
-                    // Logic: If length > 25 and has space, replace last space with <br>
                     if (rawName.length > 25 && rawName.includes(' ')) {
                         const lastSpace = rawName.lastIndexOf(' ');
                         if (lastSpace !== -1) {
@@ -1380,20 +1533,84 @@
             }
 
             const element = document.getElementById('pdf-summary-template');
-            // FIXED: Landscape A4 Settings with fixed padding
             const opt = {
                 margin: 0, 
                 filename: `รายงานสรุปการใช้รถ.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { 
-                    scale: 4, 
-                    logging: false, 
-                    useCORS: true,
-                    allowTaint: true
-                },
+                html2canvas: { scale: 4, logging: false, useCORS: true, allowTaint: true },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
             };
-            html2pdf().set(opt).from(element).save();
+            
+            Swal.fire({ title: 'กำลังสร้างไฟล์ PDF...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+            html2pdf().set(opt).from(element).save().then(() => { Swal.close(); });
+        }
+
+        function exportSummaryExcel(filter) {
+            let count = 1;
+            let exportList = dataBookings.filter(b => b.status === 'approved').sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+
+            let titleText = "รายงานสรุปการใช้งานยานพาหนะ โรงเรียนสอาดเผดิมวิทยา";
+            let filename = "รายงานสรุปการใช้รถ";
+            
+            if (filter.type === 'month') {
+                const m = parseInt(filter.m);
+                const y = parseInt(filter.y);
+                const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+                titleText += ` ประจำเดือน ${thaiMonths[m]} พ.ศ. ${y + 543}`;
+                filename += `_${thaiMonths[m]}_${y + 543}`;
+                exportList = exportList.filter(b => { const d = new Date(b.startDateTime); return d.getMonth() === m && d.getFullYear() === y; });
+            } else {
+                titleText += " (ข้อมูลทั้งหมด)";
+                filename += "_ทั้งหมด";
+            }
+
+            if (exportList.length === 0) {
+                Swal.fire('ไม่พบข้อมูล', 'ไม่มีข้อมูลการใช้รถในเดือนที่เลือก', 'info');
+                return;
+            }
+
+            const aoa = [];
+            aoa.push([titleText]); 
+            aoa.push([]); 
+            aoa.push(['ที่', 'ชื่อรถ', 'ทะเบียนรถ', 'ประเภท', 'วันที่ขออนุญาต', 'ผู้ขอใช้', 'สถานที่ที่ไป', 'วันเวลาเริ่มต้น', 'วันเวลาสิ้นสุด', 'พนักงานขับรถ', 'จำนวนผู้โดยสาร (คน)']);
+
+            exportList.forEach(b => {
+                const v = dataVehicles.find(x => x.id === b.vehicleId) || {};
+                const d = dataDrivers.find(x => x.id === b.driverId) || {};
+                const driverName = d.name || '-';
+                const fullName = getBookingFullName(b);
+
+                const startDate = new Date(b.startDateTime);
+                const endDate = new Date(b.endDateTime);
+                const startStr = `${startDate.getDate().toString().padStart(2,'0')}/${(startDate.getMonth()+1).toString().padStart(2,'0')}/${startDate.getFullYear()+543} ${startDate.getHours().toString().padStart(2,'0')}:${startDate.getMinutes().toString().padStart(2,'0')} น.`;
+                const endStr = `${endDate.getDate().toString().padStart(2,'0')}/${(endDate.getMonth()+1).toString().padStart(2,'0')}/${endDate.getFullYear()+543} ${endDate.getHours().toString().padStart(2,'0')}:${endDate.getMinutes().toString().padStart(2,'0')} น.`;
+                const createDateStr = formatDate(b.created_at);
+
+                aoa.push([
+                    count++,
+                    v.name || '-',
+                    v.plate || '-',
+                    v.type || b.requestedType,
+                    createDateStr,
+                    fullName,
+                    b.location,
+                    startStr,
+                    endStr,
+                    driverName,
+                    b.passengers
+                ]);
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(aoa);
+            
+            const wscols = [ {wch: 5}, {wch: 15}, {wch: 12}, {wch: 15}, {wch: 15}, {wch: 30}, {wch: 30}, {wch: 22}, {wch: 22}, {wch: 20}, {wch: 15} ];
+            ws['!cols'] = wscols;
+
+            XLSX.utils.book_append_sheet(wb, ws, "ข้อมูลการใช้รถ");
+            
+            Swal.fire({ title: 'ดาวน์โหลด Excel สำเร็จ', text: 'ไฟล์จะถูกดาวน์โหลดลงในเครื่องของคุณ', icon: 'success', showConfirmButton: false, timer: 1500 });
+            XLSX.writeFile(wb, `${filename}.xlsx`);
         }
     </script>
 </body>
