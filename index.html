@@ -6,13 +6,11 @@
     <title>ระบบขออนุญาตใช้ยานพาหนะ - โรงเรียนสอาดเผดิมวิทยา</title>
     <link rel="icon" href="https://www.saard.ac.th/wp-content/uploads/2024/11/saardlogov2-1-1024x1024.png" type="image/png">
     
-    <!-- Fonts: Sarabun Only for consistency -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -50,14 +48,17 @@
         }
     </script>
 
-    <!-- Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-material-ui/material-ui.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-    <!-- Firebase SDKs -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -101,14 +102,15 @@
         .custom-input {
             width: 100%; padding: 0.85rem 1rem; border: 2px solid #E5E7EB;
             border-radius: 0.75rem; background: #ffffff; outline: none; font-size: 1rem;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .custom-input:focus { border-color: #3B82F6; }
+        .custom-input:focus { border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
 
         /* SweetAlert Override */
         .swal2-popup { border-radius: 24px !important; padding: 1.5rem !important; font-family: 'Sarabun', sans-serif !important; }
-        .swal2-confirm { background: linear-gradient(to right, #3B82F6, #2563EB) !important; }
-        .swal2-deny { background: #EF4444 !important; }
+        .swal2-confirm { background: linear-gradient(to right, #3B82F6, #2563EB) !important; border-radius: 0.75rem !important; }
+        .swal2-deny { background: #EF4444 !important; border-radius: 0.75rem !important; }
+        .swal2-cancel { border-radius: 0.75rem !important; }
 
         /* Data Display */
         .glass-table { border-collapse: separate; border-spacing: 0; width: 100%; }
@@ -119,38 +121,34 @@
         .mobile-card { background: white; border-radius: 1rem; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #f3f4f6; }
         .mobile-card-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; }
         .mobile-card-label { color: #6B7280; font-weight: 500; }
-        .mobile-card-value { color: #1F2937; font-weight: 600; text-align: right; max-width: 65%; word-break: break-word; }
+        .mobile-card-value { color: #1F2937; font-weight: 500; text-align: right; max-width: 65%; word-break: break-word; }
 
         /* Timeline Fixes */
-        .timeline-bar { height: 1.5rem; background-color: #E5E7EB; border-radius: 9999px; position: relative; overflow: hidden; margin-top: 0.5rem; }
-        .timeline-segment { position: absolute; height: 100%; top: 0; min-width: 2px; }
-        .segment-approved { background-color: #EF4444; opacity: 0.9; } 
-        .segment-pending { background-color: #FBBF24; opacity: 0.7; } 
-        .time-scale { display: flex; justify-content: space-between; font-size: 0.7rem; color: #9CA3AF; margin-top: 0.25rem; padding: 0 2px; }
+        .timeline-bar { height: 1.5rem; background-color: #E5E7EB; border-radius: 9999px; position: relative; overflow: hidden; margin-top: 0.75rem; }
+        .timeline-segment { position: absolute; height: 100%; top: 0; min-width: 2px; transition: filter 0.2s; }
+        .timeline-segment:hover { filter: brightness(0.8); z-index: 10; cursor: pointer; }
+        .segment-approved { background-color: #10B981; opacity: 0.9; } /* สีเขียวแทนที่สีแดง */
+        .segment-pending { background-color: #FBBF24; opacity: 0.8; } 
+        .time-scale { display: flex; justify-content: space-between; font-size: 0.7rem; color: #9CA3AF; margin-top: 0.35rem; padding: 0 4px; }
         
         /* Desktop UI: Dashboard Cards Highlighting */
-        .dash-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; }
+        .dash-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; }
+        .dash-card-all.dash-active { border-color: #3B82F6 !important; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3) !important; transform: translateY(-4px) scale(1.02); opacity: 1 !important; }
+        .dash-card-pending.dash-active { border-color: #FBBF24 !important; box-shadow: 0 10px 25px -5px rgba(251, 191, 36, 0.3) !important; transform: translateY(-4px) scale(1.02); opacity: 1 !important; }
+        .dash-card-processed.dash-active { border-color: #10B981 !important; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3) !important; transform: translateY(-4px) scale(1.02); opacity: 1 !important; }
         
-        /* Active States - Make them Pop! */
-        .dash-card-all.dash-active { border-color: #3B82F6 !important; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4) !important; transform: translateY(-6px) scale(1.03); opacity: 1 !important; background: linear-gradient(to bottom right, #ffffff, #eff6ff); }
-        .dash-card-pending.dash-active { border-color: #FBBF24 !important; box-shadow: 0 10px 25px -5px rgba(251, 191, 36, 0.4) !important; transform: translateY(-6px) scale(1.03); opacity: 1 !important; background: linear-gradient(to bottom right, #ffffff, #fef3c7); }
-        .dash-card-processed.dash-active { border-color: #10B981 !important; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4) !important; transform: translateY(-6px) scale(1.03); opacity: 1 !important; background: linear-gradient(to bottom right, #ffffff, #d1fae5); }
-        
-        /* Inactive States - Push them back visually but keep text readable */
-        .dash-inactive { opacity: 0.75 !important; filter: grayscale(40%); transform: scale(0.96); background-color: #f9fafb; border-color: transparent !important; box-shadow: none !important; pointer-events: auto; }
-        .dash-inactive:hover { opacity: 0.95 !important; filter: grayscale(10%); transform: scale(0.98); }
-
         .manage-card-active { border-color: #EC4899 !important; background-color: #FDF2F8 !important; transform: translateY(-4px) scale(1.02); box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.3) !important;}
         .manage-card-inactive { border-color: transparent !important; opacity: 0.75 !important; filter: grayscale(40%); transform: scale(0.96); transition: all 0.3s ease; }
-        .manage-card-inactive:hover { opacity: 0.95 !important; filter: grayscale(10%); transform: scale(0.98); }
+        .dash-inactive { opacity: 0.75 !important; filter: grayscale(40%); transform: scale(0.96); pointer-events: auto; }
+        .dash-inactive:hover { opacity: 0.95 !important; filter: grayscale(10%); transform: scale(0.98); }
 
         /* ==================== PDF STYLES (Strict Fixed Layout) ==================== */
         #pdf-container { position: fixed; top: 0; left: 0; z-index: -1000; opacity: 0; pointer-events: none; width: fit-content; height: fit-content; }
         .pdf-page { background: white; color: black; font-family: 'Sarabun', sans-serif !important; padding: 10mm 20mm 10mm 20mm; box-sizing: border-box; text-rendering: optimizeLegibility; font-variant-ligatures: none; width: 210mm; min-height: 297mm; page-break-after: always; }
         .pdf-page:last-child { page-break-after: avoid; }
         .pdf-header { text-align: center; font-weight: bold; font-size: 20px; margin-bottom: 12px; }
-        .pdf-content { font-size: 15px; line-height: 1.8; }
-        .pdf-row { display: flex; align-items: flex-end; width: 100%; margin-bottom: 12px; flex-wrap: nowrap; white-space: nowrap; }
+        .pdf-content { font-size: 14.5px; line-height: 1.6; } /* ปรับฟอนต์และบรรทัดให้กระชับขึ้นเพื่อให้อยู่ในหน้า 1 100% */
+        .pdf-row { display: flex; align-items: flex-end; width: 100%; margin-bottom: 10px; flex-wrap: nowrap; white-space: nowrap; }
         .justify-between { justify-content: space-between; }
         .justify-end { justify-content: flex-end; }
         .indent-tab { margin-left: 40px; } 
@@ -163,7 +161,7 @@
         .signature-box { position: relative; display: inline-block; width: 180px; height: 30px; vertical-align: bottom; }
         .signature-img { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); max-height: 50px; width: auto; max-width: 90%; z-index: 10; filter: grayscale(100%) contrast(150%) brightness(1.1); mix-blend-mode: multiply; }
         .pdf-img-container { width: 100%; height: 90%; display: flex; justify-content: center; align-items: center; margin-top: 20px; }
-        .pdf-attached-img { max-width: 100%; max-height: 250mm; object-fit: contain; border: 1px solid #ddd; }
+        .pdf-attached-img { max-width: 100%; max-height: 260mm; object-fit: contain; border: 1px solid #ddd; }
         .approval-grid { display: flex; width: 100%; margin-bottom: 8px; align-items: flex-start; }
         .col-label { width: 70px; flex-shrink: 0; padding-top: 2px; }
         .col-check { width: 40px; flex-shrink: 0; display: flex; justify-content: flex-start; }
@@ -186,7 +184,6 @@
 </head>
 <body class="text-gray-700 antialiased selection:bg-pink-200 selection:text-pink-900">
 
-    <!-- ================= 1. Login Section ================= -->
     <div id="login-section" class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
         <div class="absolute top-0 -left-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
         <div class="absolute top-0 -right-4 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
@@ -216,24 +213,19 @@
         </div>
     </div>
 
-    <!-- ================= Dashboard Section ================= -->
     <div id="dashboard-section" class="hidden-section min-h-screen flex flex-col animate-fade-in relative z-0">
-        <!-- TOP NAV (Navbar 1 & 2 combined logically) -->
         <nav class="glass-effect sticky top-0 z-50 shadow-sm border-b border-white/60 flex flex-col w-full">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                <!-- Main Header Row (Navbar 1) -->
+            <div class="max-w-[96%] xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6">
                 <div class="flex justify-between items-center h-16 sm:h-20 w-full">
                     <div class="flex items-center gap-3 flex-shrink-0">
                         <img src="https://www.saard.ac.th/wp-content/uploads/2024/11/saardlogov2-1-1024x1024.png" alt="Logo" class="h-10 w-10 sm:h-12 sm:w-12 drop-shadow-sm flex-shrink-0">
                         <div class="flex flex-col justify-center">
-                            <h1 class="text-[14px] sm:text-xl font-bold leading-tight flex flex-col sm:block"><span class="text-gray-800">ระบบ</span><span class="text-pink-500">ขออนุญาตใช้ยานพาหนะ</span></h1>
+                            <h1 class="text-[13px] sm:text-xl font-bold leading-tight flex flex-col sm:block"><span class="text-gray-800">ระบบ</span><span class="text-pink-500">ขออนุญาตใช้ยานพาหนะ</span></h1>
                             <p class="text-[10px] sm:text-xs text-blue-600 font-medium bg-blue-50 inline-block px-2 py-0.5 mt-0.5 rounded-full self-start" id="user-role-display">บุคลากรครู</p>
                         </div>
                     </div>
                     
-                    <!-- Right Aligned Group: Desktop Nav + Logout -->
                     <div class="flex items-center gap-2 sm:gap-4 ml-auto">
-                        <!-- Desktop Nav Menu (Hidden on Mobile) -->
                         <div class="hidden md:flex items-center gap-3">
                             <div id="nav-menu-teacher" class="bg-gray-100 p-1 rounded-xl relative flex items-center h-12">
                                 <div id="nav-t-indicator" class="absolute h-[calc(100%-0.5rem)] w-[calc(33.33%-0.25rem)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out top-1 left-1 pointer-events-none"></div>
@@ -246,10 +238,24 @@
                                 <button id="nav-a-home" onclick="showPage('home')" class="relative z-10 flex-1 px-5 py-2 rounded-lg text-sm font-bold transition-colors text-blue-600 flex items-center justify-center gap-2"><i class="fas fa-home"></i><span>หน้าหลัก</span></button>
                                 <button id="nav-a-manage" onclick="showPage('manage')" class="relative z-10 flex-1 px-5 py-2 rounded-lg text-sm font-bold transition-colors text-gray-500 flex items-center justify-center gap-2"><i class="fas fa-database"></i><span>จัดการข้อมูล</span></button>
                             </div>
-                            <div class="hidden md:block h-8 w-px bg-gray-300 mx-1"></div>
+                            <div class="h-6 w-px bg-gray-300 mx-1"></div>
                         </div>
                         
-                        <!-- Logout Button (Always Visible) -->
+                        <div class="relative">
+                            <button onclick="toggleNotifDropdown(event)" class="text-gray-500 hover:text-blue-500 font-medium p-2 rounded-lg hover:bg-blue-50 transition-colors relative">
+                                <i class="fas fa-bell text-[20px] sm:text-lg"></i>
+                                <span id="notif-badge" class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full hidden-section animate-pulse border border-white"></span>
+                            </button>
+                            <div id="notif-dropdown" class="hidden-section absolute right-0 mt-2 w-64 sm:w-80 bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-[100] animate-fade-in origin-top-right">
+                                <div class="p-3 border-b border-gray-100 bg-gray-50 font-bold text-gray-700 text-sm flex justify-between items-center">
+                                    <span><i class="fas fa-bell text-blue-500 mr-1"></i> การแจ้งเตือน</span>
+                                    <span id="notif-count-text" class="text-[10px] sm:text-xs font-normal text-gray-500">0 รายการใหม่</span>
+                                </div>
+                                <div id="notif-list" class="max-h-72 overflow-y-auto hide-scrollbar bg-white">
+                                    </div>
+                            </div>
+                        </div>
+
                         <button onclick="handleLogout()" class="text-gray-500 hover:text-red-500 font-medium text-sm p-2 rounded-lg hover:bg-red-50 transition-colors">
                             <i class="fas fa-sign-out-alt text-[20px] sm:text-lg"></i>
                         </button>
@@ -257,67 +263,56 @@
                 </div>
             </div>
 
-            <!-- Mobile Secondary Navbar (Navbar 2 - Top Sub Nav: Filter Tabs) -->
-            <!-- Changed from scrollable flex to grid for no-scroll experience -->
-            <div id="mobile-filter-nav" class="md:hidden border-t border-gray-100 bg-white/95 px-2 py-2 shadow-sm w-full">
-                <div class="grid grid-cols-3 gap-1.5 w-full">
-                    <button onclick="filterBookings('all')" id="mob-btn-all" class="flex flex-col items-center justify-center py-1.5 rounded-lg text-[12px] font-bold transition-all border shadow-sm leading-tight text-blue-600 bg-blue-50 border-blue-500"><span>ทั้งหมด</span><span class="text-[10px] opacity-80">(<span id="mob-count-all">0</span>)</span></button>
-                    <button onclick="filterBookings('pending')" id="mob-btn-pending" class="flex flex-col items-center justify-center py-1.5 rounded-lg text-[12px] font-bold transition-all border leading-tight text-gray-400 bg-gray-50 border-transparent"><span>รออนุมัติ</span><span class="text-[10px] opacity-80">(<span id="mob-count-pending">0</span>)</span></button>
-                    <button onclick="filterBookings('processed')" id="mob-btn-processed" class="flex flex-col items-center justify-center py-1.5 rounded-lg text-[12px] font-bold transition-all border leading-tight text-gray-400 bg-gray-50 border-transparent"><span>ตอบรับแล้ว</span><span class="text-[10px] opacity-80">(<span id="mob-count-processed">0</span>)</span></button>
+            <div id="mobile-filter-nav" class="md:hidden border-t border-gray-100 bg-white/90 overflow-x-auto hide-scrollbar px-4 py-2 shadow-sm">
+                <div class="flex gap-2 min-w-max">
+                    <button onclick="filterBookings('all')" id="mob-btn-all" class="px-4 py-1.5 rounded-full text-[13px] font-bold transition-all border shadow-sm">ทั้งหมด (<span id="mob-count-all">0</span>)</button>
+                    <button onclick="filterBookings('pending')" id="mob-btn-pending" class="px-4 py-1.5 rounded-full text-[13px] font-bold transition-all border">รออนุมัติ (<span id="mob-count-pending">0</span>)</button>
+                    <button onclick="filterBookings('processed')" id="mob-btn-processed" class="px-4 py-1.5 rounded-full text-[13px] font-bold transition-all border">ตอบรับแล้ว (<span id="mob-count-processed">0</span>)</button>
                 </div>
             </div>
         </nav>
 
-        <!-- Main Content Area -->
-        <div class="flex-grow p-4 sm:p-8 max-w-7xl mx-auto w-full space-y-6 sm:space-y-8 pb-32 md:pb-20"> 
-            
-            <!-- View: Home -->
-            <div id="view-home" class="space-y-6 sm:space-y-8 animate-slide-up">
+        <div class="flex-grow p-4 sm:p-8 max-w-[96%] xl:max-w-[1600px] w-full mx-auto space-y-6 sm:space-y-8 pb-28 md:pb-20"> <div id="view-home" class="space-y-6 sm:space-y-8 animate-slide-up">
                 
-                <!-- Desktop Big Cards (Hidden on Mobile) -->
                 <div class="hidden md:grid md:grid-cols-3 gap-6">
                     <div id="card-dash-all" onclick="filterBookings('all')" class="dash-card dash-card-all glass-effect p-6 rounded-3xl cursor-pointer border-l-8 group relative overflow-hidden dash-active">
                         <div class="absolute right-0 top-0 w-32 h-32 bg-blue-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
                         <div class="relative z-10 flex justify-between items-start">
-                            <!-- Changed text color to match card theme -->
-                            <div><p class="text-blue-500 text-sm font-bold mb-1 tracking-wide uppercase">รายการทั้งหมด</p><h3 class="text-5xl font-bold text-gray-800 mt-2" id="count-all">0</h3></div>
+                            <div><p class="text-gray-500 text-sm font-bold mb-1 tracking-wide uppercase">รายการทั้งหมด</p><h3 class="text-5xl font-bold text-gray-800 mt-2" id="count-all">0</h3></div>
                             <div class="p-4 bg-blue-100 rounded-2xl text-blue-600 transition shadow-sm"><i class="fas fa-list-ul text-2xl"></i></div>
                         </div>
                     </div>
                     <div id="card-dash-pending" onclick="filterBookings('pending')" class="dash-card dash-card-pending glass-effect p-6 rounded-3xl cursor-pointer border-l-8 group relative overflow-hidden dash-inactive">
                         <div class="absolute right-0 top-0 w-32 h-32 bg-yellow-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
                         <div class="relative z-10 flex justify-between items-start">
-                             <!-- Changed text color to match card theme -->
-                            <div><p class="text-yellow-600 text-sm font-bold mb-1 tracking-wide uppercase" id="label-pending">รออนุมัติ</p><h3 class="text-5xl font-bold text-gray-800 mt-2" id="count-pending">0</h3></div>
+                            <div><p class="text-gray-500 text-sm font-bold mb-1 tracking-wide uppercase" id="label-pending">รออนุมัติ</p><h3 class="text-5xl font-bold text-gray-800 mt-2" id="count-pending">0</h3></div>
                             <div class="p-4 bg-yellow-100 rounded-2xl text-yellow-600 transition shadow-sm"><i class="fas fa-clock text-2xl"></i></div>
                         </div>
                     </div>
                     <div id="card-dash-processed" onclick="filterBookings('processed')" class="dash-card dash-card-processed glass-effect p-6 rounded-3xl cursor-pointer border-l-8 group relative overflow-hidden dash-inactive">
                         <div class="absolute right-0 top-0 w-32 h-32 bg-green-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
                         <div class="relative z-10 flex justify-between items-start">
-                             <!-- Changed text color to match card theme -->
-                            <div><p class="text-green-600 text-sm font-bold mb-1 tracking-wide uppercase" id="label-processed">ตอบรับแล้ว</p><h3 class="text-5xl font-bold text-gray-800 mt-2" id="count-processed">0</h3></div>
+                            <div><p class="text-gray-500 text-sm font-bold mb-1 tracking-wide uppercase" id="label-processed">ตอบรับแล้ว</p><h3 class="text-5xl font-bold text-gray-800 mt-2" id="count-processed">0</h3></div>
                             <div class="p-4 bg-green-100 rounded-2xl text-green-600 transition shadow-sm"><i class="fas fa-check-circle text-2xl"></i></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="glass-effect rounded-3xl shadow-card p-4 sm:p-8 border border-white/50">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
-                            <h3 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3 shrink-0">
-                                <span class="w-1.5 sm:w-2 h-6 sm:h-8 bg-gradient-to-b from-blue-500 to-pink-500 rounded-full"></span> 
+                    <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+                        <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+                            <h3 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3">
+                                <span id="table-title-bar" class="w-1.5 sm:w-2 h-6 sm:h-8 bg-blue-500 rounded-full"></span> 
                                 <span id="table-title">รายการทั้งหมด</span>
                             </h3>
-                            <!-- Adjusted View Toggles to fill width on mobile -->
-                            <div class="flex bg-gray-200 rounded-lg p-1 w-full sm:w-auto mt-2 sm:mt-0" id="view-toggle-container">
-                                <button onclick="toggleView('list')" id="btn-view-list" class="flex-1 sm:flex-none px-2 sm:px-4 py-1.5 rounded-md text-[13px] sm:text-sm font-bold bg-white text-blue-600 shadow-sm transition">ทั้งหมด</button>
-                                <button onclick="toggleView('timeline')" id="btn-view-timeline" class="flex-1 sm:flex-none px-2 sm:px-4 py-1.5 rounded-md text-[13px] sm:text-sm font-bold text-gray-500 hover:text-blue-600 transition">Timeline</button>
-                                <button onclick="toggleView('usage')" id="btn-view-usage" class="flex-1 sm:flex-none px-2 sm:px-4 py-1.5 rounded-md text-[13px] sm:text-sm font-bold text-gray-500 hover:text-blue-600 transition">สถิติ</button>
+                            <div class="flex bg-gray-200 rounded-lg p-1" id="view-toggle-container">
+                                <button onclick="toggleView('list')" id="btn-view-list" class="px-3 sm:px-4 py-1 rounded-md text-[13px] sm:text-sm font-bold bg-white text-blue-600 shadow-sm transition">ทั้งหมด</button>
+                                <button onclick="toggleView('timeline')" id="btn-view-timeline" class="px-3 sm:px-4 py-1 rounded-md text-[13px] sm:text-sm font-bold text-gray-500 hover:text-blue-600 transition">Timeline</button>
+                                <button onclick="toggleView('usage')" id="btn-view-usage" class="px-3 sm:px-4 py-1 rounded-md text-[13px] sm:text-sm font-bold text-gray-500 hover:text-blue-600 transition">สถิติ</button>
                             </div>
                         </div>
                         <div class="flex w-full sm:w-auto justify-end">
-                            <button id="btn-print-summary" onclick="showSummaryPrintOptions()" class="hidden-section w-full sm:w-auto px-4 sm:px-5 py-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 text-sm font-bold transition shadow-sm border border-blue-100 hover:-translate-y-0.5 flex justify-center items-center">
+                            <button id="btn-print-summary" onclick="showSummaryPrintOptions()" class="hidden-section w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 text-sm font-bold transition shadow-sm border border-blue-100 hover:-translate-y-0.5 flex justify-center items-center">
                                 <i class="fas fa-file-export mr-2"></i>ส่งออกรายงาน
                             </button>
                         </div>
@@ -326,35 +321,51 @@
                     <div id="view-mode-list" class="block">
                         <div class="hidden md:block overflow-x-auto rounded-xl border border-gray-100">
                             <table class="w-full glass-table">
-                                <thead><tr><th class="text-left w-32 rounded-tl-xl">วันที่ขอ</th><th class="text-left">ผู้ขอ</th><th class="text-left">รายการ</th><th class="text-left w-24">ประเภท</th><th class="text-left w-48">เวลาเดินทาง</th><th class="text-center w-28">สถานะ</th><th class="text-center w-24 rounded-tr-xl">จัดการ</th></tr></thead>
+                                <thead><tr><th class="text-left w-32 rounded-tl-xl">วันที่ขอ</th><th class="text-left w-52">ผู้ขอ</th><th class="text-left">รายการ</th><th class="text-left w-32">ประเภท</th><th class="text-left w-56">เวลาเดินทาง</th><th class="text-center w-32">สถานะ</th><th class="text-center w-32 rounded-tr-xl">จัดการ</th></tr></thead>
                                 <tbody id="table-body"></tbody>
                             </table>
                         </div>
                         <div id="mobile-card-container" class="md:hidden space-y-4"></div>
-                        <div class="p-4 border-t border-gray-100 text-center text-gray-500 text-xs sm:text-sm">แสดงข้อมูลล่าสุด 20 รายการ</div>
+                        <div id="bookings-pagination" class="mt-6 flex justify-center pb-2"></div>
                     </div>
                     
                     <div id="view-mode-timeline" class="hidden-section p-4 sm:p-6 bg-gray-50/50 rounded-xl">
-                        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-                            <div class="flex flex-col sm:flex-row gap-4 w-full">
-                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">เลือกวันที่:</label><input type="date" id="timeline-date" onchange="renderTimeline()" class="custom-input"></div>
-                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ประเภทรถ:</label><select id="timeline-filter-type" onchange="renderTimeline()" class="custom-input"><option value="all">ทั้งหมด</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div>
+                        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                            <div class="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+                                <div class="flex flex-col gap-1 w-full sm:w-auto">
+                                    <label class="font-bold text-gray-700 text-sm">เลือกวันที่:</label>
+                                    <div class="flex items-center gap-1">
+                                        <button onclick="changeTimelineDate(-1)" class="flex items-center justify-center bg-white border border-gray-200 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition shadow-sm" style="height: 42px; width: 42px;"><i class="fas fa-chevron-left"></i></button>
+                                        <input type="text" id="timeline-date" class="custom-input bg-white cursor-pointer text-center w-full sm:w-40" style="height: 42px; padding-top: 0.5rem; padding-bottom: 0.5rem;" placeholder="เลือกวันที่">
+                                        <button onclick="changeTimelineDate(1)" class="flex items-center justify-center bg-white border border-gray-200 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition shadow-sm" style="height: 42px; width: 42px;"><i class="fas fa-chevron-right"></i></button>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-1 w-full sm:w-auto mt-2 sm:mt-0">
+                                    <label class="font-bold text-gray-700 text-sm">ประเภทรถ:</label>
+                                    <select id="timeline-filter-type" onchange="renderTimeline()" class="custom-input bg-white min-w-[150px]" style="height: 42px; padding-top: 0.5rem; padding-bottom: 0.5rem;">
+                                        <option value="all">ทั้งหมด</option>
+                                        <option value="รถตู้">รถตู้</option>
+                                        <option value="รถกระบะ">รถกระบะ</option>
+                                        <option value="รถบรรทุก">รถบรรทุก</option>
+                                        <option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div id="timeline-container" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
-                        <div class="flex flex-wrap gap-4 justify-center mt-4 text-xs text-gray-500">
-                            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-gray-300 rounded-full border border-gray-400"></div> ว่าง</div>
-                            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-yellow-400 rounded-full border border-yellow-500"></div> รออนุมัติ</div>
-                            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-red-500 rounded-full border border-red-600"></div> อนุมัติแล้ว</div>
+                        <div class="flex flex-wrap gap-4 justify-center mt-6 p-3 bg-white rounded-xl border border-gray-100 text-xs sm:text-sm font-medium text-gray-600">
+                            <div class="flex items-center gap-2"><div class="w-3.5 h-3.5 bg-gray-200 rounded-full border border-gray-300"></div> ว่าง</div>
+                            <div class="flex items-center gap-2"><div class="w-3.5 h-3.5 bg-yellow-400 rounded-full border border-yellow-500"></div> รออนุมัติ</div>
+                            <div class="flex items-center gap-2"><div class="w-3.5 h-3.5 bg-green-500 rounded-full border border-green-600"></div> อนุมัติแล้ว</div>
                         </div>
                     </div>
                     
                     <div id="view-mode-usage" class="hidden-section p-4 sm:p-6 bg-gray-50/50 rounded-xl">
                         <div class="flex flex-col sm:flex-row justify-start items-center mb-6 gap-4">
                             <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">เดือน:</label><select id="usage-month" class="custom-input w-full sm:w-32" onchange="renderUsageTable()"></select></div>
-                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ปี:</label><select id="usage-year" class="custom-input w-full sm:w-32" onchange="renderUsageTable()"></select></div>
-                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ประเภทรถ:</label><select id="usage-filter-type" onchange="renderUsageTable()" class="custom-input w-full"><option value="all">ทั้งหมด</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div>
+                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">เดือน:</label><select id="usage-month" class="custom-input w-full sm:w-32" style="padding-top: 0.5rem; padding-bottom: 0.5rem; height: 42px;" onchange="renderUsageTable()"></select></div>
+                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ปี:</label><select id="usage-year" class="custom-input w-full sm:w-32" style="padding-top: 0.5rem; padding-bottom: 0.5rem; height: 42px;" onchange="renderUsageTable()"></select></div>
+                                <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ประเภทรถ:</label><select id="usage-filter-type" onchange="renderUsageTable()" class="custom-input w-full" style="padding-top: 0.5rem; padding-bottom: 0.5rem; height: 42px;"><option value="all">ทั้งหมด</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div>
                             </div>
                         </div>
                         <div id="usage-container" class="space-y-3"></div>
@@ -362,7 +373,6 @@
                 </div>
             </div>
 
-            <!-- View: Request Form -->
             <div id="view-request" class="hidden-section animate-slide-up">
                 <div class="glass-effect max-w-4xl mx-auto rounded-[2rem] shadow-card p-6 sm:p-10 relative overflow-hidden border border-white/60">
                     <div class="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-blue-400 via-pink-400 to-blue-400"></div>
@@ -382,8 +392,8 @@
                             <h3 class="font-bold text-pink-600 mb-4 sm:mb-6 flex items-center gap-3 text-base sm:text-lg border-b border-pink-100 pb-2"><span class="bg-pink-100 p-2 rounded-lg"><i class="fas fa-route"></i></span> รายละเอียดการเดินทาง</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                 <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">ประเภทรถที่ต้องการ</label><select id="req-type" class="custom-input" required><option value="" disabled selected>-- เลือกประเภทรถ --</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div>
-                                <div><label class="block text-sm font-bold text-gray-700 mb-2">วัน-เวลา เริ่มต้น</label><input type="datetime-local" id="req-start" class="custom-input" required></div>
-                                <div><label class="block text-sm font-bold text-gray-700 mb-2">วัน-เวลา สิ้นสุด</label><input type="datetime-local" id="req-end" class="custom-input" required></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">วัน-เวลา เริ่มต้น</label><input type="text" id="req-start" class="custom-input bg-white cursor-pointer" placeholder="เลือกวัน-เวลาเริ่มต้น" required></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">วัน-เวลา สิ้นสุด</label><input type="text" id="req-end" class="custom-input bg-white cursor-pointer" placeholder="เลือกวัน-เวลาสิ้นสุด" required></div>
                                 <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">สถานที่ที่ไป</label><input type="text" id="req-location" class="custom-input" placeholder="ระบุจังหวัดหรือชื่อสถานที่" required></div>
                                 <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">เพื่อวัตถุประสงค์</label><textarea id="req-purpose" rows="3" class="custom-input" placeholder="ระบุรายละเอียดการไปราชการหรือธุระ" required></textarea></div>
                                 <div><label class="block text-sm font-bold text-gray-700 mb-2">จำนวนผู้โดยสาร (คน)</label><input type="number" id="req-passengers" min="1" class="custom-input" placeholder="ไม่รวมคนขับ" required></div>
@@ -404,19 +414,14 @@
                 </div>
             </div>
             
-            <!-- View: Profile -->
             <div id="view-profile" class="hidden-section animate-slide-up"><div class="glass-effect max-w-lg mx-auto rounded-[2rem] shadow-card p-6 sm:p-10 text-center"><div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 text-4xl"><i class="fas fa-user"></i></div><h2 class="text-2xl font-bold text-gray-800" id="profile-name">-</h2><p class="text-gray-500 mb-6" id="profile-id">-</p><div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 text-left space-y-4"><h3 class="font-bold text-gray-700 mb-2">จัดการรหัสผ่าน</h3><div><label class="block text-xs font-bold text-gray-500 mb-1">รหัสผ่านปัจจุบัน</label><div class="relative"><input type="password" id="current-password-display" class="custom-input bg-gray-100 text-gray-600" readonly><button type="button" onclick="togglePassword('current-password-display', 'eye-curr')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition"><i class="fas fa-eye" id="eye-curr"></i></button></div></div><form onsubmit="changePassword(event)" class="space-y-4 pt-4 border-t border-gray-200"><div><label class="block text-xs font-bold text-gray-500 mb-1">กำหนดรหัสผ่านใหม่</label><div class="relative"><input type="password" id="new-password" class="custom-input bg-white" placeholder="รหัสผ่านใหม่" required minlength="4"><button type="button" onclick="togglePassword('new-password', 'eye-new')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition"><i class="fas fa-eye" id="eye-new"></i></button></div></div><button type="submit" class="w-full btn-primary">บันทึกรหัสผ่านใหม่</button></form></div><div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 text-left space-y-4 mt-6"><h3 class="font-bold text-gray-700 mb-2">ลายเซ็น (สำหรับแนบใบขออนุญาต)</h3><div id="profile-sig-preview" class="border border-gray-200 rounded-xl bg-white h-24 flex items-center justify-center mb-2 overflow-hidden"><span class="text-gray-400 text-sm">ยังไม่มีลายเซ็น</span></div><input type="file" id="profile-sig-upload" class="custom-input text-sm bg-white" accept="image/png" onchange="uploadProfileSig()"><p class="text-xs text-red-500 mt-1">*กรุณาถ่ายภาพลายเซ็นที่เขียนด้วยปากกาน้ำเงินบนกระดาษขาว (.png เท่านั้น)</p></div></div></div>
             
-            <!-- View: Manage -->
-            <div id="view-manage" class="hidden-section animate-slide-up space-y-8"><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div onclick="renderManageTable('vehicle')" id="card-manage-vehicle" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-active"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p><h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">ยานพาหนะ</h3><div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-vehicles">0</div></div><div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-bus text-xl sm:text-2xl"></i></div></div></div><div onclick="renderManageTable('driver')" id="card-manage-driver" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-inactive"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p><h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">พนักงานขับรถ</h3><div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-drivers">0</div></div><div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-user-tie text-xl sm:text-2xl"></i></div></div></div><div onclick="renderManageTable('teacher')" id="card-manage-teacher" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-inactive"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p><h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">บุคลากรครู</h3><div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-teachers">0</div></div><div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-chalkboard-teacher text-xl sm:text-2xl"></i></div></div></div></div><div class="glass-effect rounded-3xl shadow-card p-6 sm:p-8 border border-white/50"><div class="flex justify-between items-center mb-6"><h3 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-3"><span class="w-2 h-6 sm:h-8 bg-gradient-to-b from-blue-500 to-pink-500 rounded-full"></span> <span id="manage-title">ข้อมูลยานพาหนะ</span></h3><button onclick="addNewData()" class="btn-primary px-4 sm:px-5 py-2 sm:py-2.5 text-sm shadow-md"><i class="fas fa-plus mr-2"></i>เพิ่มข้อมูล</button></div><div class="hidden md:block overflow-x-auto rounded-xl border border-gray-100"><table class="w-full glass-table"><thead id="manage-table-head"></thead><tbody id="manage-table-body"></tbody></table></div><div id="manage-mobile-container" class="md:hidden space-y-4"></div></div></div>
+            <div id="view-manage" class="hidden-section animate-slide-up space-y-8"><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div onclick="renderManageTable('vehicle')" id="card-manage-vehicle" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-active"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p><h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">ยานพาหนะ</h3><div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-vehicles">0</div></div><div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-bus text-xl sm:text-2xl"></i></div></div></div><div onclick="renderManageTable('driver')" id="card-manage-driver" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-inactive"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p><h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">พนักงานขับรถ</h3><div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-drivers">0</div></div><div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-user-tie text-xl sm:text-2xl"></i></div></div></div><div onclick="renderManageTable('teacher')" id="card-manage-teacher" class="glass-effect p-5 sm:p-6 rounded-3xl shadow-card cursor-pointer transition-all border-l-8 border-pink-500 group relative overflow-hidden manage-card-inactive"><div class="absolute right-0 top-0 w-24 sm:w-32 h-24 sm:h-32 bg-pink-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div><div class="relative z-10 flex justify-between items-start"><div><p class="text-gray-500 text-xs sm:text-sm font-bold mb-1 tracking-wide uppercase">จัดการข้อมูล</p><h3 class="text-xl sm:text-2xl font-bold text-pink-900 mt-2">บุคลากรครู</h3><div class="text-4xl sm:text-5xl font-bold text-pink-900 mt-2" id="count-teachers">0</div></div><div class="p-3 sm:p-4 bg-pink-100 text-pink-600 rounded-2xl group-hover:bg-pink-600 group-hover:text-white transition shadow-sm"><i class="fas fa-chalkboard-teacher text-xl sm:text-2xl"></i></div></div></div></div><div class="glass-effect rounded-3xl shadow-card p-6 sm:p-8 border border-white/50"><div class="flex justify-between items-center mb-6"><h3 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-3"><span id="manage-title-bar" class="w-2 h-6 sm:h-8 bg-pink-500 rounded-full"></span> <span id="manage-title">ข้อมูลยานพาหนะ</span></h3><button onclick="addNewData()" class="btn-primary px-4 sm:px-5 py-2 sm:py-2.5 text-sm shadow-md"><i class="fas fa-plus mr-2"></i>เพิ่มข้อมูล</button></div><div class="hidden md:block overflow-x-auto rounded-xl border border-gray-100"><table class="w-full glass-table"><thead id="manage-table-head"></thead><tbody id="manage-table-body"></tbody></table></div><div id="manage-mobile-container" class="md:hidden space-y-4"></div><div id="manage-pagination" class="mt-6 flex justify-center pb-2"></div></div></div>
         </div>
     </div>
 
-    <!-- Mobile Bottom Navigation Bar (Navbar 3 - ONLY shows on Mobile screens after login) -->
-    <!-- Added hidden-section by default -->
-    <div id="mobile-bottom-nav" class="md:hidden hidden-section fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_15px_rgba(0,0,0,0.05)] pt-1 pb-3">
+    <div id="mobile-bottom-nav" class="md:hidden hidden-section fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 z-50 pb-safe pt-1 pb-3 shadow-[0_-4px_15px_rgba(0,0,0,0.05)]">
         <div class="flex justify-around items-center h-14 px-2">
-            <!-- Teacher Links -->
             <div id="mob-nav-teacher" class="flex justify-around w-full">
                 <button onclick="showPage('home')" id="mob-nav-t-home" class="flex flex-col items-center justify-center w-full h-full text-blue-600 transition-colors gap-1">
                     <i class="fas fa-home text-[22px]"></i><span class="text-[10px] font-bold">หน้าหลัก</span>
@@ -428,7 +433,6 @@
                     <i class="fas fa-user-circle text-[22px]"></i><span class="text-[10px] font-bold">ส่วนตัว</span>
                 </button>
             </div>
-            <!-- Admin Links -->
             <div id="mob-nav-admin" class="hidden-section flex justify-around w-full">
                 <button onclick="showPage('home')" id="mob-nav-a-home" class="flex flex-col items-center justify-center w-full h-full text-blue-600 transition-colors gap-1">
                     <i class="fas fa-home text-[22px]"></i><span class="text-[10px] font-bold">หน้าหลัก</span>
@@ -440,11 +444,8 @@
         </div>
     </div>
 
-    <!-- ================= PDF Templates ================= -->
     <div id="pdf-container">
-        <!-- WRAPPER FOR SINGLE PDF (2 Pages) -->
         <div id="pdf-print-wrapper">
-            <!-- Page 1: Single Permission Form -->
             <div id="pdf-template" class="pdf-page">
                 <div class="pdf-header">ใบขออนุญาตใช้รถส่วนกลาง</div>
                 <div class="pdf-content">
@@ -452,32 +453,33 @@
                         <div>ที่ <span class="dotted-line-low" id="pdf-run-num" style="width: 50px;"></span> / <span class="dotted-line-low" id="pdf-run-year" style="width: 50px;"></span></div>
                         <div>วันที่ <span class="dotted-line" id="pdf-day" style="width: 40px;"></span> เดือน <span class="dotted-line" id="pdf-month" style="width: 100px;"></span> พ.ศ. <span class="dotted-line" id="pdf-year" style="width: 60px;"></span></div>
                     </div>
-                    <div class="pdf-row" style="margin-top: 25px;">เรียน ผู้อำนวยการโรงเรียนสอาดเผดิมวิทยา</div>
+                    <div class="pdf-row" style="margin-top: 15px;">เรียน ผู้อำนวยการโรงเรียนสอาดเผดิมวิทยา</div>
                     <div class="pdf-row"><span class="indent-tab">ข้าพเจ้า <span id="pdf-name" class="dotted-line" style="width: 250px;"></span></span><span>ตำแหน่ง <span class="dotted-line" style="width: 150px;">ครู</span></span></div>
                     <div class="pdf-row"><span>ขออนุญาตใช้</span><span class="checkbox-box" id="chk-van"></span> <span>รถตู้</span><span class="checkbox-box" id="chk-pickup"></span> <span>รถกระบะ</span><span class="checkbox-box" id="chk-truck"></span> <span>รถบรรทุก</span><span class="checkbox-box" id="chk-car"></span> <span>รถยนต์ส่วนบุคคล</span></div>
                     <div class="pdf-row"><span>สถานที่ที่ไป</span><div class="dotted-line-fill"><span id="pdf-location"></span></div></div>
                     <div class="pdf-row"><span>เพื่อ</span><div class="dotted-line-fill"><span id="pdf-purpose"></span></div></div>
                     <div class="pdf-row"><span>มีผู้โดยสารจำนวน <span id="pdf-pax" class="dotted-line" style="width: 40px;"></span> คน </span><span>ในวันที่ <span id="pdf-s-d" class="dotted-line" style="width: 25px;"></span> เดือน <span id="pdf-s-m" class="dotted-line" style="width: 70px;"></span> พ.ศ. <span id="pdf-s-y" class="dotted-line" style="width: 40px;"></span> เวลา <span id="pdf-s-t" class="dotted-line" style="width: 50px;"></span></span></div>
-                    <div class="pdf-row"><span>ถึงวันที่ <span id="pdf-e-d" class="dotted-line" style="width: 25px;"></span> เดือน <span id="pdf-e-m" class="dotted-line" style="width: 70px;"></span> พ.ศ. <span id="pdf-e-y" class="dotted-line" style="width: 40px;"></span> เวลา <span id="pdf-e-t" class="dotted-line" style="width: 50px;"></span></span></div>
-                    <div class="pdf-row"><span>และได้แนบหนังสืออนุญาตไปราชการมาด้วยแล้ว</span></div>
-                    <div class="pdf-row justify-end" style="margin-top: 30px; margin-right: 40px;">
+                    
+                    <div class="pdf-row"><span>ถึงวันที่ <span id="pdf-e-d" class="dotted-line" style="width: 25px;"></span> เดือน <span id="pdf-e-m" class="dotted-line" style="width: 70px;"></span> พ.ศ. <span id="pdf-e-y" class="dotted-line" style="width: 40px;"></span> เวลา <span id="pdf-e-t" class="dotted-line" style="width: 50px;"></span><span style="margin-left: 20px;">และได้แนบหนังสือขออนุญาตไปราชการ</span></span></div>
+                    <div class="pdf-row"><span>มาด้วยแล้ว</span></div>
+                    
+                    <div class="pdf-row justify-end" style="margin-top: 20px; margin-right: 40px;">
                         <div style="text-align: center;"><div style="display: flex; align-items: flex-end; justify-content: center;">ลงชื่อ <div class="signature-box"><span class="dotted-line" style="width: 100%; display: block; position: absolute; bottom: 5px;"></span><img id="pdf-sig-img" src="" class="signature-img" style="display: none;"></div>ผู้ขออนุญาต</div><div style="margin-top: 4px;">(<span id="pdf-sign-name"></span>)</div><div>ตำแหน่ง ครู</div><div>เบอร์โทรศัพท์ <span id="pdf-phone"></span></div></div>
                     </div>
-                    <div style="font-weight: bold; margin-bottom: 10px; margin-top: 15px;">ผลการพิจารณา</div>
+                    <div style="font-weight: bold; margin-bottom: 5px; margin-top: 10px;">ผลการพิจารณา</div>
                     <div class="approval-grid"><div class="col-label">เห็นควร</div><div class="col-check"><span class="checkbox-box" id="chk-approve"></span></div><div class="col-text">อนุญาตและรับผิดชอบการใช้รถหมายเลขทะเบียน <span id="pdf-plate" class="dotted-line" style="width: 120px;"></span></div></div>
                     <div class="approval-grid" style="display: none;" id="pdf-driver-row"><div class="col-label"></div><div class="col-check"></div><div class="col-text">โดยมีนาย <span id="pdf-driver" class="dotted-line" style="width: 220px;"></span> เป็นพนักงานขับรถ</div></div>
                     <div class="approval-grid"><div class="col-label"></div><div class="col-check"><span class="checkbox-box" id="chk-reject"></span></div><div class="col-text">ไม่อนุญาตเพราะ <span id="pdf-reject-reason" class="dotted-line" style="width: 320px;"></span></div></div>
-                    <div class="pdf-row justify-between" style="margin-top: 30px; align-items: flex-start;">
+                    <div class="pdf-row justify-between" style="margin-top: 20px; align-items: flex-start;">
                         <div style="text-align: center; width: 45%; line-height: 1.6;">ลงชื่อ <span class="dotted-line" style="width: 150px;"></span><br>(นางสาวจุฑาดา ชุมเกษียน)<br>หัวหน้างานยานพาหนะ<br>วันที่ <span class="dotted-line" style="width: 100px;"></span></div>
                         <div style="text-align: center; width: 45%; line-height: 1.6; padding-top: 10px;">ลงชื่อ <span class="dotted-line" style="width: 150px;"></span><br>(นายหัตถเชษฐ์ แสงประดิษฐ์)<br>รองผู้อำนวยการโรงเรียน ปฏิบัติราชการแทน<br>ผู้อำนวยการโรงเรียนสอาดเผดิมวิทยา<br>วันที่ <span class="dotted-line" style="width: 100px;"></span></div>
                     </div>
-                     <div class="pdf-row" style="margin-top: 30px; display: none;" id="pdf-driver-sign-row">
+                     <div class="pdf-row" style="margin-top: 20px; display: none;" id="pdf-driver-sign-row">
                         <div class="driver-sig-block"><div style="margin-bottom: 8px;">รับทราบ</div><div style="margin-bottom: 8px;">ลงชื่อ <span class="dotted-line" style="width: 150px;"></span></div><div style="margin-bottom: 4px;">(<span id="pdf-driver-sign"></span>)</div><div>พนักงานขับรถ</div></div>
                     </div>
                 </div>
             </div>
             
-            <!-- Page 2: Attachment -->
             <div id="pdf-attachment-template" class="pdf-page" style="display:none;">
                 <div class="pdf-header">เอกสารแนบ: หนังสืออนุญาตไปราชการ</div>
                 <div class="pdf-img-container">
@@ -486,7 +488,6 @@
             </div>
         </div>
 
-        <!-- Summary PDF (Div based) -->
         <div id="pdf-summary-template">
             <h2 id="summary-title" style="text-align: center; font-weight: bold; font-size: 24px; margin-bottom: 5px;">รายงานสรุปการใช้งานยานพาหนะ</h2>
             <p style="text-align: center; font-size: 16px; margin-bottom: 20px;">โรงเรียนสอาดเผดิมวิทยา</p>
@@ -526,6 +527,14 @@
         let dataBookings = [], dataVehicles = [], dataDrivers = [], dataUsers = [];
         let currentUser = null, currentRole = 'teacher', currentFilter = 'all', manageMode = 'vehicle';
         let refreshTimer;
+        let fpTimeline; 
+        
+        // Pagination States
+        let curPageBookings = 1;
+        let curBookingsData = [];
+        let curPageManage = 1;
+        let curManageData = [];
+        const ITEMS_PER_PAGE = 10;
 
         // Init
         function init() {
@@ -545,7 +554,18 @@
 
             ['bookings', 'vehicles', 'drivers', 'users'].forEach(setupListener);
             initDateSelectors();
-            document.getElementById('timeline-date').valueAsDate = new Date();
+            
+            // Initialize Flatpickr
+            document.addEventListener('DOMContentLoaded', () => {
+                flatpickr("#req-start", { locale: "th", enableTime: true, dateFormat: "Y-m-d H:i", time_24hr: true });
+                flatpickr("#req-end", { locale: "th", enableTime: true, dateFormat: "Y-m-d H:i", time_24hr: true });
+                fpTimeline = flatpickr("#timeline-date", { 
+                    locale: "th", 
+                    dateFormat: "Y-m-d", 
+                    defaultDate: "today",
+                    onChange: function() { renderTimeline(); }
+                });
+            });
         }
         init();
 
@@ -553,6 +573,80 @@
             clearTimeout(refreshTimer);
             refreshTimer = setTimeout(refreshDashboard, 150);
         }
+        
+        // --- Icon Helper ---
+        function getVehicleIcon(type) {
+            switch(type) {
+                case 'รถตู้': return 'fa-van-shuttle';
+                case 'รถกระบะ': return 'fa-truck-pickup';
+                case 'รถบรรทุก': return 'fa-truck';
+                case 'รถยนต์ส่วนบุคคล': return 'fa-car-side';
+                default: return 'fa-car';
+            }
+        }
+
+        // --- Notification Logic ---
+        document.addEventListener('click', function(e) {
+            const notifDropdown = document.getElementById('notif-dropdown');
+            const notifButton = document.querySelector('[onclick="toggleNotifDropdown(event)"]');
+            if (notifDropdown && !notifDropdown.classList.contains('hidden-section')) {
+                if (!notifDropdown.contains(e.target) && !notifButton.contains(e.target)) {
+                    notifDropdown.classList.add('hidden-section');
+                }
+            }
+        });
+
+        window.toggleNotifDropdown = function(e) {
+            if(e) e.stopPropagation();
+            document.getElementById('notif-dropdown').classList.toggle('hidden-section');
+        }
+
+        function updateNotifications() {
+            if (!currentUser) return;
+            let notifs = [];
+            
+            if (currentUser.role === 'admin') {
+                notifs = dataBookings.filter(b => b.status === 'pending');
+            } else {
+                notifs = dataBookings.filter(b => b.requesterId === currentUser.id && (b.status === 'approved' || b.status === 'rejected'));
+            }
+            
+            notifs.sort((a,b) => new Date(b.created_at) - new Date(a.created_at)); 
+
+            const badge = document.getElementById('notif-badge');
+            const list = document.getElementById('notif-list');
+            const countText = document.getElementById('notif-count-text');
+            list.innerHTML = '';
+
+            if (notifs.length > 0) {
+                badge.classList.remove('hidden-section');
+                countText.innerText = `${notifs.length} รายการ`;
+                
+                notifs.slice(0, 10).forEach(n => {
+                    let text = ''; let icon = ''; let color = '';
+                    if(n.status === 'pending') { text = `รออนุมัติ: ${n.location}`; icon = 'fa-clock'; color = 'text-yellow-500'; }
+                    else if(n.status === 'approved') { text = `อนุมัติแล้ว: ${n.location}`; icon = 'fa-check-circle'; color = 'text-green-500'; }
+                    else { text = `ไม่อนุมัติ: ${n.location}`; icon = 'fa-times-circle'; color = 'text-red-500'; }
+
+                    const clickAction = currentUser.role === 'admin' ? `openApproval('${n.id}')` : `filterBookings('processed'); showPage('home');`;
+                    
+                    list.insertAdjacentHTML('beforeend', `
+                        <div class="p-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition text-sm flex gap-3 items-start" onclick="toggleNotifDropdown(); ${clickAction}">
+                            <i class="fas ${icon} ${color} mt-1 text-lg"></i>
+                            <div>
+                                <div class="text-gray-800 font-medium">${text}</div>
+                                <div class="text-[11px] text-gray-400 mt-0.5"><i class="far fa-calendar-alt"></i> ${formatDate(n.created_at)}</div>
+                            </div>
+                        </div>
+                    `);
+                });
+            } else {
+                badge.classList.add('hidden-section');
+                countText.innerText = `0 รายการ`;
+                list.innerHTML = '<div class="p-6 text-center text-gray-400 text-sm">ไม่มีการแจ้งเตือนใหม่</div>';
+            }
+        }
+        // -------------------------
 
         function initDateSelectors() {
             const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
@@ -563,19 +657,13 @@
 
             const monthOpts = months.map((m, i) => `<option value="${i}">${m}</option>`).join('');
             let yearOpts = '';
-            
-            for(let i = startYearCE; i <= endYearCE; i++) {
-                yearOpts += `<option value="${i}">${i + 543}</option>`;
-            }
+            for(let i = startYearCE; i <= endYearCE; i++) yearOpts += `<option value="${i}">${i + 543}</option>`;
             
             const mSel = document.getElementById('usage-month');
             const ySel = document.getElementById('usage-year');
-            
             if(mSel && ySel) {
-                mSel.innerHTML = monthOpts;
-                ySel.innerHTML = yearOpts;
-                mSel.value = currentMonth;
-                ySel.value = (currentYear >= startYearCE && currentYear <= endYearCE) ? currentYear : startYearCE;
+                mSel.innerHTML = monthOpts; ySel.innerHTML = yearOpts;
+                mSel.value = currentMonth; ySel.value = (currentYear >= startYearCE && currentYear <= endYearCE) ? currentYear : startYearCE;
             }
         }
 
@@ -620,25 +708,20 @@
                 currentUser = userObj;
                 document.getElementById('login-section').classList.add('hidden-section');
                 document.getElementById('dashboard-section').classList.remove('hidden-section');
-                
-                // Show bottom navbar on successful login
                 document.getElementById('mobile-bottom-nav').classList.remove('hidden-section');
                 
                 let displayName = currentUser.name;
                 if(currentUser.role === 'teacher') displayName = `${currentUser.prefix}${currentUser.name} ${currentUser.surname}`;
                 document.getElementById('user-role-display').innerText = displayName;
                 
-                // Toggle Desktop Navs
                 document.getElementById('nav-menu-teacher').classList.toggle('hidden-section', currentRole === 'admin');
                 document.getElementById('nav-menu-admin').classList.toggle('hidden-section', currentRole !== 'admin');
-                
-                // Toggle Mobile Bottom Navs
                 document.getElementById('mob-nav-teacher').classList.toggle('hidden-section', currentRole === 'admin');
                 document.getElementById('mob-nav-admin').classList.toggle('hidden-section', currentRole !== 'admin');
                 
                 if(currentRole === 'teacher') {
                     document.getElementById('profile-name').innerText = displayName;
-                    document.getElementById('profile-id').innerText = `ID: ${currentUser.id}`;
+                    document.getElementById('profile-id').innerText = `เลขบัตรประชาชน: ${currentUser.cardId || currentUser.id}`;
                     document.getElementById('current-password-display').value = currentUser.password;
                     document.getElementById('req-name-display').value = displayName;
                     document.getElementById('profile-sig-preview').innerHTML = currentUser.signature ? `<img src="${currentUser.signature}" class="h-20 object-contain">` : `<span class="text-gray-400 text-sm">ยังไม่มีลายเซ็น</span>`;
@@ -665,7 +748,6 @@
             ['view-home', 'view-request', 'view-manage', 'view-profile'].forEach(id => document.getElementById(id).classList.add('hidden-section'));
             document.getElementById('view-' + page).classList.remove('hidden-section');
             
-            // Toggle Mobile Secondary Filter Navbar (Only show on Home)
             const mobFilterNav = document.getElementById('mobile-filter-nav');
             if(mobFilterNav) {
                 if(page === 'home') mobFilterNav.classList.remove('hidden-section');
@@ -678,7 +760,6 @@
         }
 
         function updateNavState(activePage) {
-            // Update Desktop Top Nav
             const updateDesktop = (prefix, items) => {
                 items.forEach((item, idx) => {
                     const btn = document.getElementById(`${prefix}-${item}`);
@@ -690,29 +771,20 @@
                     }
                 });
             };
-            
-            // Update Mobile Bottom Nav
             const updateMobile = (prefix, items) => {
                 items.forEach(item => {
                     const btn = document.getElementById(`mob-nav-${prefix}-${item}`);
                     if(btn) {
-                        if(item === activePage) {
-                            btn.classList.remove('text-gray-400');
-                            btn.classList.add('text-blue-600');
-                        } else {
-                            btn.classList.remove('text-blue-600');
-                            btn.classList.add('text-gray-400');
-                        }
+                        if(item === activePage) { btn.classList.remove('text-gray-400'); btn.classList.add('text-blue-600'); } 
+                        else { btn.classList.remove('text-blue-600'); btn.classList.add('text-gray-400'); }
                     }
                 });
             };
 
             if (currentRole === 'teacher') {
-                updateDesktop('nav-t', ['home', 'request', 'profile']);
-                updateMobile('t', ['home', 'request', 'profile']);
+                updateDesktop('nav-t', ['home', 'request', 'profile']); updateMobile('t', ['home', 'request', 'profile']);
             } else {
-                updateDesktop('nav-a', ['home', 'manage']);
-                updateMobile('a', ['home', 'manage']);
+                updateDesktop('nav-a', ['home', 'manage']); updateMobile('a', ['home', 'manage']);
             }
         }
 
@@ -721,12 +793,12 @@
                 const btn = document.getElementById(`btn-view-${m}`);
                 const view = document.getElementById(`view-mode-${m}`);
                 if (m === mode) {
-                    btn.className = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 rounded-md text-[13px] sm:text-sm font-bold bg-white text-blue-600 shadow-sm transition";
+                    btn.className = "px-3 sm:px-4 py-1 rounded-md text-[13px] sm:text-sm font-bold bg-white text-blue-600 shadow-sm transition";
                     view.classList.remove('hidden-section');
                     if(m === 'timeline') renderTimeline();
                     if(m === 'usage') renderUsageTable();
                 } else {
-                    btn.className = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 rounded-md text-[13px] sm:text-sm font-bold text-gray-500 hover:text-blue-600 transition";
+                    btn.className = "px-3 sm:px-4 py-1 rounded-md text-[13px] sm:text-sm font-bold text-gray-500 hover:text-blue-600 transition";
                     view.classList.add('hidden-section');
                 }
             });
@@ -744,12 +816,10 @@
                 }
             });
             
-            // Update Desktop Counters
             document.getElementById('count-all').innerText = total;
             document.getElementById('count-pending').innerText = pending;
             document.getElementById('count-processed').innerText = processed;
             
-            // Update Mobile Counters
             if(document.getElementById('mob-count-all')) {
                 document.getElementById('mob-count-all').innerText = total;
                 document.getElementById('mob-count-pending').innerText = pending;
@@ -760,12 +830,16 @@
             document.getElementById('count-drivers').innerText = dataDrivers.length;
             document.getElementById('count-teachers').innerText = dataUsers.length;
 
+            updateNotifications();
+
             if (!document.getElementById('view-home').classList.contains('hidden-section')) {
-                filterBookings(currentFilter);
+                filterBookings(currentFilter, true); 
                 if(!document.getElementById('view-mode-timeline').classList.contains('hidden-section')) renderTimeline();
                 if(!document.getElementById('view-mode-usage').classList.contains('hidden-section')) renderUsageTable();
             }
-            if (!document.getElementById('view-manage').classList.contains('hidden-section')) renderManageTable(manageMode);
+            if (!document.getElementById('view-manage').classList.contains('hidden-section')) {
+                renderManageTable(manageMode, true);
+            }
         }
 
         function formatDate(dateString) {
@@ -779,7 +853,7 @@
         function getDateParts(dateString) {
             const date = new Date(dateString);
             const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
-            return { d: date.getDate(), m: thaiMonths[date.getMonth()], y: date.getFullYear() + 543, t: `${date.getHours().toString().padStart(2,'0')}.${date.getMinutes().toString().padStart(2,'0')} น.` };
+            return { d: date.getDate(), m: thaiMonths[date.getMonth()], y: date.getFullYear() + 543, t: `${date.getHours().toString().padStart(2,'0')}.${date.getMinutes().toString().padStart(2,'0')}` };
         }
 
         function getBookingFullName(b) {
@@ -788,18 +862,46 @@
             if (user) return `${user.prefix}${user.name} ${user.surname}`;
             return b.requesterName || '-';
         }
+        
+        // --- Pagination Builder ---
+        function createPaginationHTML(totalItems, currentPage, itemsPerPage, clickFuncName) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            if (totalPages <= 1) return '';
+            
+            let html = '<div class="flex items-center justify-center gap-1.5 mt-2">';
+            
+            html += `<button onclick="${clickFuncName}(${currentPage - 1})" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-blue-50 transition ${currentPage === 1 ? 'opacity-30 pointer-events-none' : ''}"><i class="fas fa-chevron-left text-xs"></i></button>`;
 
-        function filterBookings(status) {
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<button class="w-8 h-8 rounded-lg bg-blue-500 text-white font-bold shadow-sm text-sm">${i}</button>`;
+                } else if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    html += `<button onclick="${clickFuncName}(${i})" class="w-8 h-8 rounded-lg border border-gray-200 text-gray-600 hover:bg-blue-50 transition text-sm">${i}</button>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    html += `<span class="text-gray-400 px-1 text-sm">...</span>`;
+                }
+            }
+
+            html += `<button onclick="${clickFuncName}(${currentPage + 1})" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-blue-50 transition ${currentPage === totalPages ? 'opacity-30 pointer-events-none' : ''}"><i class="fas fa-chevron-right text-xs"></i></button>`;
+            html += '</div>';
+            return html;
+        }
+
+        // --- Filter & Render Home Bookings ---
+        function filterBookings(status, keepPage = false) {
             currentFilter = status;
-            const tbody = document.getElementById('table-body');
-            const mobileContainer = document.getElementById('mobile-card-container');
-            const toggleContainer = document.getElementById('view-toggle-container');
-            
-            tbody.innerHTML = ''; mobileContainer.innerHTML = '';
-            
+            if(!keepPage) curPageBookings = 1;
+
             const titles = { all: 'รายการทั้งหมด', pending: 'รออนุมัติ', processed: 'ตอบรับแล้ว' };
             document.getElementById('table-title').innerText = titles[status];
+            
+            // Dynamic Title Bar Color
+            const titleBar = document.getElementById('table-title-bar');
+            if(status === 'all') titleBar.className = "w-1.5 sm:w-2 h-6 sm:h-8 rounded-full bg-blue-500";
+            else if(status === 'pending') titleBar.className = "w-1.5 sm:w-2 h-6 sm:h-8 rounded-full bg-yellow-500";
+            else if(status === 'processed') titleBar.className = "w-1.5 sm:w-2 h-6 sm:h-8 rounded-full bg-green-500";
 
+            const toggleContainer = document.getElementById('view-toggle-container');
             if (status === 'all') toggleContainer.classList.remove('hidden-section');
             else {
                 toggleContainer.classList.add('hidden-section');
@@ -816,26 +918,23 @@
                 }
             });
             
-            // Style Mobile Filter Tabs (Grid Items)
+            // Style Mobile Filter Tabs
             const mobTabs = { 'all': 'mob-btn-all', 'pending': 'mob-btn-pending', 'processed': 'mob-btn-processed' };
             Object.keys(mobTabs).forEach(key => {
                 const btn = document.getElementById(mobTabs[key]);
                 if(btn) {
-                    btn.className = `flex flex-col items-center justify-center py-1.5 rounded-lg text-[12px] font-bold transition-all border leading-tight text-gray-400 bg-gray-50 border-transparent`; // reset
+                    btn.className = `px-4 py-1.5 rounded-full text-[13px] font-bold transition-all border border-gray-200 bg-white text-gray-500`;
                     if(key === status) {
-                        if(key === 'all') btn.className = `flex flex-col items-center justify-center py-1.5 rounded-lg text-[12px] font-bold transition-all border leading-tight text-blue-600 bg-blue-50 border-blue-500 shadow-sm`;
-                        if(key === 'pending') btn.className = `flex flex-col items-center justify-center py-1.5 rounded-lg text-[12px] font-bold transition-all border leading-tight text-yellow-600 bg-yellow-50 border-yellow-500 shadow-sm`;
-                        if(key === 'processed') btn.className = `flex flex-col items-center justify-center py-1.5 rounded-lg text-[12px] font-bold transition-all border leading-tight text-green-600 bg-green-50 border-green-500 shadow-sm`;
+                        if(key === 'all') btn.className = `px-4 py-1.5 rounded-full text-[13px] font-bold transition-all border border-blue-500 bg-blue-50 text-blue-600 shadow-sm`;
+                        if(key === 'pending') btn.className = `px-4 py-1.5 rounded-full text-[13px] font-bold transition-all border border-yellow-500 bg-yellow-50 text-yellow-600 shadow-sm`;
+                        if(key === 'processed') btn.className = `px-4 py-1.5 rounded-full text-[13px] font-bold transition-all border border-green-500 bg-green-50 text-green-600 shadow-sm`;
                     }
                 }
             });
 
             const btnPrint = document.getElementById('btn-print-summary');
-            if (currentUser.role === 'admin') {
-                btnPrint.classList.remove('hidden-section');
-            } else {
-                btnPrint.classList.add('hidden-section');
-            }
+            if (currentUser.role === 'admin') btnPrint.classList.remove('hidden-section');
+            else btnPrint.classList.add('hidden-section');
 
             let filtered = dataBookings.filter(b => {
                 if (status === 'all') return true; 
@@ -845,84 +944,351 @@
                 return true; 
             });
             if (status === 'all') filtered = filtered.filter(b => b.status !== 'rejected');
+            
+            curBookingsData = filtered;
+            renderBookingsTable();
+        }
 
-            const displayData = filtered.slice(0, 20);
+        window.changePageBookings = function(page) {
+            curPageBookings = page;
+            renderBookingsTable();
+        }
 
-            if (displayData.length === 0) {
-                const msg = `<div class="text-center py-10 text-gray-400 bg-white/50 rounded-lg">ไม่มีข้อมูลรายการ</div>`;
+        function renderBookingsTable() {
+            const tbody = document.getElementById('table-body');
+            const mobileContainer = document.getElementById('mobile-card-container');
+            const pagContainer = document.getElementById('bookings-pagination');
+            
+            tbody.innerHTML = ''; mobileContainer.innerHTML = ''; pagContainer.innerHTML = '';
+
+            if (curBookingsData.length === 0) {
+                const msg = `<div class="text-center py-10 text-gray-400">ไม่มีข้อมูลรายการ</div>`;
                 tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-gray-400 bg-white/50">ไม่มีข้อมูลรายการ</td></tr>`;
                 mobileContainer.innerHTML = msg;
                 return;
             }
 
+            const startIndex = (curPageBookings - 1) * ITEMS_PER_PAGE;
+            const endIndex = startIndex + ITEMS_PER_PAGE;
+            const displayData = curBookingsData.slice(startIndex, endIndex);
+
             displayData.forEach(b => {
                 let statusBadge = '', actionBtn = '';
                 if (b.status === 'pending') {
                     statusBadge = `<span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold border border-yellow-200">รออนุมัติ</span>`;
-                    actionBtn = currentUser.role === 'admin' ? `<button onclick="openApproval('${b.id}')" class="text-white bg-blue-500 hover:bg-blue-600 px-4 py-1.5 rounded-lg text-sm shadow-md">พิจารณา</button>` : `<span class="text-gray-400 text-sm">-</span>`;
+                    actionBtn = currentUser.role === 'admin' ? `<button onclick="openApproval('${b.id}')" class="text-white bg-blue-500 hover:bg-blue-600 px-4 py-1.5 rounded-lg text-sm shadow-md transition">พิจารณา</button>` : `<span class="text-gray-400 text-sm">-</span>`;
                 } else if (b.status === 'approved') {
                     statusBadge = `<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold border border-green-200">อนุมัติ</span>`;
-                    actionBtn = `<div class="flex gap-1 justify-center"><button onclick="printSinglePDF('${b.id}')" class="text-red-500 bg-red-50 hover:bg-red-100 px-2 py-1 rounded border border-red-200 text-xs font-bold">PDF</button>${currentUser.role === 'admin' ? `<button onclick="openApproval('${b.id}')" class="text-gray-500 hover:bg-gray-100 px-2 py-1 rounded border text-xs">แก้ไข</button>` : ''}</div>`;
+                    actionBtn = `<div class="flex gap-1 justify-center"><button onclick="printSinglePDF('${b.id}')" class="text-red-500 bg-red-50 hover:bg-red-100 px-2 py-1 rounded border border-red-200 text-xs font-bold shadow-sm transition">PDF</button>${currentUser.role === 'admin' ? `<button onclick="openApproval('${b.id}')" class="text-gray-500 hover:bg-gray-100 px-2 py-1 rounded border text-xs transition">แก้ไข</button>` : ''}</div>`;
                 } else {
                     statusBadge = `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold border border-red-200">ไม่อนุมัติ</span>`;
-                    actionBtn = `<div class="flex gap-1 justify-center"><button onclick="printSinglePDF('${b.id}')" class="text-red-500 bg-red-50 hover:bg-red-100 px-2 py-1 rounded border border-red-200 text-xs font-bold">PDF</button>${currentUser.role === 'admin' ? `<button onclick="openApproval('${b.id}')" class="text-gray-500 hover:bg-gray-100 px-2 py-1 rounded border text-xs">แก้ไข</button>` : ''}</div>`;
+                    actionBtn = `<div class="flex gap-1 justify-center"><button onclick="printSinglePDF('${b.id}')" class="text-red-500 bg-red-50 hover:bg-red-100 px-2 py-1 rounded border border-red-200 text-xs font-bold shadow-sm transition">PDF</button>${currentUser.role === 'admin' ? `<button onclick="openApproval('${b.id}')" class="text-gray-500 hover:bg-gray-100 px-2 py-1 rounded border text-xs transition">แก้ไข</button>` : ''}</div>`;
                 }
 
                 const startStr = `${formatDate(b.startDateTime)} ${new Date(b.startDateTime).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})}`;
                 const endStr = `${formatDate(b.endDateTime)} ${new Date(b.endDateTime).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})}`;
                 const fullName = getBookingFullName(b);
 
-                tbody.insertAdjacentHTML('beforeend', `<tr class="transition hover:bg-white/40"><td class="text-left-align rounded-l-lg">${formatDate(b.created_at)}</td><td class="text-left-align font-bold text-gray-800">${fullName}</td><td class="text-left-align"><div class="font-bold text-gray-700">${b.location}</div><div class="text-xs text-gray-500 truncate w-48">${b.purpose}</div></td><td class="text-left-align"><span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-xs font-bold border border-blue-100">${b.requestedType}</span></td><td class="text-left-align text-sm"><div class="flex flex-col"><span class="text-gray-800 font-medium">${startStr}</span><span class="text-gray-400 text-xs">ถึง ${endStr}</span></div></td><td class="text-center">${statusBadge}</td><td class="text-center rounded-r-lg">${actionBtn}</td></tr>`);
+                // Formalized Table Row
+                tbody.insertAdjacentHTML('beforeend', `
+                <tr class="transition hover:bg-blue-50/30 border-b border-gray-50">
+                    <td class="text-left text-gray-700 rounded-l-lg">${formatDate(b.created_at)}</td>
+                    <td class="text-left font-medium text-gray-800">${fullName}</td>
+                    <td class="text-left">
+                        <div class="text-gray-800">${b.location}</div>
+                        <div class="text-xs text-gray-500 truncate w-48">${b.purpose}</div>
+                    </td>
+                    <td class="text-left text-gray-700">${b.requestedType}</td>
+                    <td class="text-left text-sm">
+                        <div class="flex flex-col"><span class="text-gray-800">${startStr}</span><span class="text-gray-500 text-xs">ถึง ${endStr}</span></div>
+                    </td>
+                    <td class="text-center">${statusBadge}</td>
+                    <td class="text-center rounded-r-lg">${actionBtn}</td>
+                </tr>`);
                 
-                mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-3"><div class="text-xs text-gray-500">${formatDate(b.created_at)}</div><div>${statusBadge}</div></div><div class="mobile-card-row"><span class="mobile-card-label">ผู้ขอ:</span><span class="mobile-card-value">${fullName}</span></div><div class="mobile-card-row"><span class="mobile-card-label">สถานที่:</span><span class="mobile-card-value">${b.location}</span></div><div class="mobile-card-row"><span class="mobile-card-label">ประเภท:</span><span class="mobile-card-value">${b.requestedType}</span></div><div class="mobile-card-row"><span class="mobile-card-label">เวลาเดินทาง:</span><span class="mobile-card-value text-xs text-right">${startStr}<br>ถึง ${endStr}</span></div><div class="mt-3 pt-3 border-t border-gray-100 flex justify-end">${actionBtn}</div></div>`);
+                // Mobile Cards (Formalized)
+                mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-3"><div class="text-xs text-gray-500">${formatDate(b.created_at)}</div><div>${statusBadge}</div></div><div class="mobile-card-row"><span class="mobile-card-label">ผู้ขอ:</span><span class="mobile-card-value">${fullName}</span></div><div class="mobile-card-row"><span class="mobile-card-label">สถานที่:</span><span class="mobile-card-value">${b.location}</span></div><div class="mobile-card-row"><span class="mobile-card-label">ประเภท:</span><span class="mobile-card-value text-gray-700">${b.requestedType}</span></div><div class="mobile-card-row"><span class="mobile-card-label">เวลา:</span><span class="mobile-card-value text-xs text-right">${startStr}<br>ถึง ${endStr}</span></div><div class="mt-3 pt-3 border-t border-gray-100 flex justify-end">${actionBtn}</div></div>`);
             });
+
+            pagContainer.innerHTML = createPaginationHTML(curBookingsData.length, curPageBookings, ITEMS_PER_PAGE, 'changePageBookings');
         }
 
-        function renderUsageTable() { 
-            const container = document.getElementById('usage-container'); 
-            container.innerHTML = ''; 
+        // --- Render Functions (Admin - Manage) ---
+        function renderManageTable(type, keepPage = false) {
+            manageMode = type;
+            if(!keepPage) curPageManage = 1;
+
+            const titles = { vehicle: 'ข้อมูลยานพาหนะ', driver: 'ข้อมูลพนักงานขับรถ', teacher: 'ข้อมูลบุคลากรครู' };
+            document.getElementById('manage-title').innerText = titles[type];
             
-            const selectedMonth = parseInt(document.getElementById('usage-month').value);
-            const selectedYear = parseInt(document.getElementById('usage-year').value);
-            const filterType = document.getElementById('usage-filter-type').value;
+            // Manage Title Bar Color
+            document.getElementById('manage-title-bar').className = "w-1.5 sm:w-2 h-6 sm:h-8 rounded-full bg-pink-500";
+            
+            ['vehicle', 'driver', 'teacher'].forEach(t => { 
+                const card = document.getElementById(`card-manage-${t}`); 
+                if (t === type) { card.classList.add('manage-card-active'); card.classList.remove('manage-card-inactive'); } 
+                else { card.classList.remove('manage-card-active'); card.classList.add('manage-card-inactive'); } 
+            });
+            
+            curManageData = type === 'vehicle' ? dataVehicles : (type === 'driver' ? dataDrivers : dataUsers);
+            renderManageDataRows();
+        }
 
-            const borderColors = ['#3B82F6', '#EC4899', '#10B981', '#F59E0B', '#EF4444', '#06B6D4']; 
+        window.changePageManage = function(page) {
+            curPageManage = page;
+            renderManageDataRows();
+        }
 
-            let displayVehicles = dataVehicles;
-            if(filterType !== 'all') {
-                displayVehicles = displayVehicles.filter(v => v.type === filterType);
+        function renderManageDataRows() {
+            const type = manageMode;
+            const thead = document.getElementById('manage-table-head'); 
+            const tbody = document.getElementById('manage-table-body'); 
+            const mobileContainer = document.getElementById('manage-mobile-container');
+            const pagContainer = document.getElementById('manage-pagination');
+            
+            tbody.innerHTML = ''; mobileContainer.innerHTML = ''; pagContainer.innerHTML = '';
+
+            const startIndex = (curPageManage - 1) * ITEMS_PER_PAGE;
+            const endIndex = startIndex + ITEMS_PER_PAGE;
+            const displayData = curManageData.slice(startIndex, endIndex);
+
+            if (type === 'vehicle') {
+                thead.innerHTML = `<tr><th class="text-left rounded-tl-xl w-1/3">ชื่อรถ</th><th class="text-center w-1/4">ทะเบียน</th><th class="text-center w-1/4">ประเภท</th><th class="text-center rounded-tr-xl w-24">จัดการ</th></tr>`;
+                displayData.forEach(item => {
+                    tbody.insertAdjacentHTML('beforeend', `<tr class="border-b border-gray-50"><td class="text-left font-medium text-gray-800">${item.name}</td><td class="text-center text-gray-700">${item.plate}</td><td class="text-center text-gray-700">${item.type}</td><td class="text-center"><div class="flex justify-center gap-2"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-lg"><i class="fas fa-edit"></i></button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-lg"><i class="fas fa-trash"></i></button></div></td></tr>`);
+                    mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-2"><h4 class="font-medium text-gray-800">${item.name}</h4><span class="text-gray-600 text-sm">${item.plate}</span></div><div class="text-sm text-gray-600 mb-2">${item.type}</div><div class="flex justify-end pt-2 border-t border-gray-100 gap-3"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-edit"></i> แก้ไข</button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button></div></div>`);
+                });
+            } else if (type === 'driver') {
+                thead.innerHTML = `<tr><th class="text-left rounded-tl-xl w-1/2">ชื่อ-สกุล</th><th class="text-center w-1/3">เบอร์โทร</th><th class="text-center rounded-tr-xl w-24">จัดการ</th></tr>`;
+                displayData.forEach(item => {
+                    tbody.insertAdjacentHTML('beforeend', `<tr class="border-b border-gray-50"><td class="text-left font-medium text-gray-800">${item.name}</td><td class="text-center text-gray-700">${item.phone}</td><td class="text-center"><div class="flex justify-center gap-2"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-lg"><i class="fas fa-edit"></i></button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-lg"><i class="fas fa-trash"></i></button></div></td></tr>`);
+                    mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-2"><h4 class="font-medium text-gray-800">${item.name}</h4></div><div class="text-sm text-gray-700 mb-2"><i class="fas fa-phone mr-1"></i> ${item.phone}</div><div class="flex justify-end pt-2 border-t border-gray-100 gap-3"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-edit"></i> แก้ไข</button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button></div></div>`);
+                });
+            } else { 
+                thead.innerHTML = `<tr><th class="text-left rounded-tl-xl w-2/5">ชื่อ-สกุล</th><th class="text-center w-1/4">เลขบัตรฯ</th><th class="text-center w-1/4">รหัสผ่าน</th><th class="text-center rounded-tr-xl w-32">จัดการ</th></tr>`;
+                displayData.forEach(item => {
+                    tbody.insertAdjacentHTML('beforeend', `<tr class="border-b border-gray-50"><td class="text-left font-medium text-gray-800">${item.prefix}${item.name} ${item.surname}</td><td class="text-center text-sm text-gray-700">${item.cardId}</td><td class="text-center text-sm text-gray-700">${item.password}</td><td class="text-center flex justify-center gap-1"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-lg"><i class="fas fa-edit"></i></button><button onclick="resetPassword('${item.id}')" class="text-yellow-500 hover:bg-yellow-50 w-8 h-8 rounded-lg" title="รีเซ็ตรหัสผ่าน"><i class="fas fa-key"></i></button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-lg"><i class="fas fa-trash"></i></button></td></tr>`);
+                    mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-2"><h4 class="font-medium text-gray-800">${item.prefix}${item.name} ${item.surname}</h4></div><div class="mobile-card-row"><span class="mobile-card-label">เลขบัตรฯ:</span> <span class="mobile-card-value text-gray-700">${item.cardId}</span></div><div class="mobile-card-row"><span class="mobile-card-label">รหัสผ่าน:</span> <span class="mobile-card-value text-gray-700">${item.password}</span></div><div class="flex justify-end gap-3 pt-2 border-t border-gray-100"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-edit"></i> แก้ไข</button><button onclick="resetPassword('${item.id}')" class="text-yellow-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-key"></i> รีเซ็ต</button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button></div></div>`);
+                });
             }
 
-            if(displayVehicles.length === 0) {
-                container.innerHTML = `<div class="text-center text-gray-400 py-8 bg-white/50 rounded-lg">ไม่มีรถประเภทนี้</div>`;
-                return;
+            pagContainer.innerHTML = createPaginationHTML(curManageData.length, curPageManage, ITEMS_PER_PAGE, 'changePageManage');
+        }
+
+        // --- Other Forms & Actions ---
+        function addNewData() { 
+            if (manageMode === 'vehicle') { 
+                Swal.fire({ 
+                    title: 'เพิ่มยานพาหนะ', 
+                    html: `<div class="space-y-4 text-left font-sans mt-2">
+                            <div><input id="new-v-name" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition" placeholder="ชื่อรถ"></div>
+                            <div><input id="new-v-plate" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition" placeholder="ทะเบียน"></div>
+                            <div><select id="new-v-type" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition bg-white"><option>รถตู้</option><option>รถกระบะ</option><option>รถบรรทุก</option><option>รถยนต์ส่วนบุคคล</option></select></div>
+                           </div>`, 
+                    showCancelButton: true, confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก', customClass: { popup: 'rounded-3xl' }
+                }).then((res) => { if (res.isConfirmed) { db.ref('vehicles').push({ name: document.getElementById('new-v-name').value, plate: document.getElementById('new-v-plate').value, type: document.getElementById('new-v-type').value }); Swal.fire('สำเร็จ', '', 'success'); } }); 
+            } else if (manageMode === 'driver') { 
+                Swal.fire({ 
+                    title: 'เพิ่มพนักงานขับรถ', 
+                    html: `<div class="space-y-4 text-left font-sans mt-2">
+                            <div><input id="new-d-name" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition" placeholder="ชื่อ-สกุล"></div>
+                            <div><input id="new-d-phone" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition" placeholder="เบอร์โทร"></div>
+                           </div>`, 
+                    showCancelButton: true, confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก', customClass: { popup: 'rounded-3xl' }
+                }).then((res) => { if (res.isConfirmed) { db.ref('drivers').push({ name: document.getElementById('new-d-name').value, phone: document.getElementById('new-d-phone').value }); Swal.fire('สำเร็จ', '', 'success'); } }); 
+            } else { 
+                Swal.fire({ 
+                    title: '<span class="text-gray-800 font-bold text-2xl">เพิ่มบุคลากรครู</span>', 
+                    width: '700px', 
+                    html: `
+                    <div class="space-y-6 text-left font-sans mt-4">
+                        <div class="bg-blue-50/60 p-5 rounded-2xl border border-blue-100 shadow-sm">
+                            <h4 class="font-bold text-blue-600 mb-4 text-lg">วิธีที่ 1: เพิ่มทีละคน</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <select id="new-t-prefix" class="border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition w-full bg-white"><option>นาย</option><option>นาง</option><option>นางสาว</option></select>
+                                <input id="new-t-name" class="border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition w-full" placeholder="ชื่อ">
+                                <input id="new-t-surname" class="border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition w-full" placeholder="นามสกุล">
+                                <input id="new-t-card" class="border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition w-full" placeholder="เลขบัตรฯ 13 หลัก">
+                            </div>
+                            <button onclick="addTeacherSingle()" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2.5 rounded-xl text-sm w-full transition shadow-sm">บันทึก 1 คน</button>
+                        </div>
+                        <div class="bg-blue-50/60 p-5 rounded-2xl border border-blue-100 shadow-sm">
+                            <h4 class="font-bold text-blue-600 mb-1 text-lg">วิธีที่ 2: เพิ่มหลายคน (Copy Paste)</h4>
+                            <p class="text-xs text-gray-500 mb-3">รูปแบบ: คำนำหน้า ชื่อ นามสกุล เลขบัตรฯ (1 คนต่อ 1 บรรทัด)</p>
+                            <textarea id="new-t-bulk" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition h-32 text-sm font-mono bg-white resize-none" placeholder="นาย สมชาย ใจดี 1234567890123&#10;นางสาว มีนา รักเรียน 1234567890124"></textarea>
+                            <button type="button" onclick="addTeacherBulk()" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2.5 rounded-xl text-sm w-full transition shadow-sm">บันทึกหลายคน</button>
+                        </div>
+                    </div>`, 
+                    showCancelButton: true, showConfirmButton: false, cancelButtonText: 'ปิด',
+                    customClass: { popup: 'rounded-3xl' }
+                }); 
+            } 
+        }
+
+        function editItem(type, id) {
+            if (type === 'vehicle') {
+                const item = dataVehicles.find(v => v.id === id);
+                if (!item) return;
+                Swal.fire({
+                    title: 'แก้ไขยานพาหนะ',
+                    html: `<div class="space-y-4 text-left font-sans mt-2">
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">ชื่อรถ</label><input id="edit-v-name" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none transition" value="${item.name}"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">ทะเบียน</label><input id="edit-v-plate" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none transition" value="${item.plate}"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">ประเภท</label><select id="edit-v-type" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none transition bg-white"><option ${item.type === 'รถตู้' ? 'selected' : ''}>รถตู้</option><option ${item.type === 'รถกระบะ' ? 'selected' : ''}>รถกระบะ</option><option ${item.type === 'รถบรรทุก' ? 'selected' : ''}>รถบรรทุก</option><option ${item.type === 'รถยนต์ส่วนบุคคล' ? 'selected' : ''}>รถยนต์ส่วนบุคคล</option></select></div>
+                           </div>`,
+                    showCancelButton: true, confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#3B82F6', customClass: { popup: 'rounded-3xl' },
+                    preConfirm: () => { return { name: document.getElementById('edit-v-name').value, plate: document.getElementById('edit-v-plate').value, type: document.getElementById('edit-v-type').value } }
+                }).then((res) => { if (res.isConfirmed) { db.ref(`vehicles/${id}`).update(res.value); Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success'); } });
+            } else if (type === 'driver') {
+                const item = dataDrivers.find(d => d.id === id);
+                if (!item) return;
+                Swal.fire({
+                    title: 'แก้ไขพนักงานขับรถ',
+                    html: `<div class="space-y-4 text-left font-sans mt-2">
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">ชื่อ-สกุล</label><input id="edit-d-name" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none transition" value="${item.name}"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">เบอร์โทร</label><input id="edit-d-phone" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none transition" value="${item.phone}"></div>
+                           </div>`,
+                    showCancelButton: true, confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#3B82F6', customClass: { popup: 'rounded-3xl' },
+                    preConfirm: () => { return { name: document.getElementById('edit-d-name').value, phone: document.getElementById('edit-d-phone').value } }
+                }).then((res) => { if (res.isConfirmed) { db.ref(`drivers/${id}`).update(res.value); Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success'); } });
+            } else if (type === 'teacher') {
+                const item = dataUsers.find(u => u.id === id);
+                if (!item) return;
+                Swal.fire({
+                    title: 'แก้ไขบุคลากรครู',
+                    html: `<div class="space-y-4 text-left font-sans mt-2">
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">คำนำหน้า</label>
+                            <select id="edit-t-prefix" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none transition bg-white"><option ${item.prefix === 'นาย' ? 'selected' : ''}>นาย</option><option ${item.prefix === 'นาง' ? 'selected' : ''}>นาง</option><option ${item.prefix === 'นางสาว' ? 'selected' : ''}>นางสาว</option></select></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">ชื่อ</label><input id="edit-t-name" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none transition" value="${item.name}"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">นามสกุล</label><input id="edit-t-surname" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none transition" value="${item.surname}"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">เลขบัตรประชาชน (Login)</label><input id="edit-t-card" class="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none transition" value="${item.cardId}"></div>
+                           </div>`,
+                    showCancelButton: true, confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#3B82F6', customClass: { popup: 'rounded-3xl' },
+                    preConfirm: () => { return { prefix: document.getElementById('edit-t-prefix').value, name: document.getElementById('edit-t-name').value, surname: document.getElementById('edit-t-surname').value, cardId: document.getElementById('edit-t-card').value } }
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        if (res.value.cardId !== item.cardId && dataUsers.some(u => u.cardId === res.value.cardId)) { return Swal.fire('ข้อมูลซ้ำ', 'เลขบัตรประชาชนนี้มีในระบบแล้ว', 'error'); }
+                        db.ref(`users/${id}`).update(res.value); Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success');
+                    }
+                });
             }
+        }
 
-            displayVehicles.forEach((v, index) => { 
-                const colorIdx = index % borderColors.length; 
-                const trips = dataBookings.filter(b => { 
-                    if (b.status !== 'approved' || b.vehicleId !== v.id) return false; 
-                    const bStart = new Date(b.startDateTime);
-                    return bStart.getMonth() === selectedMonth && bStart.getFullYear() === selectedYear;
-                }).sort((a,b) => new Date(a.startDateTime) - new Date(b.startDateTime)); 
+        window.addTeacherSingle = function() { const prefix = document.getElementById('new-t-prefix').value; const name = document.getElementById('new-t-name').value; const surname = document.getElementById('new-t-surname').value; const card = document.getElementById('new-t-card').value; if(!name || !surname || !card) return Swal.fire('ผิดพลาด', 'กรอกข้อมูลให้ครบ', 'error'); if (dataUsers.some(u => u.cardId === card)) return Swal.fire('ข้อมูลซ้ำ', `มีเลขบัตรประชาชน ${card}ในระบบแล้ว`, 'warning'); db.ref('users').push({ prefix, name, surname, cardId: card, password: 'sateacher', role: 'teacher' }); Swal.fire('สำเร็จ', 'เพิ่มข้อมูลเรียบร้อย', 'success'); }
+        
+        window.addTeacherBulk = function() {
+            const bulk = document.getElementById('new-t-bulk').value;
+            if(!bulk) return Swal.fire('ผิดพลาด', 'กรุณากรอกข้อมูล', 'error');
+            const lines = bulk.split('\n'); let count = 0; let duplicates = 0;
+            lines.forEach(line => {
+                const parts = line.trim().split(/\s+/);
+                if(parts.length >= 4) {
+                    const cardId = parts[parts.length - 1];
+                    const prefix = parts[0];
+                    const name = parts[1];
+                    const surname = parts.slice(2, parts.length - 1).join(' ');
+                    if (dataUsers.some(u => u.cardId === cardId)) duplicates++;
+                    else { db.ref('users').push({ prefix, name, surname, cardId, password: 'sateacher', role: 'teacher' }); count++; }
+                }
+            });
+            Swal.fire('ผลการทำงาน', `เพิ่มสำเร็จ ${count} รายการ${duplicates > 0 ? `<br>ข้อมูลซ้ำ ${duplicates} รายการ` : ''}`, 'success');
+        }
 
-                let tripsHtml = ''; 
-                if(trips.length === 0) { 
-                    tripsHtml = '<div class="text-xs text-gray-400 italic">ไม่มีการใช้งานในเดือนนี้</div>'; 
-                } else { 
-                    trips.forEach(t => { 
-                        const dateStr = formatDate(t.startDateTime); 
-                        const timeStr = `${new Date(t.startDateTime).toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})} - ${new Date(t.endDateTime).toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})}`; 
-                        tripsHtml += `<div class="usage-history-item flex justify-between items-center"><div class="flex flex-col"><span class="font-bold text-gray-700">${dateStr}</span><span class="text-xs text-gray-400">${timeStr}</span></div><span class="font-medium truncate w-1/2 text-right text-xs">${t.location}</span></div>`; 
+        function resetPassword(uid) { Swal.fire({ title: 'รีเซ็ตรหัสผ่าน?', text: "รหัสผ่านจะกลับเป็น 'sateacher'", icon: 'warning', showCancelButton: true, confirmButtonText: 'รีเซ็ต', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#F59E0B' }).then((res) => { if (res.isConfirmed) { db.ref(`users/${uid}`).update({ password: 'sateacher' }); Swal.fire('สำเร็จ', 'รีเซ็ตรหัสผ่านแล้ว', 'success'); } }); }
+        function deleteItem(type, id) { Swal.fire({ title: 'ยืนยันการลบ?', text: "ข้อมูลจะหายไปอย่างถาวร", icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#EF4444' }).then((res) => { if (res.isConfirmed) { const collection = type === 'vehicle' ? 'vehicles' : (type === 'driver' ? 'drivers' : 'users'); db.ref(`${collection}/${id}`).remove(); Swal.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ', showConfirmButton: false, timer: 1000 }); } }); }
+        
+        function openApproval(id) { 
+            const booking = dataBookings.find(b => b.id === id); 
+            const sTime = new Date(booking.startDateTime).getTime(); 
+            const eTime = new Date(booking.endDateTime).getTime(); 
+            const busyCars = new Set(); 
+            const busyDrivers = new Set(); 
+            
+            dataBookings.forEach(b => { 
+                if (b.status === 'approved' && b.id !== id) { 
+                    const bs = new Date(b.startDateTime).getTime(); 
+                    const be = new Date(b.endDateTime).getTime(); 
+                    if (sTime < be && eTime > bs) { busyCars.add(b.vehicleId); busyDrivers.add(b.driverId); } 
+                } 
+            }); 
+            
+            const freeCars = dataVehicles.filter(v => !busyCars.has(v.id) && v.type === booking.requestedType); 
+            const freeDrivers = dataDrivers.filter(d => !busyDrivers.has(d.id)); 
+            
+            let carOptions = freeCars.length ? freeCars.map(c => `<option value="${c.id}" ${c.id === booking.vehicleId ? 'selected' : ''}>${c.name} (${c.plate})</option>`).join('') : '<option value="">ไม่มีรถว่าง</option>'; 
+            let driverOptions = freeDrivers.length ? freeDrivers.map(d => `<option value="${d.id}" ${d.id === booking.driverId ? 'selected' : ''}>${d.name}</option>`).join('') : '<option value="">ไม่มีคนขับว่าง</option>'; 
+            
+            if (booking.vehicleId && !freeCars.find(c => c.id === booking.vehicleId)) { const v = dataVehicles.find(c => c.id === booking.vehicleId); if(v) carOptions = `<option value="${v.id}" selected>${v.name} (ปัจจุบัน)</option>` + carOptions; } 
+            if (booking.driverId && !freeDrivers.find(d => d.id === booking.driverId)) { const d = dataDrivers.find(x => x.id === booking.driverId); if(d) driverOptions = `<option value="${d.id}" selected>${d.name} (ปัจจุบัน)</option>` + driverOptions; } 
+            
+            const docBtn = booking.attachment ? `<a href="#" onclick="showImage('${booking.attachment}')" class="text-blue-600 underline text-sm inline-block mt-1"><i class="fas fa-file-image mr-1"></i>ดูหนังสือขออนุญาต</a>` : '<span class="text-gray-400 text-sm mt-1 block">ไม่แนบไฟล์</span>'; 
+            
+            // เตรียมรูปแบบวันเวลาเต็ม
+            const sParts = getDateParts(booking.startDateTime);
+            const eParts = getDateParts(booking.endDateTime);
+            const startFull = `วันที่ ${sParts.d} ${sParts.m} พ.ศ. ${sParts.y} เวลา ${sParts.t} น.`;
+            const endFull = `วันที่ ${eParts.d} ${eParts.m} พ.ศ. ${eParts.y} เวลา ${eParts.t} น.`;
+            
+            Swal.fire({ 
+                title: 'พิจารณาคำขอ', 
+                width: '750px', 
+                html: `
+                <div class="text-left mb-5 font-sans">
+                    <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200 shadow-sm mb-6">
+                        <div class="flex items-center gap-2 mb-4 border-b border-gray-200 pb-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><i class="fas fa-info"></i></div>
+                            <h4 class="font-bold text-gray-800 text-lg">รายละเอียดคำขอ</h4>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 text-base">
+                            <div><span class="text-gray-500 block text-xs font-bold mb-1 uppercase tracking-wider">ผู้ขอ</span><span class="font-medium text-gray-900">${getBookingFullName(booking)}</span></div>
+                            <div><span class="text-gray-500 block text-xs font-bold mb-1 uppercase tracking-wider">เบอร์โทร</span><span class="font-medium text-gray-900">${booking.requesterPhone}</span></div>
+                            
+                            <div><span class="text-gray-500 block text-xs font-bold mb-1 uppercase tracking-wider">ประเภทรถที่ต้องการ</span><span class="font-medium text-gray-900">${booking.requestedType}</span></div>
+                            <div><span class="text-gray-500 block text-xs font-bold mb-1 uppercase tracking-wider">จำนวนผู้โดยสาร</span><span class="font-medium text-gray-900">${booking.passengers} คน</span></div>
+                            
+                            <div class="sm:col-span-2 bg-white p-3 rounded-xl border border-gray-100">
+                                <span class="text-gray-500 block text-xs font-bold mb-1 uppercase tracking-wider">วันที่-เวลาเดินทาง</span>
+                                <div class="font-medium text-gray-900 flex flex-col gap-1.5">
+                                    <span><i class="far fa-calendar text-blue-500 w-4"></i> ${startFull}</span>
+                                    <span><i class="far fa-calendar-check text-blue-500 w-4"></i> ถึง ${endFull}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="sm:col-span-2"><span class="text-gray-500 block text-xs font-bold mb-1 uppercase tracking-wider">สถานที่ที่ไป</span><span class="font-medium text-gray-900">${booking.location}</span></div>
+                            <div class="sm:col-span-2"><span class="text-gray-500 block text-xs font-bold mb-1 uppercase tracking-wider">เพื่อวัตถุประสงค์</span><span class="font-medium text-gray-900">${booking.purpose}</span></div>
+                            
+                            <div class="sm:col-span-2 mt-2 pt-4 border-t border-gray-200"><span class="text-gray-500 block text-xs font-bold mb-2 uppercase tracking-wider">เอกสารแนบ</span>${docBtn}</div>
+                        </div>
+                    </div>
+                    <div class="space-y-5 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-2"><i class="fas fa-car-side text-blue-500 mr-1"></i> เลือกรถว่าง (${booking.requestedType})</label>
+                            <select id="swal-car" class="w-full border-2 border-gray-200 p-3.5 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition bg-white text-base">${carOptions}</select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-2"><i class="fas fa-user-tie text-blue-500 mr-1"></i> เลือกพนักงานขับรถว่าง</label>
+                            <select id="swal-driver" class="w-full border-2 border-gray-200 p-3.5 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition bg-white text-base">${driverOptions}</select>
+                        </div>
+                    </div>
+                </div>`, 
+                showCancelButton: true, showDenyButton: true, confirmButtonText: 'อนุมัติ / บันทึก', denyButtonText: 'ไม่อนุมัติ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#10B981', denyButtonColor: '#EF4444', customClass: { popup: 'rounded-3xl' },
+                preConfirm: () => { return { vehicleId: document.getElementById('swal-car').value, driverId: document.getElementById('swal-driver').value } } 
+            }).then((result) => { 
+                if (result.isConfirmed) { 
+                    const vId = result.value.vehicleId; const dId = result.value.driverId; 
+                    if (!vId || !dId) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาเลือกรถและคนขับ', 'error'); 
+                    db.ref(`bookings/${id}`).update({ status: 'approved', vehicleId: vId, driverId: dId, approver: currentUser.name, approveDate: new Date().toISOString(), rejectReason: null }); 
+                    Swal.fire({ icon: 'success', title: 'บันทึกสถานะ: อนุมัติ', showConfirmButton: false, timer: 1500 }); 
+                } else if (result.isDenied) { 
+                    Swal.fire({ title: 'ระบุเหตุผล', input: 'text', inputValue: booking.rejectReason || '', showCancelButton: true, confirmButtonText: 'ยืนยันไม่อนุมัติ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#EF4444' }).then((res) => { 
+                        if (res.isConfirmed) { db.ref(`bookings/${id}`).update({ status: 'rejected', rejectReason: res.value || 'ไม่ระบุ', approver: currentUser.name, vehicleId: null, driverId: null }); Swal.fire({ icon: 'success', title: 'บันทึกสถานะ: ไม่อนุมัติ', showConfirmButton: false, timer: 1500 }); } 
                     }); 
                 } 
-
-                const cardHtml = `<div class="flex flex-col sm:flex-row bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"><div class="w-full sm:w-2 bg-[${borderColors[colorIdx]}] p-4 flex flex-col justify-center items-center text-white" style="background-color: ${borderColors[colorIdx]}"><span class="font-bold text-lg">${trips.length}</span><span class="text-xs">เที่ยว</span></div><div class="flex-grow p-3"><div class="flex justify-between items-center mb-2 border-b pb-1"><span class="font-bold text-gray-800">${v.name}</span><span class="text-xs bg-gray-100 px-2 rounded">${v.plate}</span></div><div class="max-h-32 overflow-y-auto pr-1">${tripsHtml}</div></div></div>`; 
-                container.insertAdjacentHTML('beforeend', cardHtml);
             }); 
         }
-
-        // --- Other Logic & Helpers ---
+        
+        window.showImage = function(base64) { Swal.fire({ imageUrl: base64, imageAlt: 'Attachment', width: '80%', showConfirmButton: false, showCloseButton: true }); }
+        
         function toggleSigInput() {
             const option = document.querySelector('input[name="sig-option"]:checked').value;
             const container = document.getElementById('sig-preview-container');
@@ -1071,7 +1437,7 @@
             }
 
             const saveData = (docBase64) => {
-                Swal.fire({ title: 'ยืนยันการส่งคำขอ', text: 'ตรวจสอบข้อมูลถูกต้องครบถ้วนแล้ว', icon: 'question', showCancelButton: true, confirmButtonText: 'ยืนยัน', cancelButtonText: 'แก้ไข', confirmButtonColor: '#3B82F6' }).then((result) => {
+                Swal.fire({ title: 'ยืนยันการส่งคำขอ', text: 'ตรวจสอบข้อมูลถูกต้องครบถ้วนแล้ว', icon: 'question', showCancelButton: true, confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#3B82F6' }).then((result) => {
                     if (result.isConfirmed) {
                         const reqFullName = currentUser.role === 'admin' ? currentUser.name : `${currentUser.prefix}${currentUser.name} ${currentUser.surname}`;
                         
@@ -1093,192 +1459,18 @@
             const reader = new FileReader(); reader.onload = (e) => saveData(e.target.result); reader.readAsDataURL(docFile);
         }
 
-        // --- Render Functions (Admin) ---
-        function renderManageTable(type) {
-            manageMode = type;
-            const titles = { vehicle: 'ข้อมูลยานพาหนะ', driver: 'ข้อมูลพนักงานขับรถ', teacher: 'ข้อมูลบุคลากรครู' };
-            document.getElementById('manage-title').innerText = titles[type];
-            const thead = document.getElementById('manage-table-head'); const tbody = document.getElementById('manage-table-body'); const mobileContainer = document.getElementById('manage-mobile-container');
-            
-            ['vehicle', 'driver', 'teacher'].forEach(t => { 
-                const card = document.getElementById(`card-manage-${t}`); 
-                if (t === type) { card.classList.add('manage-card-active'); card.classList.remove('manage-card-inactive'); } 
-                else { card.classList.remove('manage-card-active'); card.classList.add('manage-card-inactive'); } 
-            });
-            tbody.innerHTML = ''; mobileContainer.innerHTML = '';
-            
-            const list = type === 'vehicle' ? dataVehicles : (type === 'driver' ? dataDrivers : dataUsers);
-            
-            if (type === 'vehicle') {
-                thead.innerHTML = `<tr><th class="text-left rounded-tl-xl">ชื่อรถ</th><th class="text-center">ทะเบียน</th><th class="text-center">ประเภท</th><th class="text-center rounded-tr-xl">จัดการ</th></tr>`;
-                list.forEach(item => {
-                    tbody.insertAdjacentHTML('beforeend', `<tr><td class="text-left-align font-bold text-gray-800">${item.name}</td><td class="text-center"><span class="bg-gray-100 px-2 py-1 rounded text-sm">${item.plate}</span></td><td class="text-center">${item.type}</td><td class="text-center"><div class="flex justify-center gap-2"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full"><i class="fas fa-edit"></i></button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-full"><i class="fas fa-trash"></i></button></div></td></tr>`);
-                    mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-gray-800">${item.name}</h4><span class="bg-gray-100 px-2 py-0.5 rounded text-xs">${item.plate}</span></div><div class="text-sm text-gray-500 mb-2">${item.type}</div><div class="flex justify-end pt-2 border-t border-gray-100 gap-3"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-edit"></i> แก้ไข</button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button></div></div>`);
-                });
-            } else if (type === 'driver') {
-                thead.innerHTML = `<tr><th class="text-left rounded-tl-xl">ชื่อ-สกุล</th><th class="text-center">เบอร์โทร</th><th class="text-center rounded-tr-xl">จัดการ</th></tr>`;
-                list.forEach(item => {
-                    tbody.insertAdjacentHTML('beforeend', `<tr><td class="text-left-align font-bold text-gray-800">${item.name}</td><td class="text-center text-blue-600 font-medium">${item.phone}</td><td class="text-center"><div class="flex justify-center gap-2"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full"><i class="fas fa-edit"></i></button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-full"><i class="fas fa-trash"></i></button></div></td></tr>`);
-                    mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-gray-800">${item.name}</h4></div><div class="text-sm text-blue-600 mb-2"><i class="fas fa-phone mr-1"></i> ${item.phone}</div><div class="flex justify-end pt-2 border-t border-gray-100 gap-3"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-edit"></i> แก้ไข</button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button></div></div>`);
-                });
-            } else { // Teacher
-                thead.innerHTML = `<tr><th class="text-left rounded-tl-xl">ชื่อ-สกุล</th><th class="text-center">เลขบัตรฯ</th><th class="text-center">รหัสผ่าน</th><th class="text-center rounded-tr-xl">จัดการ</th></tr>`;
-                list.forEach(item => {
-                    tbody.insertAdjacentHTML('beforeend', `<tr><td class="text-left-align font-bold text-gray-800">${item.prefix}${item.name} ${item.surname}</td><td class="text-center text-sm text-gray-500">${item.cardId}</td><td class="text-center text-sm font-mono text-blue-500">${item.password}</td><td class="text-center flex justify-center gap-2"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full"><i class="fas fa-edit"></i></button><button onclick="resetPassword('${item.id}')" class="text-yellow-500 hover:bg-yellow-50 w-8 h-8 rounded-full" title="รีเซ็ตรหัสผ่าน"><i class="fas fa-key"></i></button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 hover:bg-red-50 w-8 h-8 rounded-full"><i class="fas fa-trash"></i></button></td></tr>`);
-                    mobileContainer.insertAdjacentHTML('beforeend', `<div class="mobile-card"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-gray-800">${item.prefix}${item.name} ${item.surname}</h4></div><div class="mobile-card-row"><span class="mobile-card-label">เลขบัตรฯ:</span> <span class="mobile-card-value">${item.cardId}</span></div><div class="mobile-card-row"><span class="mobile-card-label">รหัสผ่าน:</span> <span class="mobile-card-value font-mono text-blue-600">${item.password}</span></div><div class="flex justify-end gap-3 pt-2 border-t border-gray-100"><button onclick="editItem('${type}', '${item.id}')" class="text-blue-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-edit"></i> แก้ไข</button><button onclick="resetPassword('${item.id}')" class="text-yellow-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-key"></i> รีเซ็ต</button><button onclick="deleteItem('${type}', '${item.id}')" class="text-red-500 text-sm font-bold flex items-center gap-1"><i class="fas fa-trash"></i> ลบ</button></div></div>`);
-                });
-            }
+        // ================= PDF & EXCEL & Other Rendering Generation Functions =================
+        window.changeTimelineDate = function(offset) {
+            let currentStr = document.getElementById('timeline-date').value;
+            if(!currentStr) return;
+            let d = new Date(currentStr);
+            d.setDate(d.getDate() + offset);
+            fpTimeline.setDate(d);
+            renderTimeline();
         }
-
-        function addNewData() { 
-            if (manageMode === 'vehicle') { 
-                Swal.fire({ title: 'เพิ่มยานพาหนะ', html: `<div class="space-y-3 text-left"><input id="new-v-name" class="swal2-input w-full mx-0" placeholder="ชื่อรถ"><input id="new-v-plate" class="swal2-input w-full mx-0" placeholder="ทะเบียน"><select id="new-v-type" class="swal2-input w-full mx-0"><option>รถตู้</option><option>รถกระบะ</option><option>รถบรรทุก</option><option>รถยนต์ส่วนบุคคล</option></select></div>`, showCancelButton: true, confirmButtonText: 'บันทึก' }).then((res) => { if (res.isConfirmed) { db.ref('vehicles').push({ name: document.getElementById('new-v-name').value, plate: document.getElementById('new-v-plate').value, type: document.getElementById('new-v-type').value }); Swal.fire('สำเร็จ', '', 'success'); } }); 
-            } else if (manageMode === 'driver') { 
-                Swal.fire({ title: 'เพิ่มพนักงานขับรถ', html: `<div class="space-y-3 text-left"><input id="new-d-name" class="swal2-input w-full mx-0" placeholder="ชื่อ-สกุล"><input id="new-d-phone" class="swal2-input w-full mx-0" placeholder="เบอร์โทร"></div>`, showCancelButton: true, confirmButtonText: 'บันทึก' }).then((res) => { if (res.isConfirmed) { db.ref('drivers').push({ name: document.getElementById('new-d-name').value, phone: document.getElementById('new-d-phone').value }); Swal.fire('สำเร็จ', '', 'success'); } }); 
-            } else { 
-                Swal.fire({ 
-                    title: 'เพิ่มบุคลากรครู', 
-                    width: '700px', 
-                    html: `<div class="space-y-4 text-left"><div class="bg-blue-50 p-4 rounded-xl border border-blue-100"><h4 class="font-bold text-blue-600 mb-2">วิธีที่ 1: เพิ่มทีละคน</h4><div class="grid grid-cols-2 gap-2"><select id="new-t-prefix" class="border p-2 rounded"><option>นาย</option><option>นาง</option><option>นางสาว</option></select><input id="new-t-name" class="border p-2 rounded" placeholder="ชื่อ"><input id="new-t-surname" class="border p-2 rounded" placeholder="นามสกุล"><input id="new-t-card" class="border p-2 rounded" placeholder="เลขบัตรฯ 13 หลัก"></div><button onclick="addTeacherSingle()" class="mt-2 bg-blue-500 text-white px-4 py-1 rounded text-sm w-full">บันทึก 1 คน</button></div><div class="bg-gray-50 p-4 rounded-xl border border-gray-100"><h4 class="font-bold text-gray-600 mb-2">วิธีที่ 2: เพิ่มหลายคน (Copy Paste)</h4><p class="text-xs text-gray-400 mb-1">รูปแบบ: คำนำหน้า ชื่อ นามสกุล เลขบัตรฯ (1 คนต่อ 1 บรรทัด)</p><textarea id="new-t-bulk" class="w-full border p-2 rounded h-40 text-sm font-mono" placeholder="นาย สมชาย ใจดี 1234567890123&#10;นางสาว มีนา รักเรียน 1234567890124"></textarea></div></div>`, 
-                    showCancelButton: true, confirmButtonText: 'บันทึก (หลายคน)', confirmButtonColor: '#3B82F6', 
-                    preConfirm: () => { const bulk = document.getElementById('new-t-bulk').value; return bulk ? bulk : null; } 
-                }).then((res) => { 
-                    if (res.isConfirmed && res.value) { 
-                        const lines = res.value.split('\n'); let count = 0; let duplicates = 0; 
-                        lines.forEach(line => { 
-                            const parts = line.trim().split(/\s+/); 
-                            if(parts.length >= 4) { 
-                                const cardId = parts[parts.length - 1]; 
-                                const prefix = parts[0]; 
-                                const name = parts[1]; 
-                                const surname = parts.slice(2, parts.length - 1).join(' '); 
-                                if (dataUsers.some(u => u.cardId === cardId)) duplicates++; 
-                                else { db.ref('users').push({ prefix, name, surname, cardId, password: 'sateacher', role: 'teacher' }); count++; } 
-                            } 
-                        }); 
-                        Swal.fire('ผลการทำงาน', `เพิ่มสำเร็จ ${count} รายการ${duplicates > 0 ? `<br>ข้อมูลซ้ำ ${duplicates} รายการ` : ''}`, 'success'); 
-                    } 
-                }); 
-            } 
-        }
-
-        function editItem(type, id) {
-            if (type === 'vehicle') {
-                const item = dataVehicles.find(v => v.id === id);
-                if (!item) return;
-                Swal.fire({
-                    title: 'แก้ไขยานพาหนะ',
-                    html: `<div class="space-y-3 text-left">
-                            <label class="text-sm font-bold">ชื่อรถ</label><input id="edit-v-name" class="swal2-input w-full mx-0" value="${item.name}">
-                            <label class="text-sm font-bold">ทะเบียน</label><input id="edit-v-plate" class="swal2-input w-full mx-0" value="${item.plate}">
-                            <label class="text-sm font-bold">ประเภท</label><select id="edit-v-type" class="swal2-input w-full mx-0"><option ${item.type === 'รถตู้' ? 'selected' : ''}>รถตู้</option><option ${item.type === 'รถกระบะ' ? 'selected' : ''}>รถกระบะ</option><option ${item.type === 'รถบรรทุก' ? 'selected' : ''}>รถบรรทุก</option><option ${item.type === 'รถยนต์ส่วนบุคคล' ? 'selected' : ''}>รถยนต์ส่วนบุคคล</option></select>
-                           </div>`,
-                    showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: '#3B82F6',
-                    preConfirm: () => {
-                        return { name: document.getElementById('edit-v-name').value, plate: document.getElementById('edit-v-plate').value, type: document.getElementById('edit-v-type').value }
-                    }
-                }).then((res) => {
-                    if (res.isConfirmed) { db.ref(`vehicles/${id}`).update(res.value); Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success'); }
-                });
-            } else if (type === 'driver') {
-                const item = dataDrivers.find(d => d.id === id);
-                if (!item) return;
-                Swal.fire({
-                    title: 'แก้ไขพนักงานขับรถ',
-                    html: `<div class="space-y-3 text-left">
-                            <label class="text-sm font-bold">ชื่อ-สกุล</label><input id="edit-d-name" class="swal2-input w-full mx-0" value="${item.name}">
-                            <label class="text-sm font-bold">เบอร์โทร</label><input id="edit-d-phone" class="swal2-input w-full mx-0" value="${item.phone}">
-                           </div>`,
-                    showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: '#3B82F6',
-                    preConfirm: () => {
-                        return { name: document.getElementById('edit-d-name').value, phone: document.getElementById('edit-d-phone').value }
-                    }
-                }).then((res) => {
-                    if (res.isConfirmed) { db.ref(`drivers/${id}`).update(res.value); Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success'); }
-                });
-            } else if (type === 'teacher') {
-                const item = dataUsers.find(u => u.id === id);
-                if (!item) return;
-                Swal.fire({
-                    title: 'แก้ไขบุคลากรครู',
-                    html: `<div class="space-y-3 text-left">
-                            <label class="text-sm font-bold">คำนำหน้า</label>
-                            <select id="edit-t-prefix" class="swal2-input w-full mx-0">
-                                <option ${item.prefix === 'นาย' ? 'selected' : ''}>นาย</option>
-                                <option ${item.prefix === 'นาง' ? 'selected' : ''}>นาง</option>
-                                <option ${item.prefix === 'นางสาว' ? 'selected' : ''}>นางสาว</option>
-                            </select>
-                            <label class="text-sm font-bold">ชื่อ</label><input id="edit-t-name" class="swal2-input w-full mx-0" value="${item.name}">
-                            <label class="text-sm font-bold">นามสกุล</label><input id="edit-t-surname" class="swal2-input w-full mx-0" value="${item.surname}">
-                            <label class="text-sm font-bold">เลขบัตรประชาชน (Login)</label><input id="edit-t-card" class="swal2-input w-full mx-0" value="${item.cardId}">
-                           </div>`,
-                    showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: '#3B82F6',
-                    preConfirm: () => {
-                        return { prefix: document.getElementById('edit-t-prefix').value, name: document.getElementById('edit-t-name').value, surname: document.getElementById('edit-t-surname').value, cardId: document.getElementById('edit-t-card').value }
-                    }
-                }).then((res) => {
-                    if (res.isConfirmed) {
-                        if (res.value.cardId !== item.cardId && dataUsers.some(u => u.cardId === res.value.cardId)) { return Swal.fire('ข้อมูลซ้ำ', 'เลขบัตรประชาชนนี้มีในระบบแล้ว', 'error'); }
-                        db.ref(`users/${id}`).update(res.value); Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success');
-                    }
-                });
-            }
-        }
-
-        window.addTeacherSingle = function() { const prefix = document.getElementById('new-t-prefix').value; const name = document.getElementById('new-t-name').value; const surname = document.getElementById('new-t-surname').value; const card = document.getElementById('new-t-card').value; if(!name || !surname || !card) return Swal.fire('ผิดพลาด', 'กรอกข้อมูลให้ครบ', 'error'); if (dataUsers.some(u => u.cardId === card)) return Swal.fire('ข้อมูลซ้ำ', `มีเลขบัตรประชาชน ${card}ในระบบแล้ว`, 'warning'); db.ref('users').push({ prefix, name, surname, cardId: card, password: 'sateacher', role: 'teacher' }); Swal.fire('สำเร็จ', 'เพิ่มข้อมูลเรียบร้อย', 'success'); }
-        function resetPassword(uid) { Swal.fire({ title: 'รีเซ็ตรหัสผ่าน?', text: "รหัสผ่านจะกลับเป็น 'sateacher'", icon: 'warning', showCancelButton: true, confirmButtonText: 'รีเซ็ต', confirmButtonColor: '#F59E0B' }).then((res) => { if (res.isConfirmed) { db.ref(`users/${uid}`).update({ password: 'sateacher' }); Swal.fire('สำเร็จ', 'รีเซ็ตรหัสผ่านแล้ว', 'success'); } }); }
-        function deleteItem(type, id) { Swal.fire({ title: 'ยืนยันการลบ?', text: "ข้อมูลจะหายไปอย่างถาวร", icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบ', confirmButtonColor: '#EF4444' }).then((res) => { if (res.isConfirmed) { const collection = type === 'vehicle' ? 'vehicles' : (type === 'driver' ? 'drivers' : 'users'); db.ref(`${collection}/${id}`).remove(); Swal.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ', showConfirmButton: false, timer: 1000 }); } }); }
-        
-        function openApproval(id) { 
-            const booking = dataBookings.find(b => b.id === id); 
-            const sTime = new Date(booking.startDateTime).getTime(); 
-            const eTime = new Date(booking.endDateTime).getTime(); 
-            const busyCars = new Set(); 
-            const busyDrivers = new Set(); 
-            
-            dataBookings.forEach(b => { 
-                if (b.status === 'approved' && b.id !== id) { 
-                    const bs = new Date(b.startDateTime).getTime(); 
-                    const be = new Date(b.endDateTime).getTime(); 
-                    if (sTime < be && eTime > bs) { busyCars.add(b.vehicleId); busyDrivers.add(b.driverId); } 
-                } 
-            }); 
-            
-            const freeCars = dataVehicles.filter(v => !busyCars.has(v.id) && v.type === booking.requestedType); 
-            const freeDrivers = dataDrivers.filter(d => !busyDrivers.has(d.id)); 
-            
-            let carOptions = freeCars.length ? freeCars.map(c => `<option value="${c.id}" ${c.id === booking.vehicleId ? 'selected' : ''}>${c.name} (${c.type})</option>`).join('') : '<option value="">ไม่มีรถว่าง</option>'; 
-            let driverOptions = freeDrivers.length ? freeDrivers.map(d => `<option value="${d.id}" ${d.id === booking.driverId ? 'selected' : ''}>${d.name}</option>`).join('') : '<option value="">ไม่มีคนขับว่าง</option>'; 
-            
-            if (booking.vehicleId && !freeCars.find(c => c.id === booking.vehicleId)) { const v = dataVehicles.find(c => c.id === booking.vehicleId); if(v) carOptions = `<option value="${v.id}" selected>${v.name} (ปัจจุบัน)</option>` + carOptions; } 
-            if (booking.driverId && !freeDrivers.find(d => d.id === booking.driverId)) { const d = dataDrivers.find(x => x.id === booking.driverId); if(d) driverOptions = `<option value="${d.id}" selected>${d.name} (ปัจจุบัน)</option>` + driverOptions; } 
-            
-            const docBtn = booking.attachment ? `<a href="#" onclick="showImage('${booking.attachment}')" class="text-blue-600 underline text-sm ml-2">ดูหนังสือขออนุญาต</a>` : '<span class="text-gray-400 text-sm ml-2">ไม่แนบไฟล์</span>'; 
-            
-            Swal.fire({ 
-                title: 'พิจารณาคำขอ', 
-                width: '600px', 
-                html: `<div class="text-left text-sm mb-4 bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-2"><div class="grid grid-cols-2 gap-2"><p><strong>ผู้ขอ:</strong> ${getBookingFullName(booking)}</p><p><strong>เบอร์โทร:</strong> ${booking.requesterPhone}</p><p><strong>วันที่เริ่ม:</strong> ${formatDate(booking.startDateTime)}</p><p><strong>สิ้นสุด:</strong> ${formatDate(booking.endDateTime)}</p><p><strong>จำนวนคน:</strong> ${booking.passengers} คน</p><p><strong>ประเภทรถ:</strong> ${booking.requestedType}</p></div><div class="border-t border-blue-200 pt-2"><p><strong>ไปที่:</strong> ${booking.location}</p><p><strong>เพื่อ:</strong> ${booking.purpose}</p><p class="mt-1"><strong>เอกสารแนบ:</strong> ${docBtn}</p></div></div><div class="space-y-4 text-left"><div><label class="block text-sm font-bold text-gray-700 mb-1">เลือกยานพาหนะ (${booking.requestedType})</label><select id="swal-car" class="w-full border-2 rounded-lg p-2 border-gray-200 focus:border-blue-500 outline-none">${carOptions}</select></div><div><label class="block text-sm font-bold text-gray-700 mb-1">เลือกคนขับ</label><select id="swal-driver" class="w-full border-2 rounded-lg p-2 border-gray-200 focus:border-blue-500 outline-none">${driverOptions}</select></div></div>`, 
-                showCancelButton: true, showDenyButton: true, confirmButtonText: 'อนุมัติ / บันทึก', denyButtonText: 'ไม่อนุมัติ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#10B981', denyButtonColor: '#EF4444', 
-                preConfirm: () => { return { vehicleId: document.getElementById('swal-car').value, driverId: document.getElementById('swal-driver').value } } 
-            }).then((result) => { 
-                if (result.isConfirmed) { 
-                    const vId = result.value.vehicleId; const dId = result.value.driverId; 
-                    if (!vId || !dId) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาเลือกรถและคนขับ', 'error'); 
-                    db.ref(`bookings/${id}`).update({ status: 'approved', vehicleId: vId, driverId: dId, approver: currentUser.name, approveDate: new Date().toISOString(), rejectReason: null }); 
-                    Swal.fire({ icon: 'success', title: 'บันทึกสถานะ: อนุมัติ', showConfirmButton: false, timer: 1500 }); 
-                } else if (result.isDenied) { 
-                    Swal.fire({ title: 'ระบุเหตุผล', input: 'text', inputValue: booking.rejectReason || '', showCancelButton: true, confirmButtonText: 'ยืนยันไม่อนุมัติ', confirmButtonColor: '#EF4444' }).then((res) => { 
-                        if (res.isConfirmed) { db.ref(`bookings/${id}`).update({ status: 'rejected', rejectReason: res.value || 'ไม่ระบุ', approver: currentUser.name, vehicleId: null, driverId: null }); Swal.fire({ icon: 'success', title: 'บันทึกสถานะ: ไม่อนุมัติ', showConfirmButton: false, timer: 1500 }); } 
-                    }); 
-                } 
-            }); 
-        }
-        
-        window.showImage = function(base64) { Swal.fire({ imageUrl: base64, imageAlt: 'Attachment', width: '80%', showConfirmButton: false, showCloseButton: true }); }
         
         function renderTimeline() { 
-            const dateInput = document.getElementById('timeline-date').valueAsDate; 
+            const dateInput = document.getElementById('timeline-date').value; 
             const filterType = document.getElementById('timeline-filter-type').value; 
             if(!dateInput) return; 
             const container = document.getElementById('timeline-container'); 
@@ -1288,14 +1480,13 @@
             
             let displayVehicles = dataVehicles; 
             if(filterType !== 'all') displayVehicles = displayVehicles.filter(v => v.type === filterType); 
-            if(displayVehicles.length === 0) { container.innerHTML = `<div class="text-center text-gray-400 py-8 bg-white/50 rounded-lg">ไม่มีรถประเภทนี้</div>`; return; } 
+            if(displayVehicles.length === 0) { container.innerHTML = `<div class="text-center text-gray-400 py-10 bg-white rounded-xl border border-gray-100"><i class="fas fa-car-side text-4xl mb-3 text-gray-200 block"></i>ไม่มีรถในหมวดหมู่นี้</div>`; return; } 
             
             displayVehicles.forEach(v => { 
                 const dayBookings = dataBookings.filter(b => { 
                     const bStart = new Date(b.startDateTime); const bEnd = new Date(b.endDateTime); 
                     const overlap = (bStart < selectedDateEnd && bEnd > selectedDateStart); 
                     if(!overlap) return false; 
-                    
                     if (b.status === 'approved' && b.vehicleId === v.id) return true;
                     if (b.status === 'pending' && b.requestedType === v.type) return true;
                     return false; 
@@ -1307,19 +1498,137 @@
                     const dayStart = selectedDateStart.getTime(); const dayEnd = selectedDateEnd.getTime(); const totalDay = 24 * 60 * 60 * 1000; 
                     const actualStart = Math.max(bStart.getTime(), dayStart); const actualEnd = Math.min(bEnd.getTime(), dayEnd); 
                     const startPct = ((actualStart - dayStart) / totalDay) * 100; const widthPct = ((actualEnd - actualStart) / totalDay) * 100; 
-                    
                     const segClass = b.status === 'pending' ? 'segment-pending' : 'segment-approved';
-                    barsHtml += `<div class="timeline-segment ${segClass}" style="left: ${startPct}%; width: ${widthPct}%;" title="${b.status}: ${b.requesterName}"></div>`; 
+                    
+                    const timeRange = `${bStart.getHours().toString().padStart(2,'0')}:${bStart.getMinutes().toString().padStart(2,'0')} - ${bEnd.getHours().toString().padStart(2,'0')}:${bEnd.getMinutes().toString().padStart(2,'0')}`;
+                    barsHtml += `<div class="timeline-segment ${segClass} rounded-sm" style="left: ${startPct}%; width: ${widthPct}%;" title="${b.status === 'pending' ? 'รออนุมัติ' : 'อนุมัติแล้ว'}&#10;ผู้ขอ: ${getBookingFullName(b)}&#10;เวลา: ${timeRange}"></div>`; 
                 }); 
                 
+                const iconClass = getVehicleIcon(v.type);
                 const card = document.createElement('div'); 
-                card.className = "bg-white p-3 rounded-xl border border-gray-200 shadow-sm"; 
-                card.innerHTML = `<div class="flex justify-between items-center mb-1"><span class="font-bold text-sm text-gray-700">${v.name}</span><span class="text-xs bg-gray-100 px-2 rounded">${v.plate}</span></div><div class="timeline-bar">${barsHtml}</div><div class="time-scale"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>`; 
+                card.className = "bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow"; 
+                card.innerHTML = `<div class="flex justify-between items-center mb-1"><div class="flex items-center gap-2"><i class="fas ${iconClass} text-blue-400"></i><span class="font-bold text-gray-800">${v.name}</span></div><span class="text-xs bg-gray-100 text-gray-600 font-medium px-2 py-0.5 rounded">${v.plate}</span></div><div class="timeline-bar">${barsHtml}</div><div class="time-scale font-medium"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>`; 
                 container.appendChild(card); 
             }); 
         }
 
-        // ================= PDF & EXCEL Generation Functions =================
+        window.showVehicleTrips = function(vId, m, y) {
+            const v = dataVehicles.find(x => x.id === vId);
+            if (!v) return;
+            let filtered = dataBookings.filter(b => b.status === 'approved' && b.vehicleId === vId);
+            filtered = filtered.filter(b => {
+                const d = new Date(b.startDateTime);
+                return d.getMonth() === m && d.getFullYear() === y;
+            });
+            
+            if (filtered.length === 0) return Swal.fire({title: 'ไม่มีข้อมูล', text: 'ไม่มีการใช้งานในเดือนที่เลือก', icon: 'info', confirmButtonColor: '#3B82F6'});
+            
+            let listHtml = '<div class="space-y-3 text-left max-h-[60vh] overflow-y-auto pr-2">';
+            filtered.sort((a,b) => new Date(a.startDateTime) - new Date(b.startDateTime)).forEach((b) => {
+                const sd = new Date(b.startDateTime);
+                const ed = new Date(b.endDateTime);
+                const dateStr = `${sd.getDate().toString().padStart(2,'0')}/${(sd.getMonth()+1).toString().padStart(2,'0')}/${sd.getFullYear()+543}`;
+                const timeStr = `${sd.getHours().toString().padStart(2,'0')}:${sd.getMinutes().toString().padStart(2,'0')} - ${ed.getHours().toString().padStart(2,'0')}:${ed.getMinutes().toString().padStart(2,'0')} น.`;
+                
+                listHtml += `
+                <div class="p-4 bg-gray-50 hover:bg-blue-50/50 rounded-xl border border-gray-100 text-sm transition flex flex-col gap-1.5 shadow-sm">
+                    <div class="flex justify-between border-b border-gray-200 pb-2 mb-1 items-center">
+                        <span class="font-bold text-blue-600 bg-blue-100/50 px-2 py-1 rounded"><i class="far fa-calendar-alt mr-1"></i> ${dateStr}</span>
+                        <span class="text-gray-600 font-medium bg-white px-2 py-1 rounded border border-gray-200"><i class="far fa-clock mr-1"></i> ${timeStr}</span>
+                    </div>
+                    <div><span class="text-gray-500 text-xs w-12 inline-block">ผู้ขอ:</span> <span class="text-gray-800 font-medium">${getBookingFullName(b)}</span></div>
+                    <div><span class="text-gray-500 text-xs w-12 inline-block">สถานที่:</span> <span class="text-gray-800">${b.location}</span></div>
+                    ${b.driverId ? `<div><span class="text-gray-500 text-xs w-12 inline-block">คนขับ:</span> <span class="text-gray-800">${dataDrivers.find(d => d.id === b.driverId)?.name || '-'}</span></div>` : ''}
+                </div>`;
+            });
+            listHtml += '</div>';
+
+            const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            Swal.fire({
+                title: `<div class="text-xl font-bold text-gray-800">รายละเอียดการใช้รถ<br><span class="text-sm text-blue-600 font-medium bg-blue-50 px-3 py-1 rounded-full mt-2 inline-block">${v.name} (${v.plate}) • ${thaiMonths[m]} ${y+543}</span></div>`,
+                html: listHtml,
+                showConfirmButton: true,
+                confirmButtonText: 'ปิดหน้าต่าง',
+                confirmButtonColor: '#3B82F6',
+                customClass: { popup: 'rounded-[2rem]' }
+            });
+        }
+
+        function renderUsageTable() {
+            const m = parseInt(document.getElementById('usage-month').value);
+            const y = parseInt(document.getElementById('usage-year').value);
+            const filterType = document.getElementById('usage-filter-type').value;
+            const container = document.getElementById('usage-container');
+            container.innerHTML = '';
+
+            let filteredBookings = dataBookings.filter(b => b.status === 'approved');
+            filteredBookings = filteredBookings.filter(b => {
+                const d = new Date(b.startDateTime);
+                return d.getMonth() === m && d.getFullYear() === y;
+            });
+
+            let displayVehicles = dataVehicles;
+            if (filterType !== 'all') {
+                displayVehicles = displayVehicles.filter(v => v.type === filterType);
+            }
+
+            if (displayVehicles.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-gray-400 bg-white rounded-2xl border border-gray-100 shadow-sm"><i class="fas fa-car-side text-4xl mb-3 text-gray-300 block"></i><p>ไม่มีข้อมูลรถในระบบ</p></div>`;
+                return;
+            }
+
+            let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+            let totalTripsMonth = 0;
+
+            displayVehicles.forEach(v => {
+                const vBookings = filteredBookings.filter(b => b.vehicleId === v.id);
+                const tripCount = vBookings.length;
+                totalTripsMonth += tripCount;
+                
+                let bgClass = tripCount > 0 ? 'bg-white cursor-pointer' : 'bg-gray-50/70 opacity-80 cursor-pointer';
+                let borderClass = tripCount > 5 ? 'border-blue-400 shadow-md' : 'border-gray-200 shadow-sm';
+                let iconColor = tripCount > 0 ? 'text-blue-500' : 'text-gray-400';
+                let iconClass = getVehicleIcon(v.type);
+
+                html += `
+                <div onclick="showVehicleTrips('${v.id}', ${m}, ${y})" class="${bgClass} rounded-2xl p-5 border ${borderClass} flex flex-col justify-between transition hover:-translate-y-1 hover:shadow-md relative overflow-hidden group min-h-[140px]">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 flex justify-center items-center flex-shrink-0 group-hover:bg-blue-100 transition">
+                            <i class="fas ${iconClass} ${iconColor} text-xl"></i>
+                        </div>
+                        <div class="flex-grow pt-1">
+                            <h4 class="font-bold text-gray-800 text-base lg:text-lg leading-tight">${v.name}</h4>
+                            <div class="text-xs text-gray-500 mt-1">${v.plate} • ${v.type}</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-end mt-auto pt-3 border-t border-gray-100">
+                        <div class="text-xs text-blue-500 font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                            ดูรายละเอียด <i class="fas fa-arrow-right ml-0.5"></i>
+                        </div>
+                        <div class="text-blue-600 font-bold bg-blue-50 px-3 py-1.5 rounded-lg text-sm md:text-base ml-auto transition group-hover:bg-blue-600 group-hover:text-white">
+                            <i class="fas fa-route mr-1"></i> ${tripCount} เที่ยว
+                        </div>
+                    </div>
+                </div>`;
+            });
+
+            html += '</div>';
+
+            if (totalTripsMonth === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-gray-400 bg-white rounded-2xl border border-gray-100 shadow-sm"><i class="fas fa-car-side text-4xl mb-3 text-gray-300 block"></i><p>ไม่มีการใช้งานรถในเดือนนี้</p></div>`;
+            } else {
+                container.innerHTML = `
+                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white mb-6 shadow-md flex justify-between items-center relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-white rounded-full opacity-10 -mr-10 -mt-10"></div>
+                    <div class="relative z-10">
+                        <h3 class="text-base sm:text-lg font-medium opacity-90">รวมการใช้งานทั้งหมด (เดือนที่เลือก)</h3>
+                        <div class="text-4xl sm:text-5xl font-bold mt-1">${totalTripsMonth} <span class="text-xl font-medium opacity-80">เที่ยว</span></div>
+                    </div>
+                    <i class="fas fa-chart-line text-6xl opacity-20 relative z-10"></i>
+                </div>
+                ${html}`;
+            }
+        }
 
         function printSinglePDF(id) { 
             const b = dataBookings.find(x => x.id === id); 
@@ -1420,7 +1729,7 @@
             Swal.fire({ 
                 title: 'ส่งออกรายงานสรุปการใช้รถ', 
                 html: `
-                <div class="text-left space-y-4">
+                <div class="text-left space-y-4 font-sans mt-2">
                     <div class="flex items-center gap-2">
                         <input type="radio" name="print-opt" id="print-month" value="month" checked onclick="document.getElementById('print-selectors').style.display='flex'">
                         <label for="print-month" class="font-bold text-gray-700">รายงานประจำเดือน</label>
@@ -1456,7 +1765,7 @@
                         </div>
                     </div>
                 </div>`, 
-                showCancelButton: true, confirmButtonText: '<i class="fas fa-download mr-1"></i> ดาวน์โหลด', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#3B82F6', 
+                showCancelButton: true, confirmButtonText: '<i class="fas fa-download mr-1"></i> ดาวน์โหลด', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#3B82F6', customClass: { popup: 'rounded-3xl' },
                 preConfirm: () => { 
                     const type = document.querySelector('input[name="print-opt"]:checked').value; 
                     const m = document.getElementById('swal-month').value; 
