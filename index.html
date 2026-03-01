@@ -1448,6 +1448,30 @@
                             requestedType: type, status: 'pending', created_at: new Date().toISOString(), signature: sigData, attachment: docBase64
                         };
                         db.ref('bookings').push(data);
+
+                        // ===== เริ่ม: โค้ดส่งแจ้งเตือนเข้า LINE =====
+                        const sTimeFmt = `${formatDate(start)} ${new Date(start).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})} น.`;
+                        const eTimeFmt = `${formatDate(end)} ${new Date(end).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})} น.`;
+                        const createDateFmt = formatDate(data.created_at);
+
+                        fetch("https://script.google.com/macros/s/AKfycbywuWvbSCryYObR67o355OOHCOU8GPyACwFqA9y4LkQaY4qLD7G1LRsFZuHwKtZPgN-/exec", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "text/plain;charset=utf-8"
+                            },
+                            body: JSON.stringify({
+                                createDate: createDateFmt,
+                                name: reqFullName,
+                                vehicleType: type,
+                                location: data.location,
+                                purpose: data.purpose,
+                                passengers: data.passengers,
+                                startTime: sTimeFmt,
+                                endTime: eTimeFmt
+                            })
+                        }).catch(err => console.error("LINE Notify Error: ", err));
+                        // ===== จบ: โค้ดส่งแจ้งเตือนเข้า LINE =====
+
                         Swal.fire({ icon: 'success', title: 'ส่งคำขอเรียบร้อย', showConfirmButton: false, timer: 1500 });
                         document.querySelector('form').reset();
                         const displayName = currentUser.role === 'admin' ? currentUser.name : `${currentUser.prefix}${currentUser.name} ${currentUser.surname}`;
