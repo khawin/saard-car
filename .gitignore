@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Local dev tooling
+.claude/
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Dependencies (in case you add any later)
+node_modules/

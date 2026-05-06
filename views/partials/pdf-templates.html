@@ -1,0 +1,62 @@
+<div id="pdf-container">
+    <div id="pdf-print-wrapper">
+        <div id="pdf-template" class="pdf-page">
+            <div class="pdf-header">ใบขออนุญาตใช้รถส่วนกลาง</div>
+            <div class="pdf-content">
+                <div class="pdf-row justify-between items-end" style="margin-top: 5px;">
+                    <div>ที่ <span class="dotted-line-low" id="pdf-run-num" style="width: 50px;"></span> / <span class="dotted-line-low" id="pdf-run-year" style="width: 50px;"></span></div>
+                    <div>วันที่ <span class="dotted-line" id="pdf-day" style="width: 40px;"></span> เดือน <span class="dotted-line" id="pdf-month" style="width: 100px;"></span> พ.ศ. <span class="dotted-line" id="pdf-year" style="width: 60px;"></span></div>
+                </div>
+                <div class="pdf-row" style="margin-top: 15px;">เรียน ผู้อำนวยการโรงเรียนสอาดเผดิมวิทยา</div>
+                <div class="pdf-row"><span class="indent-tab">ข้าพเจ้า <span id="pdf-name" class="dotted-line" style="width: 250px;"></span></span><span>ตำแหน่ง <span class="dotted-line" style="width: 150px;">ครู</span></span></div>
+                <div class="pdf-row"><span>ขออนุญาตใช้</span><span class="checkbox-box" id="chk-van"></span> <span>รถตู้</span><span class="checkbox-box" id="chk-pickup"></span> <span>รถกระบะ</span><span class="checkbox-box" id="chk-truck"></span> <span>รถบรรทุก</span><span class="checkbox-box" id="chk-car"></span> <span>รถยนต์ส่วนบุคคล</span></div>
+                <div class="pdf-row"><span>สถานที่ที่ไป</span><div class="dotted-line-fill"><span id="pdf-location"></span></div></div>
+                <div class="pdf-row"><span>เพื่อ</span><div class="dotted-line-fill"><span id="pdf-purpose"></span></div></div>
+                <div class="pdf-row"><span>มีผู้โดยสารจำนวน <span id="pdf-pax" class="dotted-line" style="width: 40px;"></span> คน </span><span>ในวันที่ <span id="pdf-s-d" class="dotted-line" style="width: 25px;"></span> เดือน <span id="pdf-s-m" class="dotted-line" style="width: 70px;"></span> พ.ศ. <span id="pdf-s-y" class="dotted-line" style="width: 40px;"></span> เวลา <span id="pdf-s-t" class="dotted-line" style="width: 50px;"></span></span></div>
+
+                <div class="pdf-row"><span>ถึงวันที่ <span id="pdf-e-d" class="dotted-line" style="width: 25px;"></span> เดือน <span id="pdf-e-m" class="dotted-line" style="width: 70px;"></span> พ.ศ. <span id="pdf-e-y" class="dotted-line" style="width: 40px;"></span> เวลา <span id="pdf-e-t" class="dotted-line" style="width: 50px;"></span><span style="margin-left: 20px;">และได้แนบหนังสือขออนุญาตไปราชการ</span></span></div>
+                <div class="pdf-row"><span>มาด้วยแล้ว</span></div>
+
+                <div class="pdf-row justify-end" style="margin-top: 20px; margin-right: 40px;">
+                    <div style="text-align: center;"><div style="display: flex; align-items: flex-end; justify-content: center;">ลงชื่อ <div class="signature-box"><span class="dotted-line" style="width: 100%; display: block; position: absolute; bottom: 5px;"></span><img id="pdf-sig-img" src="" class="signature-img" style="display: none;"></div>ผู้ขออนุญาต</div><div style="margin-top: 4px;">(<span id="pdf-sign-name"></span>)</div><div>ตำแหน่ง ครู</div><div>เบอร์โทรศัพท์ <span id="pdf-phone"></span></div></div>
+                </div>
+                <div style="font-weight: bold; margin-bottom: 5px; margin-top: 10px;">ผลการพิจารณา</div>
+                <div class="approval-grid"><div class="col-label">เห็นควร</div><div class="col-check"><span class="checkbox-box" id="chk-approve"></span></div><div class="col-text">อนุญาตและรับผิดชอบการใช้รถหมายเลขทะเบียน <span id="pdf-plate" class="dotted-line" style="width: 120px;"></span></div></div>
+                <div class="approval-grid" style="display: none;" id="pdf-driver-row"><div class="col-label"></div><div class="col-check"></div><div class="col-text">โดยมีนาย <span id="pdf-driver" class="dotted-line" style="width: 220px;"></span> เป็นพนักงานขับรถ</div></div>
+                <div class="approval-grid"><div class="col-label"></div><div class="col-check"><span class="checkbox-box" id="chk-reject"></span></div><div class="col-text">ไม่อนุญาตเพราะ <span id="pdf-reject-reason" class="dotted-line" style="width: 320px;"></span></div></div>
+                <div class="pdf-row justify-between" style="margin-top: 20px; align-items: flex-start;">
+                    <div style="text-align: center; width: 45%; line-height: 1.6;">ลงชื่อ <span class="dotted-line" style="width: 150px;"></span><br>(นางสาวจุฑาดา ชุมเกษียน)<br>หัวหน้างานยานพาหนะ<br>วันที่ <span class="dotted-line" style="width: 100px;"></span></div>
+                    <div style="text-align: center; width: 45%; line-height: 1.6; padding-top: 10px;">ลงชื่อ <span class="dotted-line" style="width: 150px;"></span><br>(นายหัตถเชษฐ์ แสงประดิษฐ์)<br>รองผู้อำนวยการโรงเรียน ปฏิบัติราชการแทน<br>ผู้อำนวยการโรงเรียนสอาดเผดิมวิทยา<br>วันที่ <span class="dotted-line" style="width: 100px;"></span></div>
+                </div>
+                 <div class="pdf-row" style="margin-top: 20px; display: none;" id="pdf-driver-sign-row">
+                    <div class="driver-sig-block"><div style="margin-bottom: 8px;">รับทราบ</div><div style="margin-bottom: 8px;">ลงชื่อ <span class="dotted-line" style="width: 150px;"></span></div><div style="margin-bottom: 4px;">(<span id="pdf-driver-sign"></span>)</div><div>พนักงานขับรถ</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pdf-attachment-template" class="pdf-page" style="display:none;">
+            <div class="pdf-header">เอกสารแนบ: หนังสืออนุญาตไปราชการ</div>
+            <div class="pdf-img-container">
+                <img id="pdf-att-img" class="pdf-attached-img" src="">
+            </div>
+        </div>
+    </div>
+
+    <div id="pdf-summary-template">
+        <h2 id="summary-title" style="text-align: center; font-weight: bold; font-size: 24px; margin-bottom: 5px;">รายงานสรุปการใช้งานยานพาหนะ</h2>
+        <p style="text-align: center; font-size: 16px; margin-bottom: 20px;">โรงเรียนสอาดเผดิมวิทยา</p>
+        <div class="div-table-container" style="border-bottom: none;">
+            <div class="div-row div-header">
+                <div class="div-cell col-1"><span class="cell-text">ที่</span></div>
+                <div class="div-cell col-2"><span class="cell-text">ทะเบียนรถ</span></div>
+                <div class="div-cell col-3"><span class="cell-text">วันที่ขอ</span></div>
+                <div class="div-cell col-4"><span class="cell-text">ผู้ขอใช้</span></div>
+                <div class="div-cell col-5"><span class="cell-text">สถานที่</span></div>
+                <div class="div-cell col-6"><span class="cell-text">วันเดือนปี เวลา</span></div>
+                <div class="div-cell col-7"><span class="cell-text">พนักงานขับรถ</span></div>
+                <div class="div-cell col-8" style="border-right: none;"><span class="cell-text">หมายเหตุ</span></div>
+            </div>
+        </div>
+        <div class="div-table-container" id="pdf-summary-body" style="border-top: none;"></div>
+    </div>
+</div>

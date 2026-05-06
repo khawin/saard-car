@@ -1,0 +1,61 @@
+<div id="dashboard-section" class="hidden-section min-h-screen flex flex-col animate-fade-in relative z-0">
+    <nav class="glass-effect sticky top-0 z-50 shadow-sm border-b border-white/60 flex flex-col w-full">
+        <div class="max-w-[96%] xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6">
+            <div class="flex justify-between items-center h-16 sm:h-20 w-full">
+                <div class="flex items-center gap-3 flex-shrink-0">
+                    <img src="https://www.saard.ac.th/wp-content/uploads/2024/11/saardlogov2-1-1024x1024.png" alt="Logo" class="h-10 w-10 sm:h-12 sm:w-12 drop-shadow-sm flex-shrink-0">
+                    <div class="flex flex-col justify-center">
+                        <h1 class="text-[13px] sm:text-xl font-bold leading-tight flex flex-col sm:block"><span class="text-gray-800">ระบบ</span><span class="text-pink-500">ขออนุญาตใช้ยานพาหนะ</span></h1>
+                        <p class="text-[10px] sm:text-xs text-blue-600 font-medium bg-blue-50 inline-block px-2 py-0.5 mt-0.5 rounded-full self-start" id="user-role-display">บุคลากรครู</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 sm:gap-4 ml-auto">
+                    <div class="hidden md:flex items-center gap-3">
+                        <div id="nav-menu-teacher" class="bg-gray-100 p-1 rounded-xl relative flex items-center h-12">
+                            <div id="nav-t-indicator" class="absolute h-[calc(100%-0.5rem)] w-[calc(33.33%-0.25rem)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out top-1 left-1 pointer-events-none"></div>
+                            <button id="nav-t-home" onclick="showPage('home')" class="relative z-10 flex-1 px-5 py-2 rounded-lg text-sm font-bold transition-colors text-blue-600 flex items-center justify-center gap-2"><i class="fas fa-home"></i><span>หน้าหลัก</span></button>
+                            <button id="nav-t-request" onclick="showPage('request')" class="relative z-10 flex-1 px-5 py-2 rounded-lg text-sm font-bold transition-colors text-gray-500 flex items-center justify-center gap-2"><i class="fas fa-edit"></i><span>ขออนุญาต</span></button>
+                            <button id="nav-t-profile" onclick="showPage('profile')" class="relative z-10 flex-1 px-5 py-2 rounded-lg text-sm font-bold transition-colors text-gray-500 flex items-center justify-center gap-2"><i class="fas fa-user-circle"></i><span>ส่วนตัว</span></button>
+                        </div>
+                        <div id="nav-menu-admin" class="hidden-section bg-gray-100 p-1 rounded-xl relative flex items-center h-12">
+                            <div id="nav-a-indicator" class="absolute h-[calc(100%-0.5rem)] w-[calc(50%-0.25rem)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out top-1 left-1 pointer-events-none"></div>
+                            <button id="nav-a-home" onclick="showPage('home')" class="relative z-10 flex-1 px-5 py-2 rounded-lg text-sm font-bold transition-colors text-blue-600 flex items-center justify-center gap-2"><i class="fas fa-home"></i><span>หน้าหลัก</span></button>
+                            <button id="nav-a-manage" onclick="showPage('manage')" class="relative z-10 flex-1 px-5 py-2 rounded-lg text-sm font-bold transition-colors text-gray-500 flex items-center justify-center gap-2"><i class="fas fa-database"></i><span>จัดการข้อมูล</span></button>
+                        </div>
+                        <div class="h-6 w-px bg-gray-300 mx-1"></div>
+                    </div>
+
+                    <div class="relative">
+                        <button onclick="toggleNotifDropdown(event)" class="text-gray-500 hover:text-blue-500 font-medium p-2 rounded-lg hover:bg-blue-50 transition-colors relative">
+                            <i class="fas fa-bell text-[20px] sm:text-lg"></i>
+                            <span id="notif-badge" class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full hidden-section animate-pulse border border-white"></span>
+                        </button>
+                        <div id="notif-dropdown" class="hidden-section absolute right-0 mt-2 w-64 sm:w-80 bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-[100] animate-fade-in origin-top-right">
+                            <div class="p-3 border-b border-gray-100 bg-gray-50 font-bold text-gray-700 text-sm flex justify-between items-center">
+                                <span><i class="fas fa-bell text-blue-500 mr-1"></i> การแจ้งเตือน</span>
+                                <span id="notif-count-text" class="text-[10px] sm:text-xs font-normal text-gray-500">0 รายการใหม่</span>
+                            </div>
+                            <div id="notif-list" class="max-h-72 overflow-y-auto hide-scrollbar bg-white">
+                                </div>
+                        </div>
+                    </div>
+
+                    <button onclick="handleLogout()" class="text-gray-500 hover:text-red-500 font-medium text-sm p-2 rounded-lg hover:bg-red-50 transition-colors">
+                        <i class="fas fa-sign-out-alt text-[20px] sm:text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-filter-nav" class="md:hidden border-t border-gray-100 bg-white/90 overflow-x-auto hide-scrollbar px-4 py-2 shadow-sm">
+            <div class="flex gap-2 min-w-max">
+                <button onclick="filterBookings('all')" id="mob-btn-all" class="px-4 py-1.5 rounded-full text-[13px] font-bold transition-all border shadow-sm">ทั้งหมด (<span id="mob-count-all">0</span>)</button>
+                <button onclick="filterBookings('pending')" id="mob-btn-pending" class="px-4 py-1.5 rounded-full text-[13px] font-bold transition-all border">รออนุมัติ (<span id="mob-count-pending">0</span>)</button>
+                <button onclick="filterBookings('processed')" id="mob-btn-processed" class="px-4 py-1.5 rounded-full text-[13px] font-bold transition-all border">ตอบรับแล้ว (<span id="mob-count-processed">0</span>)</button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="views-container" class="flex-grow p-4 sm:p-8 max-w-[96%] xl:max-w-[1600px] w-full mx-auto space-y-6 sm:space-y-8 pb-28 md:pb-20"></div>
+</div>

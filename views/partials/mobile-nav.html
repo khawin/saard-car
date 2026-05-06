@@ -1,0 +1,23 @@
+<div id="mobile-bottom-nav" class="md:hidden hidden-section fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 z-50 pb-safe pt-1 pb-3 shadow-[0_-4px_15px_rgba(0,0,0,0.05)]">
+    <div class="flex justify-around items-center h-14 px-2">
+        <div id="mob-nav-teacher" class="flex justify-around w-full">
+            <button onclick="showPage('home')" id="mob-nav-t-home" class="flex flex-col items-center justify-center w-full h-full text-blue-600 transition-colors gap-1">
+                <i class="fas fa-home text-[22px]"></i><span class="text-[10px] font-bold">หน้าหลัก</span>
+            </button>
+            <button onclick="showPage('request')" id="mob-nav-t-request" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-blue-500 transition-colors gap-1">
+                <i class="fas fa-edit text-[22px]"></i><span class="text-[10px] font-bold">ขออนุญาต</span>
+            </button>
+            <button onclick="showPage('profile')" id="mob-nav-t-profile" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-blue-500 transition-colors gap-1">
+                <i class="fas fa-user-circle text-[22px]"></i><span class="text-[10px] font-bold">ส่วนตัว</span>
+            </button>
+        </div>
+        <div id="mob-nav-admin" class="hidden-section flex justify-around w-full">
+            <button onclick="showPage('home')" id="mob-nav-a-home" class="flex flex-col items-center justify-center w-full h-full text-blue-600 transition-colors gap-1">
+                <i class="fas fa-home text-[22px]"></i><span class="text-[10px] font-bold">หน้าหลัก</span>
+            </button>
+            <button onclick="showPage('manage')" id="mob-nav-a-manage" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-blue-500 transition-colors gap-1">
+                <i class="fas fa-database text-[22px]"></i><span class="text-[10px] font-bold">จัดการข้อมูล</span>
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,29 @@
+/* Data Display */
+.glass-table { border-collapse: separate; border-spacing: 0; width: 100%; }
+.glass-table thead th { background-color: rgba(59, 130, 246, 0.1); color: #1E40AF; font-weight: 600; padding: 1rem; border-bottom: 2px solid rgba(59, 130, 246, 0.2); }
+.glass-table tbody td { padding: 1rem; border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: middle; }
+
+/* Mobile Cards */
+.mobile-card { background: white; border-radius: 1rem; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #f3f4f6; }
+.mobile-card-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; }
+.mobile-card-label { color: #6B7280; font-weight: 500; }
+.mobile-card-value { color: #1F2937; font-weight: 500; text-align: right; max-width: 65%; word-break: break-word; }
+
+/* Timeline Fixes */
+.timeline-bar { height: 1.5rem; background-color: #E5E7EB; border-radius: 9999px; position: relative; overflow: hidden; margin-top: 0.75rem; }
+.timeline-segment { position: absolute; height: 100%; top: 0; min-width: 2px; transition: filter 0.2s; }
+.timeline-segment:hover { filter: brightness(0.8); z-index: 10; cursor: pointer; }
+.segment-approved { background-color: #10B981; opacity: 0.9; }
+.segment-pending { background-color: #FBBF24; opacity: 0.8; }
+.time-scale { display: flex; justify-content: space-between; font-size: 0.7rem; color: #9CA3AF; margin-top: 0.35rem; padding: 0 4px; }
+
+/* Desktop UI: Dashboard Cards Highlighting */
+.dash-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; }
+.dash-card-all.dash-active { border-color: #3B82F6 !important; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3) !important; transform: translateY(-4px) scale(1.02); opacity: 1 !important; }
+.dash-card-pending.dash-active { border-color: #FBBF24 !important; box-shadow: 0 10px 25px -5px rgba(251, 191, 36, 0.3) !important; transform: translateY(-4px) scale(1.02); opacity: 1 !important; }
+.dash-card-processed.dash-active { border-color: #10B981 !important; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3) !important; transform: translateY(-4px) scale(1.02); opacity: 1 !important; }
+
+.manage-card-active { border-color: #EC4899 !important; background-color: #FDF2F8 !important; transform: translateY(-4px) scale(1.02); box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.3) !important;}
+.manage-card-inactive { border-color: transparent !important; opacity: 0.75 !important; filter: grayscale(40%); transform: scale(0.96); transition: all 0.3s ease; }
+.dash-inactive { opacity: 0.75 !important; filter: grayscale(40%); transform: scale(0.96); pointer-events: auto; }
+.dash-inactive:hover { opacity: 0.95 !important; filter: grayscale(10%); transform: scale(0.98); }

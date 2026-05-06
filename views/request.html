@@ -1,0 +1,40 @@
+<div id="view-request" class="hidden-section animate-slide-up">
+    <div class="glass-effect max-w-4xl mx-auto rounded-[2rem] shadow-card p-6 sm:p-10 relative overflow-hidden border border-white/60">
+        <div class="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-blue-400 via-pink-400 to-blue-400"></div>
+        <div class="text-center mb-8">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">แบบฟอร์มขออนุญาตใช้ยานพาหนะ</h2>
+            <p class="text-gray-500 mt-2 text-sm sm:text-base">กรอกข้อมูลให้ครบถ้วนเพื่อให้พิจารณา</p>
+        </div>
+        <form onsubmit="submitRequest(event)" class="space-y-6 sm:space-y-8">
+            <div class="bg-white/40 p-5 sm:p-8 rounded-3xl border border-white/60 shadow-sm">
+                <h3 class="font-bold text-blue-600 mb-4 sm:mb-6 flex items-center gap-3 text-base sm:text-lg border-b border-blue-100 pb-2"><span class="bg-blue-100 p-2 rounded-lg"><i class="fas fa-user"></i></span> ข้อมูลผู้ขอ</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    <div><label class="block text-sm font-bold text-gray-700 mb-2">ชื่อ-นามสกุล</label><input type="text" id="req-name-display" class="custom-input bg-gray-100 text-gray-500 cursor-not-allowed" readonly></div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-2">เบอร์โทรศัพท์</label><input type="tel" id="req-phone" class="custom-input" placeholder="0xxxxxxxxx" required></div>
+                </div>
+            </div>
+            <div class="bg-white/40 p-5 sm:p-8 rounded-3xl border border-white/60 shadow-sm">
+                <h3 class="font-bold text-pink-600 mb-4 sm:mb-6 flex items-center gap-3 text-base sm:text-lg border-b border-pink-100 pb-2"><span class="bg-pink-100 p-2 rounded-lg"><i class="fas fa-route"></i></span> รายละเอียดการเดินทาง</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">ประเภทรถที่ต้องการ</label><select id="req-type" class="custom-input" required><option value="" disabled selected>-- เลือกประเภทรถ --</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-2">วัน-เวลา เริ่มต้น</label><input type="text" id="req-start" class="custom-input bg-white cursor-pointer" placeholder="เลือกวัน-เวลาเริ่มต้น" required></div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-2">วัน-เวลา สิ้นสุด</label><input type="text" id="req-end" class="custom-input bg-white cursor-pointer" placeholder="เลือกวัน-เวลาสิ้นสุด" required></div>
+                    <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">สถานที่ที่ไป</label><input type="text" id="req-location" class="custom-input" placeholder="ระบุจังหวัดหรือชื่อสถานที่" required></div>
+                    <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">เพื่อวัตถุประสงค์</label><textarea id="req-purpose" rows="3" class="custom-input" placeholder="ระบุรายละเอียดการไปราชการหรือธุระ" required></textarea></div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-2">จำนวนผู้โดยสาร (คน)</label><input type="number" id="req-passengers" min="1" class="custom-input" placeholder="ไม่รวมคนขับ" required></div>
+                    <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-2">แนบหนังสืออนุญาตไปราชการ (รูปภาพ) <span class="text-red-500">*</span></label><input type="file" id="req-doc" class="custom-input bg-white" accept="image/*" required></div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">ลายเซ็นผู้ขออนุญาต <span class="text-red-500">*</span></label>
+                        <div class="flex gap-4 mb-2"><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="sig-option" value="saved" checked onchange="toggleSigInput()"> ใช้ลายเซ็นที่บันทึกไว้</label><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="sig-option" value="upload" onchange="toggleSigInput()"> อัปโหลดใหม่</label></div>
+                        <div id="sig-preview-container" class="border border-gray-200 p-2 rounded-xl bg-gray-50 h-24 flex items-center justify-center"><span class="text-gray-400 text-sm">ลายเซ็นจะปรากฏที่นี่</span></div>
+                        <input type="file" id="req-sig-file" class="custom-input mt-2 hidden-section bg-white" accept="image/png" onchange="previewUploadSig()">
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+                <button type="button" onclick="checkVehicleAvailability()" class="btn-secondary text-blue-600 bg-white border-blue-200 hover:bg-blue-50 py-3 px-6 shadow-sm"><i class="fas fa-search mr-2"></i>ตรวจสอบรถว่าง</button>
+                <button type="submit" class="btn-primary px-10 py-3 text-lg shadow-lg shadow-blue-500/30 transform hover:-translate-y-1"><i class="fas fa-paper-plane mr-2"></i>ส่งคำขออนุญาต</button>
+            </div>
+        </form>
+    </div>
+</div>

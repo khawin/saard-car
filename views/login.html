@@ -1,0 +1,28 @@
+<div id="login-section" class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <div class="absolute top-0 -left-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+    <div class="absolute top-0 -right-4 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+
+    <div class="glass-effect rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden relative z-10 animate-fade-in border-white/60">
+        <div class="p-8 md:p-10">
+            <div class="text-center mb-8">
+                <img src="https://www.saard.ac.th/wp-content/uploads/2024/11/saardlogov2-1-1024x1024.png" alt="Logo" class="w-24 h-24 mx-auto mb-4 object-contain drop-shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 tracking-wide">ระบบขออนุญาตใช้ยานพาหนะ</h2>
+                <p class="text-gray-500 mt-1 font-medium">โรงเรียนสอาดเผดิมวิทยา</p>
+            </div>
+            <div class="flex bg-gray-100 p-1.5 rounded-2xl mb-8 relative">
+                <div id="role-indicator" class="absolute h-[calc(100%-0.75rem)] w-[calc(50%-0.375rem)] bg-white rounded-xl shadow-sm transition-all duration-300 ease-out top-1.5 left-1.5 pointer-events-none"></div>
+                <button onclick="switchRole('teacher')" id="btn-login-teacher" class="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all relative z-10 text-blue-600">บุคลากรครู</button>
+                <button onclick="switchRole('admin')" id="btn-login-admin" class="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all relative z-10 text-gray-400">หัวหน้างาน</button>
+            </div>
+            <form onsubmit="handleLogin(event)" class="space-y-6">
+                <div class="space-y-2"><label class="block text-sm font-bold text-gray-700 ml-1">ชื่อผู้ใช้งาน</label><input type="text" id="username" class="custom-input" placeholder="เลขบัตรประชาชน 13 หลัก" required></div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-bold text-gray-700 ml-1">รหัสผ่าน</label>
+                    <div class="relative"><input type="password" id="password" class="custom-input pr-10" placeholder="รหัสผ่าน" required><button type="button" onclick="togglePassword('password', 'eye-icon')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition"><i class="fas fa-eye" id="eye-icon"></i></button></div>
+                </div>
+                <div id="first-login-hint" class="bg-blue-50/80 border border-blue-100 rounded-xl p-3 text-center"><p class="text-xs text-blue-600 font-medium"><i class="fas fa-key mr-1"></i> รหัสผ่านครั้งแรก: sateacher</p></div>
+                <button type="submit" class="w-full btn-primary py-3.5 text-lg shadow-lg shadow-blue-500/30">เข้าสู่ระบบ</button>
+            </form>
+        </div>
+    </div>
+</div>

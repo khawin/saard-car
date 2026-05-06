@@ -1,0 +1,100 @@
+<div id="view-home" class="space-y-6 sm:space-y-8 animate-slide-up">
+
+    <div class="hidden md:grid md:grid-cols-3 gap-6">
+        <div id="card-dash-all" onclick="filterBookings('all')" class="dash-card dash-card-all glass-effect p-6 rounded-3xl cursor-pointer border-l-8 group relative overflow-hidden dash-active">
+            <div class="absolute right-0 top-0 w-32 h-32 bg-blue-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+            <div class="relative z-10 flex justify-between items-start">
+                <div><p class="text-gray-500 text-sm font-bold mb-1 tracking-wide uppercase">รายการทั้งหมด</p><h3 class="text-5xl font-bold text-gray-800 mt-2" id="count-all">0</h3></div>
+                <div class="p-4 bg-blue-100 rounded-2xl text-blue-600 transition shadow-sm"><i class="fas fa-list-ul text-2xl"></i></div>
+            </div>
+        </div>
+        <div id="card-dash-pending" onclick="filterBookings('pending')" class="dash-card dash-card-pending glass-effect p-6 rounded-3xl cursor-pointer border-l-8 group relative overflow-hidden dash-inactive">
+            <div class="absolute right-0 top-0 w-32 h-32 bg-yellow-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+            <div class="relative z-10 flex justify-between items-start">
+                <div><p class="text-gray-500 text-sm font-bold mb-1 tracking-wide uppercase" id="label-pending">รออนุมัติ</p><h3 class="text-5xl font-bold text-gray-800 mt-2" id="count-pending">0</h3></div>
+                <div class="p-4 bg-yellow-100 rounded-2xl text-yellow-600 transition shadow-sm"><i class="fas fa-clock text-2xl"></i></div>
+            </div>
+        </div>
+        <div id="card-dash-processed" onclick="filterBookings('processed')" class="dash-card dash-card-processed glass-effect p-6 rounded-3xl cursor-pointer border-l-8 group relative overflow-hidden dash-inactive">
+            <div class="absolute right-0 top-0 w-32 h-32 bg-green-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+            <div class="relative z-10 flex justify-between items-start">
+                <div><p class="text-gray-500 text-sm font-bold mb-1 tracking-wide uppercase" id="label-processed">ตอบรับแล้ว</p><h3 class="text-5xl font-bold text-gray-800 mt-2" id="count-processed">0</h3></div>
+                <div class="p-4 bg-green-100 rounded-2xl text-green-600 transition shadow-sm"><i class="fas fa-check-circle text-2xl"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-effect rounded-3xl shadow-card p-4 sm:p-8 border border-white/50">
+        <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+            <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3">
+                    <span id="table-title-bar" class="w-1.5 sm:w-2 h-6 sm:h-8 bg-blue-500 rounded-full"></span>
+                    <span id="table-title">รายการทั้งหมด</span>
+                </h3>
+                <div class="flex bg-gray-200 rounded-lg p-1" id="view-toggle-container">
+                    <button onclick="toggleView('list')" id="btn-view-list" class="px-3 sm:px-4 py-1 rounded-md text-[13px] sm:text-sm font-bold bg-white text-blue-600 shadow-sm transition">ทั้งหมด</button>
+                    <button onclick="toggleView('timeline')" id="btn-view-timeline" class="px-3 sm:px-4 py-1 rounded-md text-[13px] sm:text-sm font-bold text-gray-500 hover:text-blue-600 transition">Timeline</button>
+                    <button onclick="toggleView('usage')" id="btn-view-usage" class="px-3 sm:px-4 py-1 rounded-md text-[13px] sm:text-sm font-bold text-gray-500 hover:text-blue-600 transition">สถิติ</button>
+                </div>
+            </div>
+            <div class="flex w-full sm:w-auto justify-end">
+                <button id="btn-print-summary" onclick="showSummaryPrintOptions()" class="hidden-section w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 text-sm font-bold transition shadow-sm border border-blue-100 hover:-translate-y-0.5 flex justify-center items-center">
+                    <i class="fas fa-file-export mr-2"></i>ส่งออกรายงาน
+                </button>
+            </div>
+        </div>
+
+        <div id="view-mode-list" class="block">
+            <div class="hidden md:block overflow-x-auto rounded-xl border border-gray-100">
+                <table class="w-full glass-table">
+                    <thead><tr><th class="text-left w-32 rounded-tl-xl">วันที่ขอ</th><th class="text-left w-52">ผู้ขอ</th><th class="text-left">รายการ</th><th class="text-left w-32">ประเภท</th><th class="text-left w-56">เวลาเดินทาง</th><th class="text-center w-32">สถานะ</th><th class="text-center w-32 rounded-tr-xl">จัดการ</th></tr></thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+            <div id="mobile-card-container" class="md:hidden space-y-4"></div>
+            <div id="bookings-pagination" class="mt-6 flex justify-center pb-2"></div>
+        </div>
+
+        <div id="view-mode-timeline" class="hidden-section p-4 sm:p-6 bg-gray-50/50 rounded-xl">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <div class="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+                    <div class="flex flex-col gap-1 w-full sm:w-auto">
+                        <label class="font-bold text-gray-700 text-sm">เลือกวันที่:</label>
+                        <div class="flex items-center gap-1">
+                            <button onclick="changeTimelineDate(-1)" class="flex items-center justify-center bg-white border border-gray-200 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition shadow-sm" style="height: 42px; width: 42px;"><i class="fas fa-chevron-left"></i></button>
+                            <input type="text" id="timeline-date" class="custom-input bg-white cursor-pointer text-center w-full sm:w-40" style="height: 42px; padding-top: 0.5rem; padding-bottom: 0.5rem;" placeholder="เลือกวันที่">
+                            <button onclick="changeTimelineDate(1)" class="flex items-center justify-center bg-white border border-gray-200 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition shadow-sm" style="height: 42px; width: 42px;"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1 w-full sm:w-auto mt-2 sm:mt-0">
+                        <label class="font-bold text-gray-700 text-sm">ประเภทรถ:</label>
+                        <select id="timeline-filter-type" onchange="renderTimeline()" class="custom-input bg-white min-w-[150px]" style="height: 42px; padding-top: 0.5rem; padding-bottom: 0.5rem;">
+                            <option value="all">ทั้งหมด</option>
+                            <option value="รถตู้">รถตู้</option>
+                            <option value="รถกระบะ">รถกระบะ</option>
+                            <option value="รถบรรทุก">รถบรรทุก</option>
+                            <option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="timeline-container" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
+            <div class="flex flex-wrap gap-4 justify-center mt-6 p-3 bg-white rounded-xl border border-gray-100 text-xs sm:text-sm font-medium text-gray-600">
+                <div class="flex items-center gap-2"><div class="w-3.5 h-3.5 bg-gray-200 rounded-full border border-gray-300"></div> ว่าง</div>
+                <div class="flex items-center gap-2"><div class="w-3.5 h-3.5 bg-yellow-400 rounded-full border border-yellow-500"></div> รออนุมัติ</div>
+                <div class="flex items-center gap-2"><div class="w-3.5 h-3.5 bg-green-500 rounded-full border border-green-600"></div> อนุมัติแล้ว</div>
+            </div>
+        </div>
+
+        <div id="view-mode-usage" class="hidden-section p-4 sm:p-6 bg-gray-50/50 rounded-xl">
+            <div class="flex flex-col sm:flex-row justify-start items-center mb-6 gap-4">
+                <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                    <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">เดือน:</label><select id="usage-month" class="custom-input w-full sm:w-32" style="padding-top: 0.5rem; padding-bottom: 0.5rem; height: 42px;" onchange="renderUsageTable()"></select></div>
+                    <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ปี:</label><select id="usage-year" class="custom-input w-full sm:w-32" style="padding-top: 0.5rem; padding-bottom: 0.5rem; height: 42px;" onchange="renderUsageTable()"></select></div>
+                    <div class="flex flex-col gap-1 w-full sm:w-auto"><label class="font-bold text-gray-700 text-sm">ประเภทรถ:</label><select id="usage-filter-type" onchange="renderUsageTable()" class="custom-input w-full" style="padding-top: 0.5rem; padding-bottom: 0.5rem; height: 42px;"><option value="all">ทั้งหมด</option><option value="รถตู้">รถตู้</option><option value="รถกระบะ">รถกระบะ</option><option value="รถบรรทุก">รถบรรทุก</option><option value="รถยนต์ส่วนบุคคล">รถยนต์ส่วนบุคคล</option></select></div>
+                </div>
+            </div>
+            <div id="usage-container" class="space-y-3"></div>
+        </div>
+    </div>
+</div>

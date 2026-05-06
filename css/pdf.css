@@ -1,0 +1,38 @@
+/* ==================== PDF STYLES (Strict Fixed Layout) ==================== */
+#pdf-container { position: fixed; top: 0; left: 0; z-index: -1000; opacity: 0; pointer-events: none; width: fit-content; height: fit-content; }
+.pdf-page { background: white; color: black; font-family: 'Sarabun', sans-serif !important; padding: 10mm 20mm 10mm 20mm; box-sizing: border-box; text-rendering: optimizeLegibility; font-variant-ligatures: none; width: 210mm; min-height: 297mm; page-break-after: always; }
+.pdf-page:last-child { page-break-after: avoid; }
+.pdf-header { text-align: center; font-weight: bold; font-size: 20px; margin-bottom: 12px; }
+.pdf-content { font-size: 14.5px; line-height: 1.6; }
+.pdf-row { display: flex; align-items: flex-end; width: 100%; margin-bottom: 10px; flex-wrap: nowrap; white-space: nowrap; }
+.justify-between { justify-content: space-between; }
+.justify-end { justify-content: flex-end; }
+.indent-tab { margin-left: 40px; }
+.checkbox-box { display: inline-block; width: 14px; height: 14px; border: 1px solid #000; margin-left: 8px; margin-right: 8px; vertical-align: middle; position: relative; margin-bottom: 3px; }
+.checkbox-checked::after { content: '✓'; position: absolute; top: -50%; left: 50%; transform: translate(-50%, -10%); font-size: 18px; font-weight: bold; color: black; line-height: 1; }
+.dotted-line { border-bottom: 1px dotted #000; display: inline-block; min-width: 20px; text-align: center; color: #000; padding: 0 5px; margin: 0 2px; }
+.dotted-line-low { border-bottom: 1px dotted #000; display: inline-block; min-width: 20px; text-align: center; color: #000; padding: 0 5px; margin: 0 2px; position: relative; top: 4px; }
+.dotted-line-fill { flex-grow: 1; border-bottom: 1px dotted #000; margin-left: 5px; display: flex; align-items: flex-end; padding-bottom: 2px; }
+.dotted-line-fill span { padding-left: 10px; width: 100%; }
+.signature-box { position: relative; display: inline-block; width: 180px; height: 30px; vertical-align: bottom; }
+.signature-img { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); max-height: 50px; width: auto; max-width: 90%; z-index: 10; filter: grayscale(100%) contrast(150%) brightness(1.1); mix-blend-mode: multiply; }
+.pdf-img-container { width: 100%; height: 90%; display: flex; justify-content: center; align-items: center; margin-top: 20px; }
+.pdf-attached-img { max-width: 100%; max-height: 260mm; object-fit: contain; border: 1px solid #ddd; }
+.approval-grid { display: flex; width: 100%; margin-bottom: 8px; align-items: flex-start; }
+.col-label { width: 70px; flex-shrink: 0; padding-top: 2px; }
+.col-check { width: 40px; flex-shrink: 0; display: flex; justify-content: flex-start; }
+.col-text { flex-grow: 1; padding-top: 2px; }
+.driver-sig-block { display: flex; flex-direction: column; align-items: center; width: 250px; margin-left: 20px; }
+
+#pdf-summary-template { display: block; padding: 10mm; width: 297mm; font-family: 'Sarabun', sans-serif !important; background: white; box-sizing: border-box; }
+.div-table-container { width: 100%; border: 2px solid #000; display: flex; flex-direction: column; }
+.div-row { display: flex; width: 100%; border-bottom: 1px solid #000; }
+.div-row:last-child { border-bottom: none; }
+.div-cell { padding: 8px 4px; border-right: 1px solid #000; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 13px; line-height: 1.4; word-break: break-word; }
+.div-cell:last-child { border-right: none; }
+.div-header { background-color: #f0f0f0; font-weight: bold; }
+.div-header .div-cell { height: 40px; font-size: 14px; justify-content: center !important; text-align: center !important; border-bottom: 1px solid #000 !important; }
+.col-1 { width: 5%; } .col-2 { width: 10%; } .col-3 { width: 12%; } .col-4 { width: 18%; justify-content: flex-start; text-align: left; padding-left: 8px; white-space: pre-wrap; }
+.div-header .col-4 { justify-content: center !important; text-align: center !important; } .col-5 { width: 20%; justify-content: flex-start; text-align: left; padding-left: 8px; }
+.div-header .col-5 { justify-content: center !important; text-align: center !important; } .col-6 { width: 15%; } .col-7 { width: 13%; justify-content: flex-start; text-align: left; padding-left: 8px; white-space: pre-wrap; }
+.div-header .col-7 { justify-content: center !important; text-align: center !important; } .col-8 { width: 7%; } .cell-text { position: relative; top: -2px; }
