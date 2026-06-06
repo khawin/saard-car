@@ -1454,6 +1454,12 @@
                         const eTimeFmt = `${formatDate(end)} ${new Date(end).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})} น.`;
                         const createDateFmt = formatDate(data.created_at);
 
+                        // 1. คำนวณเลขที่หนังสือ (Run Number) และปี พ.ศ. ให้เหมือนกับใน PDF เพื่อส่งเข้าไลน์
+                        const bYear = new Date().getFullYear();
+                        const yearBookings = dataBookings.filter(x => new Date(x.created_at).getFullYear() === bYear);
+                        const runIndex = yearBookings.length + 1; 
+                        const runYearStr = (bYear + 543).toString(); 
+
                         fetch("https://script.google.com/macros/s/AKfycbywuWvbSCryYObR67o355OOHCOU8GPyACwFqA9y4LkQaY4qLD7G1LRsFZuHwKtZPgN-/exec", {
                             method: "POST",
                             headers: {
@@ -1467,7 +1473,10 @@
                                 purpose: data.purpose,
                                 passengers: data.passengers,
                                 startTime: sTimeFmt,
-                                endTime: eTimeFmt
+                                endTime: eTimeFmt,
+                                runNum: runIndex,     // แก้ให้ตรงกับฝั่งสคริปต์
+                                runYear: runYearStr,  // แก้ให้ตรงกับฝั่งสคริปต์
+                                attachment: "มีเอกสารแนบ (โปรดตรวจสอบในระบบฐานข้อมูล)" // ส่งข้อความเอกสารแนบ
                             })
                         }).catch(err => console.error("LINE Notify Error: ", err));
                         // ===== จบ: โค้ดส่งแจ้งเตือนเข้า LINE =====
